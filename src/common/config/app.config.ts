@@ -1,24 +1,12 @@
-import { envSchema } from './env.schema';
-import type { AppEnvironment } from './env.types';
+import { registerAs } from '@nestjs/config';
+import { NodeEnvironment } from 'src/common/config/env.types';
 
-export function appConfig(): AppEnvironment {
-  const result = envSchema.validate(
-    {
-      PORT: process.env.PORT,
-      NODE_ENV: process.env.NODE_ENV,
-    },
-    {
-      abortEarly: false,
-      convert: true,
-    },
-  );
-
-  if (result.error) {
-    throw new Error(`Config validation error: ${result.error.message}`);
-  }
+export default registerAs('app', () => {
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  const nodeEnv = (process.env.NODE_ENV as NodeEnvironment) || 'development';
 
   return {
-    port: result.value.PORT,
-    nodeEnv: result.value.NODE_ENV,
+    port,
+    nodeEnv,
   };
-}
+});

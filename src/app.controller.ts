@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { AppEnvironment } from './common/config/env.types';
 import { AppService } from './app.service';
+import type { AppEnvironment } from './common/config/env.types';
 @Controller()
 export class AppController {
   constructor(

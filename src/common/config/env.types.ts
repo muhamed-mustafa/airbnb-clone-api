@@ -8,10 +8,11 @@ export const NODE_ENVIRONMENTS = [
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 
 export interface AppEnvironment {
+  // app: {
   port: number;
   nodeEnv: NodeEnvironment;
+  // };
 }
 export interface EnvironmentVariables {
-  PORT: number;
-  NODE_ENV: NodeEnvironment;
+  port: number;
 }
