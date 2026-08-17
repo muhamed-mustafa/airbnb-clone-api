@@ -1,9 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpStatus,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nService, I18nValidationException } from 'nestjs-i18n';
 import { formatInputValidationErrors } from '../input-validation/format-input-validation-errors';
@@ -16,11 +11,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const formattedErrors = formatInputValidationErrors(
-      exception.errors,
-      this.i18nService,
-      host,
-    );
+    const formattedErrors = formatInputValidationErrors(exception.errors, this.i18nService, host);
 
     response.status(HttpStatus.BAD_REQUEST).json({
       errors: formattedErrors,
