@@ -6,4 +6,5 @@ export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object({
   NODE_ENV: Joi.string()
     .valid(...NODE_ENVIRONMENTS)
     .default('development'),
+  MONGO_URI: Joi.string().required(),
 });
