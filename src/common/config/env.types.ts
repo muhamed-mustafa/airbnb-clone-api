@@ -3,11 +3,11 @@ export const NODE_ENVIRONMENTS = ['development', 'test', 'staging', 'production'
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 
 export interface AppEnvironment {
-  // app: {
   port: number;
   nodeEnv: NodeEnvironment;
-  // };
 }
 export interface EnvironmentVariables {
   port: number;
+  fallbackLanguage: string;
+  MONGO_URI: string;
 }
