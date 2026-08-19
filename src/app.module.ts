@@ -4,9 +4,10 @@ import { CustomExceptionFilter } from './common/errors-handling/filters/custom-e
 import { ValidationExceptionFilter } from './common/errors-handling/filters/validation-exception.filter';
 import { CoreModule } from './core.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [CoreModule, UsersModule],
+  imports: [CoreModule, UsersModule, AuthModule],
   providers: [
     {
       provide: APP_FILTER,

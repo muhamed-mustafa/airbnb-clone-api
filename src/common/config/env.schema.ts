@@ -8,4 +8,6 @@ export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object({
     .default('development'),
   MONGO_URI: Joi.string().required(),
   FALLBACK_LANGUAGE: Joi.string().valid('en', 'ar').default('en'),
+  JWT_SECRET: Joi.string().required(),
+  ACCESS_TOKEN_EXPIRE_IN: Joi.string().default('7d'),
 });
