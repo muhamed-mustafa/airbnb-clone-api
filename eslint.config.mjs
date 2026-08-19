@@ -8,6 +8,8 @@ export default tseslint.config(
   {
     ignores: [
       'eslint.config.mjs',
+      'lint-staged.config.mjs',
+      'commitlint.config.mjs',
       'dist/**',
       'node_modules/**',
       'coverage/**',
@@ -47,4 +49,3 @@ export default tseslint.config(
     },
   },
 );
-
