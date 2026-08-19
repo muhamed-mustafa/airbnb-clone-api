@@ -7,7 +7,6 @@ import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [CoreModule, UsersModule],
-
   providers: [
     {
       provide: APP_FILTER,

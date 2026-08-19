@@ -5,7 +5,6 @@ import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
 import * as path from 'path';
 import envMapper from './common/config/env.mapper';
 import { envSchema } from './common/config/env.schema';
-import { EnvironmentVariables } from './common/config/env.types';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,15 +14,13 @@ import { EnvironmentVariables } from './common/config/env.types';
       validationSchema: envSchema,
     }),
 
-    I18nModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<EnvironmentVariables>) => ({
-        fallbackLanguage: configService.getOrThrow('fallbackLanguage', { infer: true }),
-        loaderOptions: {
-          path: path.join(__dirname, '/i18n/'),
-          watch: true,
-        },
-      }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n/'),
+        watch: true,
+      },
 
       resolvers: [AcceptLanguageResolver],
     }),
