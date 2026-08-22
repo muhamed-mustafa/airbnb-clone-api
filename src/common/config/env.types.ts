@@ -7,9 +7,11 @@ export interface AppEnvironment {
   nodeEnv: NodeEnvironment;
 }
 export interface EnvironmentVariables {
-  port: number;
-  fallbackLanguage: string;
+  PORT: number;
+  FALLBACK_LANGUAGE: string;
   MONGO_URI: string;
   JWT_SECRET: string;
+  REFRESH_TOKEN_SECRET: string;
   ACCESS_TOKEN_EXPIRE_IN: string;
+  REFRESH_TOKEN_EXPIRE_IN: string;
 }
