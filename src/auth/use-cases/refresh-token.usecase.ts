@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,8 +7,6 @@ import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { I18nService } from 'nestjs-i18n';
 import { EnvironmentVariables } from '../../common/config/env.types';
-import { NotFoundException } from '../../common/errors-handling/custom-exceptions/not-found.exception';
-import { UnauthorizedException } from '../../common/errors-handling/custom-exceptions/unauthorized.exception';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { RefreshToken } from '../schemas/refresh-token.schema';

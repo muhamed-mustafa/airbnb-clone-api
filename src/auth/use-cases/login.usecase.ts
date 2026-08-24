@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as argon2id from 'argon2';
 import { plainToInstance } from 'class-transformer';
 import { I18nService } from 'nestjs-i18n';
-import { NotFoundException } from '../../common/errors-handling/custom-exceptions/not-found.exception';
 import { UsersService } from '../../users/users.service';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { LoginDto } from '../dtos/login.dto';
