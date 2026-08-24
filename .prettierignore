@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build and compiled output
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Package manager lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Temporary and cache directories
+.temp/
+.tmp/
