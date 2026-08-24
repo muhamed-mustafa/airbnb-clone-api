@@ -57,6 +57,14 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Development Standards
+
+This project follows documented Git, commit, and code-quality conventions.
+
+See:
+
+- [Git Workflow & Commit Conventions](docs/git-workflow.md)
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

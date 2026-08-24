@@ -9,7 +9,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     response.status(exception.status).json({
-      errors: exception.formateError(),
+      errors: exception.formatError(),
     });
   }
 }

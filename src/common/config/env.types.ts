@@ -3,11 +3,15 @@ export const NODE_ENVIRONMENTS = ['development', 'test', 'staging', 'production'
 export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 
 export interface AppEnvironment {
-  // app: {
   port: number;
   nodeEnv: NodeEnvironment;
-  // };
 }
 export interface EnvironmentVariables {
-  port: number;
+  PORT: number;
+  FALLBACK_LANGUAGE: string;
+  MONGO_URI: string;
+  JWT_SECRET: string;
+  REFRESH_TOKEN_SECRET: string;
+  ACCESS_TOKEN_EXPIRE_IN: string;
+  REFRESH_TOKEN_EXPIRE_IN: string;
 }

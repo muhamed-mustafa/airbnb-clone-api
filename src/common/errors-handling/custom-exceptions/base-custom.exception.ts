@@ -8,7 +8,7 @@ export abstract class BaseCustomException extends Error {
     super(message);
   }
 
-  formateError(): ErrorResponseInterface[] {
+  formatError(): ErrorResponseInterface[] {
     return [{ message: this.message }];
   }
 }

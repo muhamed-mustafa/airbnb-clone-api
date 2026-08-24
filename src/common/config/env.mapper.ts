@@ -1,23 +1,11 @@
 import { EnvironmentVariables } from '../../common/config/env.types';
-import { developmentEnv } from './environments/development.env';
-import { productionEnv } from './environments/production.env';
-import { stagingEnv } from './environments/staging.env';
-import { testEnv } from './environments/test.env';
 
-const environmentConfig: Record<string, () => EnvironmentVariables> = {
-  development: developmentEnv,
-  test: testEnv,
-  staging: stagingEnv,
-  production: productionEnv,
-};
-
-export default (): EnvironmentVariables => {
-  const nodeEnv = process.env.NODE_ENV || 'development';
-  const envConfig = environmentConfig[nodeEnv];
-
-  if (!envConfig) {
-    throw new Error(`Invalid NODE_ENV value: ${nodeEnv}`);
-  }
-
-  return envConfig();
-};
+export default (): EnvironmentVariables => ({
+  PORT: Number(process.env.PORT ?? 3000),
+  FALLBACK_LANGUAGE: (process.env.FALLBACK_LANGUAGE as string) ?? 'en',
+  MONGO_URI: process.env.MONGO_URI as string,
+  JWT_SECRET: process.env.JWT_SECRET as string,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
+  ACCESS_TOKEN_EXPIRE_IN: process.env.ACCESS_TOKEN_EXPIRE_IN as string,
+  REFRESH_TOKEN_EXPIRE_IN: process.env.REFRESH_TOKEN_EXPIRE_IN as string,
+});
