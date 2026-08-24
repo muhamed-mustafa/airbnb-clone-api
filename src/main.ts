@@ -17,6 +17,7 @@ async function bootstrap() {
     new I18nValidationPipe({
       whitelist: true,
       transform: true,
+      forbidNonWhitelisted: true,
     }),
   );
 

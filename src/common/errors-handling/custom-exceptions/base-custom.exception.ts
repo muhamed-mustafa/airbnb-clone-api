@@ -1,11 +1,9 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorResponseInterface } from '../error-response.interface';
 
-export abstract class BaseCustomException extends Error {
-  abstract status: HttpStatus;
-
-  protected constructor(message: string) {
-    super(message);
+export abstract class BaseCustomException extends HttpException {
+  protected constructor(message: string, status: HttpStatus = HttpStatus.BAD_REQUEST) {
+    super(message, status);
   }
 
   formatError(): ErrorResponseInterface[] {

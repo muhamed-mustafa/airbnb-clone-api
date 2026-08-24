@@ -8,7 +8,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    response.status(exception.status).json({
+    response.status(exception.getStatus()).json({
       errors: exception.formatError(),
     });
   }
