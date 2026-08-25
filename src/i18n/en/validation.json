@@ -1,0 +1,9 @@
+{
+  "isNotEmpty": "This field is required",
+  "isString": "This field must be a string",
+  "isEmail": "Please provide a valid email address",
+  "isPhoneNumber": "Please provide a valid phone number",
+  "minLength": "This field must be at least {constraints.0} characters",
+  "maxLength": "This field must not exceed {constraints.0} characters",
+  "password": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+}

@@ -38,6 +38,9 @@ importers:
       joi:
         specifier: ^18.2.3
         version: 18.2.3
+      libphonenumber-js:
+        specifier: ^1.13.11
+        version: 1.13.11
       mongodb:
         specifier: ^7.5.0
         version: 7.5.0

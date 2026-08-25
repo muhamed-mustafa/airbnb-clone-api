@@ -11,9 +11,10 @@ export function formatInputValidationErrors(
   const lang = I18nContext.current(host)?.lang ?? 'en';
 
   return errors.flatMap((error) =>
-    Object.values(error.constraints ?? {}).map((message) => ({
+    Object.values(error.constraints ?? {}).map((code) => ({
+      code,
       field: error.property,
-      message: i18n.translate(message, { lang }),
+      message: i18n.translate(code, { lang }),
     })),
   );
 }
