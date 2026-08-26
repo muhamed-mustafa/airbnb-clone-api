@@ -20,7 +20,7 @@ export class RegisterUseCase {
     if (!phoneNumber)
       throw new BadRequestException({ code: ERROR_CODES.INVALID_PHONE_NUMBER, field: 'phone' });
 
-    const user = await this.userService.create(body);
+    const user = await this.userService.create({ ...body, phone: phoneNumber.number });
     const { accessToken, refreshToken } = await this.generateToken.execute(user.id.toString());
     return plainToInstance(AuthResponseDto, { accessToken, refreshToken });
   }

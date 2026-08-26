@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as argon2 from 'argon2';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
-import { isDuplicateKeyError } from '../../common/database/is-duplicate-key-error';
+import { getDuplicateKeyField } from '../../common/database/is-duplicate-key-error';
 import { ERROR_CODES } from '../../common/errors-handling/error-codes';
-import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
+import { CreateUserInput } from '../inputs/create-user.input';
 import { User } from '../schemas/user.schema';
 
 @Injectable()
@@ -16,15 +16,17 @@ export class CreateUserUseCase {
     private readonly userModel: Model<User>,
   ) {}
 
-  async execute(body: CreateUserDto): Promise<UserResponseDto> {
+  async execute(body: CreateUserInput): Promise<UserResponseDto> {
     const { email, phone, password } = body;
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     const existingUser = await this.userModel.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email: normalizedEmail }, { phone }],
     });
 
     if (existingUser) {
-      const field = existingUser.email === email ? 'email' : 'phone';
+      const field = existingUser.email === normalizedEmail ? 'email' : 'phone';
       throw new ConflictException({ code: ERROR_CODES.USER_ALREADY_EXISTS, field });
     }
 
@@ -33,16 +35,21 @@ export class CreateUserUseCase {
     try {
       const user = await this.userModel.create({
         ...body,
+        email: normalizedEmail,
         password: hashedPassword,
       });
 
       return plainToInstance(UserResponseDto, user);
-    } catch (error) {
-      if (isDuplicateKeyError(error)) {
+    } catch (error: unknown) {
+      const duplicateField = getDuplicateKeyField(error);
+
+      if (duplicateField === 'email' || duplicateField === 'phone') {
         throw new ConflictException({
           code: ERROR_CODES.USER_ALREADY_EXISTS,
+          field: duplicateField,
         });
       }
+
       throw error;
     }
   }
