@@ -17,9 +17,12 @@ export class RegisterUseCase {
   async execute(body: RegisterDto): Promise<AuthResponseDto> {
     const phoneNumber = parseAndValidatePhone(body.countryCode, body.phone);
 
-    if (!phoneNumber)
-      throw new BadRequestException({ code: ERROR_CODES.INVALID_PHONE_NUMBER, field: 'phone' });
-
+    if (!phoneNumber) {
+      throw new BadRequestException({
+        code: ERROR_CODES.INVALID_PHONE_NUMBER,
+        field: 'phone',
+      });
+    }
     const user = await this.userService.create({ ...body, phone: phoneNumber.number });
     const { accessToken, refreshToken } = await this.generateToken.execute(user.id.toString());
     return plainToInstance(AuthResponseDto, { accessToken, refreshToken });

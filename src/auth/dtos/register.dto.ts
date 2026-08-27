@@ -1,39 +1,16 @@
-import { Transform, type TransformFnParams } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEmail } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
+import { normalizeEmail, trimString } from '../../common/utils/transformers.util';
+import { IsRequiredString } from '../../common/validators/is-required-string.decorator';
 
 export class RegisterDto {
-  @Transform(({ value }: TransformFnParams): unknown => {
-    if (typeof value === 'string') {
-      return value.trim();
-    }
-
-    return value;
-  })
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.isNotEmpty'),
-  })
-  @IsString({
-    message: i18nValidationMessage('validation.isString'),
-  })
-  @MinLength(2, {
-    message: i18nValidationMessage('validation.minLength'),
-  })
-  @MaxLength(50, {
-    message: i18nValidationMessage('validation.maxLength'),
-  })
+  @Transform(trimString)
+  @IsRequiredString({ min: 2, max: 50 })
   name!: string;
 
-  @Transform(({ value }: TransformFnParams): unknown => {
-    if (typeof value === 'string') {
-      return value.trim().toLowerCase();
-    }
-
-    return value;
-  })
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.isNotEmpty'),
-  })
+  @Transform(normalizeEmail)
+  @IsRequiredString()
   @IsEmail(
     {},
     {
@@ -42,43 +19,14 @@ export class RegisterDto {
   )
   email!: string;
 
-  @Transform(({ value }: TransformFnParams): unknown => {
-    if (typeof value === 'string') {
-      return value.trim();
-    }
-
-    return value;
-  })
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.isNotEmpty'),
-  })
-  @IsString({
-    message: i18nValidationMessage('validation.isString'),
-  })
+  @Transform(trimString)
+  @IsRequiredString()
   countryCode!: string;
 
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.isNotEmpty'),
-  })
-  @IsString({
-    message: i18nValidationMessage('validation.isString'),
-  })
+  @Transform(trimString)
+  @IsRequiredString()
   phone!: string;
 
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.isNotEmpty'),
-  })
-  @IsString({
-    message: i18nValidationMessage('validation.isString'),
-  })
-  @MinLength(8, {
-    message: i18nValidationMessage('validation.minLength'),
-  })
-  @MaxLength(128, {
-    message: i18nValidationMessage('validation.maxLength'),
-  })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/, {
-    message: i18nValidationMessage('validation.password'),
-  })
+  @IsRequiredString({ min: 8, max: 128 })
   password!: string;
 }
