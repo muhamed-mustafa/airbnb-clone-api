@@ -34,7 +34,8 @@ export class CreateUserUseCase {
 
     try {
       const user = await this.userModel.create({
-        ...body,
+        name: body.name,
+        phone: body.phone.trim(),
         email: normalizedEmail,
         password: hashedPassword,
       });
