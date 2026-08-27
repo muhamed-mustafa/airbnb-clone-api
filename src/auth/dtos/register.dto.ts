@@ -1,7 +1,15 @@
+import { Transform, type TransformFnParams } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class RegisterDto {
+  @Transform(({ value }: TransformFnParams): unknown => {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    return value;
+  })
   @IsNotEmpty({
     message: i18nValidationMessage('validation.isNotEmpty'),
   })
@@ -16,6 +24,13 @@ export class RegisterDto {
   })
   name!: string;
 
+  @Transform(({ value }: TransformFnParams): unknown => {
+    if (typeof value === 'string') {
+      return value.trim().toLowerCase();
+    }
+
+    return value;
+  })
   @IsNotEmpty({
     message: i18nValidationMessage('validation.isNotEmpty'),
   })
@@ -27,6 +42,13 @@ export class RegisterDto {
   )
   email!: string;
 
+  @Transform(({ value }: TransformFnParams): unknown => {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    return value;
+  })
   @IsNotEmpty({
     message: i18nValidationMessage('validation.isNotEmpty'),
   })

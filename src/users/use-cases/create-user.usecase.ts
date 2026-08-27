@@ -17,16 +17,14 @@ export class CreateUserUseCase {
   ) {}
 
   async execute(body: CreateUserInput): Promise<UserResponseDto> {
-    const { email, phone, password } = body;
-
-    const normalizedEmail = email.toLowerCase().trim();
+    const { name, email, phone, password } = body;
 
     const existingUser = await this.userModel.findOne({
-      $or: [{ email: normalizedEmail }, { phone }],
+      $or: [{ email }, { phone }],
     });
 
     if (existingUser) {
-      const field = existingUser.email === normalizedEmail ? 'email' : 'phone';
+      const field = existingUser.email === email ? 'email' : 'phone';
       throw new ConflictException({ code: ERROR_CODES.USER_ALREADY_EXISTS, field });
     }
 
@@ -34,9 +32,9 @@ export class CreateUserUseCase {
 
     try {
       const user = await this.userModel.create({
-        name: body.name,
-        phone: body.phone.trim(),
-        email: normalizedEmail,
+        name,
+        phone,
+        email,
         password: hashedPassword,
       });
 
