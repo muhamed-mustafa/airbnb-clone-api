@@ -1,20 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as argon2 from 'argon2';
+import { plainToInstance } from 'class-transformer';
 import { HydratedDocument, Model, QueryFilter } from 'mongoose';
+import { getDuplicateKeyField } from '../common/database/is-duplicate-key-error';
+import { ERROR_CODES } from '../common/errors-handling/error-codes';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { CreateUserInput } from './inputs/create-user.input';
 import { User } from './schemas/user.schema';
-import { CreateUserUseCase } from './use-cases/create-user.usecase';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private readonly createUserUseCase: CreateUserUseCase,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  create(user: CreateUserInput): Promise<UserResponseDto> {
-    return this.createUserUseCase.execute(user);
+  async create(user: CreateUserInput): Promise<UserResponseDto> {
+    const { name, email, phone, password } = user;
+
+    const existingUser = await this.userModel.findOne({
+      $or: [{ email }, { phone }],
+    });
+
+    if (existingUser) {
+      const field = existingUser.email === email ? 'email' : 'phone';
+      throw new ConflictException({ code: ERROR_CODES.USER_ALREADY_EXISTS, field });
+    }
+
+    const hashedPassword = await argon2.hash(password);
+
+    try {
+      const user = await this.userModel.create({
+        name,
+        phone,
+        email,
+        password: hashedPassword,
+      });
+
+      return plainToInstance(UserResponseDto, user);
+    } catch (error: unknown) {
+      const duplicateField = getDuplicateKeyField(error);
+
+      if (duplicateField === 'email' || duplicateField === 'phone') {
+        throw new ConflictException({
+          code: ERROR_CODES.USER_ALREADY_EXISTS,
+          field: duplicateField,
+        });
+      }
+
+      throw error;
+    }
   }
 
   findOne(filter: QueryFilter<User>): Promise<HydratedDocument<User> | null> {

@@ -1,7 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from './schemas/user.schema';
-import { CreateUserUseCase } from './use-cases/create-user.usecase';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -17,7 +16,6 @@ describe('UsersService', () => {
             findOne: jest.fn().mockReturnValue({ exec: jest.fn() }),
           },
         },
-        { provide: CreateUserUseCase, useValue: { execute: jest.fn() } },
       ],
     }).compile();
 
