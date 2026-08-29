@@ -1,6 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as argon2 from 'argon2';
 import { plainToInstance } from 'class-transformer';
 import { HydratedDocument, Model, QueryFilter } from 'mongoose';
 import { getDuplicateKeyField } from '../common/database/is-duplicate-key-error';
@@ -25,14 +24,12 @@ export class UsersService {
       throw new ConflictException({ code: ERROR_CODES.USER_ALREADY_EXISTS, field });
     }
 
-    const hashedPassword = await argon2.hash(password);
-
     try {
       const user = await this.userModel.create({
         name,
         phone,
         email,
-        password: hashedPassword,
+        password,
       });
 
       return plainToInstance(UserResponseDto, user);

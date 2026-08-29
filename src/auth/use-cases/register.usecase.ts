@@ -5,6 +5,7 @@ import { parseAndValidatePhone } from '../../common/utils/phone.util';
 import { UsersService } from '../../users/users.service';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { RegisterDto } from '../dtos/register.dto';
+import { PasswordService } from '../services/password.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class RegisterUseCase {
   constructor(
     private readonly userService: UsersService,
     private readonly generateToken: GenerateTokenUseCase,
+    private readonly passwordService: PasswordService,
   ) {}
 
   async execute(body: RegisterDto): Promise<AuthResponseDto> {
@@ -23,8 +25,13 @@ export class RegisterUseCase {
         field: 'phone',
       });
     }
-    const user = await this.userService.create({ ...body, phone: phoneNumber.number });
+
+    const password = await this.passwordService.hash(body.password);
+
+    const user = await this.userService.create({ ...body, password, phone: phoneNumber.number });
+
     const { accessToken, refreshToken } = await this.generateToken.execute(user.id.toString());
+
     return plainToInstance(AuthResponseDto, { accessToken, refreshToken });
   }
 }

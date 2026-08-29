@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-token.schema';
+import { PasswordService } from './services/password.service';
 import { GenerateTokenUseCase } from './use-cases/generate-token.usecase';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { RefreshTokenUseCase } from './use-cases/refresh-token.usecase';
@@ -31,6 +32,8 @@ import { RegisterUseCase } from './use-cases/register.usecase';
     LoginUseCase,
     RefreshTokenUseCase,
     GenerateTokenUseCase,
+    PasswordService,
   ],
+  exports: [PasswordService],
 })
 export class AuthModule {}
