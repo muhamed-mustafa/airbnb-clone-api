@@ -28,7 +28,7 @@ export class RegisterUseCase {
 
     const password = await this.passwordService.hash(body.password);
 
-    const user = await this.userService.create({ ...body, password, phone: phoneNumber.number });
+    const user = await this.userService.create({ ...body, password, phone: phoneNumber });
 
     const { accessToken, refreshToken } = await this.generateToken.execute(user.id.toString());
 
