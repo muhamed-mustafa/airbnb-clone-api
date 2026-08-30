@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import * as argon2id from 'argon2';
 import { plainToInstance } from 'class-transformer';
 import { I18nService } from 'nestjs-i18n';
 import { UsersService } from '../../users/users.service';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { LoginDto } from '../dtos/login.dto';
+import { PasswordService } from '../services/password.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
 @Injectable()
@@ -13,6 +13,7 @@ export class LoginUseCase {
     private readonly userService: UsersService,
     private readonly generateToken: GenerateTokenUseCase,
     private readonly i18nService: I18nService,
+    private readonly passwordService: PasswordService,
   ) {}
 
   async execute(body: LoginDto): Promise<AuthResponseDto> {
@@ -20,7 +21,7 @@ export class LoginUseCase {
 
     if (!user) throw new NotFoundException(this.i18nService.translate('auth.INVALID_CREDENTIALS'));
 
-    const isValidPassword = await argon2id.verify(user.password, body.password);
+    const isValidPassword = await this.passwordService.verify(body.password, user.password);
 
     if (!isValidPassword)
       throw new NotFoundException(this.i18nService.translate('auth.INVALID_CREDENTIALS'));
