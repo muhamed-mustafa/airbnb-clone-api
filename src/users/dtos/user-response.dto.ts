@@ -15,7 +15,4 @@ export class UserResponseDto {
 
   @Exclude()
   password!: string;
-
-  @Exclude()
-  __v!: number;
 }

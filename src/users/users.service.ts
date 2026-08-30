@@ -1,53 +1,24 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Inject, Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { HydratedDocument, Model, QueryFilter } from 'mongoose';
-import { getDuplicateKeyField } from '../common/database/is-duplicate-key-error';
-import { ERROR_CODES } from '../common/errors-handling/error-codes';
 import { UserResponseDto } from './dtos/user-response.dto';
+import { UserEntity } from './entities/user.entity';
 import { CreateUserInput } from './inputs/create-user.input';
-import { User } from './schemas/user.schema';
+import { UserFilter } from './repositories/user-filter';
+import { USER_REPOSITORY_TOKEN } from './repositories/user-repository.token';
+import type { UserRepository } from './repositories/users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @Inject(USER_REPOSITORY_TOKEN)
+    private readonly userRepository: UserRepository,
+  ) {}
 
-  async create(user: CreateUserInput): Promise<UserResponseDto> {
-    const { name, email, phone, password } = user;
-
-    const existingUser = await this.userModel.findOne({
-      $or: [{ email }, { phone }],
-    });
-
-    if (existingUser) {
-      const field = existingUser.email === email ? 'email' : 'phone';
-      throw new ConflictException({ code: ERROR_CODES.USER_ALREADY_EXISTS, field });
-    }
-
-    try {
-      const user = await this.userModel.create({
-        name,
-        phone,
-        email,
-        password,
-      });
-
-      return plainToInstance(UserResponseDto, user);
-    } catch (error: unknown) {
-      const duplicateField = getDuplicateKeyField(error);
-
-      if (duplicateField === 'email' || duplicateField === 'phone') {
-        throw new ConflictException({
-          code: ERROR_CODES.USER_ALREADY_EXISTS,
-          field: duplicateField,
-        });
-      }
-
-      throw error;
-    }
+  async create(data: CreateUserInput): Promise<UserResponseDto> {
+    const user = await this.userRepository.create(data);
+    return plainToInstance(UserResponseDto, user);
   }
-
-  findOne(filter: QueryFilter<User>): Promise<HydratedDocument<User> | null> {
-    return this.userModel.findOne(filter).exec();
+  findOne(filter: UserFilter): Promise<UserEntity | null> {
+    return this.userRepository.findOne(filter);
   }
 }
