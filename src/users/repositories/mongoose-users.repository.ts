@@ -1,21 +1,20 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { plainToInstance } from 'class-transformer';
-import { Model, QueryFilter } from 'mongoose';
+import { Model } from 'mongoose';
 import { getDuplicateKeyField } from '../../common/database/is-duplicate-key-error';
 import { ERROR_CODES } from '../../common/errors-handling/error-codes';
-import { UserResponseDto } from '../dtos/user-response.dto';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserInput } from '../inputs/create-user.input';
 import { UserMapper } from '../mappers/user.mapper';
 import { User } from '../schemas/user.schema';
+import { UserFilter } from './user-filter';
 import { UserRepository } from './users.repository';
 
 @Injectable()
 export class MongooseUsersRepository implements UserRepository {
   constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
-  async create(user: CreateUserInput): Promise<UserResponseDto> {
+  async create(user: CreateUserInput): Promise<UserEntity> {
     const { name, email, phone, password } = user;
 
     const existingUser = await this.userModel.findOne({
@@ -35,7 +34,7 @@ export class MongooseUsersRepository implements UserRepository {
         password,
       });
 
-      return plainToInstance(UserResponseDto, user);
+      return UserMapper.toResponse(user);
     } catch (error: unknown) {
       const duplicateField = getDuplicateKeyField(error);
 
@@ -50,7 +49,7 @@ export class MongooseUsersRepository implements UserRepository {
     }
   }
 
-  async findOne(filter: QueryFilter<User>): Promise<UserEntity | null> {
+  async findOne(filter: UserFilter): Promise<UserEntity | null> {
     const user = await this.userModel.findOne(filter);
     if (!user) return null;
     return UserMapper.toResponse(user);
