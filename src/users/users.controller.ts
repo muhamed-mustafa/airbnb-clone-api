@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { CreateUserDto } from './dtos/create-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
-import type { CreateUserInput } from './inputs/create-user.input';
 import { UserMapper } from './mappers/user.mapper';
 import { UsersService } from './users.service';
 
@@ -9,8 +9,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() data: CreateUserInput): Promise<UserResponseDto> {
-    const user = await this.usersService.create(data);
+  async create(@Body() data: CreateUserDto): Promise<UserResponseDto> {
+    const input = UserMapper.toInput(data);
+    const user = await this.usersService.create(input);
     return UserMapper.toResponse(user);
   }
 }
