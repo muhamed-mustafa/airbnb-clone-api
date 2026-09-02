@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
-import { RegisterDto } from './dtos/register.dto';
+import { RegisterInput } from './inputs/register.input';
+import { RegisterOutput } from './outputs/register.output';
 import { LoginUseCase } from './use-cases/login.usecase';
 import { RefreshTokenUseCase } from './use-cases/refresh-token.usecase';
 import { RegisterUseCase } from './use-cases/register.usecase';
@@ -15,8 +16,8 @@ export class AuthService {
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
   ) {}
 
-  async register(body: RegisterDto): Promise<AuthResponseDto> {
-    return this.registerUseCase.execute(body);
+  async register(input: RegisterInput): Promise<RegisterOutput> {
+    return await this.registerUseCase.execute(input);
   }
 
   async login(body: LoginDto): Promise<AuthResponseDto> {

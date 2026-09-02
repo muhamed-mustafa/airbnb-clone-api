@@ -4,7 +4,8 @@ import { ERROR_CODES } from '../../common/errors-handling/error-codes';
 import { parseAndValidatePhone } from '../../common/utils/phone.util';
 import { UsersService } from '../../users/users.service';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { RegisterDto } from '../dtos/register.dto';
+import { RegisterInput } from '../inputs/register.input';
+import { RegisterOutput } from '../outputs/register.output';
 import { PasswordService } from '../services/password.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
@@ -16,7 +17,7 @@ export class RegisterUseCase {
     private readonly passwordService: PasswordService,
   ) {}
 
-  async execute(body: RegisterDto): Promise<AuthResponseDto> {
+  async execute(body: RegisterInput): Promise<RegisterOutput> {
     const phoneNumber = parseAndValidatePhone(body.countryCode, body.phone);
 
     if (!phoneNumber) {
