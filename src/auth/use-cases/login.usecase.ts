@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { I18nService } from 'nestjs-i18n';
 import { UsersService } from '../../users/users.service';
-import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { LoginDto } from '../dtos/login.dto';
+import { LoginInput } from '../inputs/login.input';
+import { LoginOutput } from '../outputs/login.output';
 import { PasswordService } from '../services/password.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
@@ -16,7 +15,7 @@ export class LoginUseCase {
     private readonly passwordService: PasswordService,
   ) {}
 
-  async execute(body: LoginDto): Promise<AuthResponseDto> {
+  async execute(body: LoginInput): Promise<LoginOutput> {
     const user = await this.userService.findOne({ email: body.email });
 
     if (!user) throw new NotFoundException(this.i18nService.translate('auth.INVALID_CREDENTIALS'));
@@ -26,8 +25,8 @@ export class LoginUseCase {
     if (!isValidPassword)
       throw new NotFoundException(this.i18nService.translate('auth.INVALID_CREDENTIALS'));
 
-    const { accessToken, refreshToken } = await this.generateToken.execute(user.id.toString());
+    const { accessToken, refreshToken } = await this.generateToken.execute(user.id);
 
-    return plainToInstance(AuthResponseDto, { accessToken, refreshToken });
+    return { accessToken, refreshToken };
   }
 }

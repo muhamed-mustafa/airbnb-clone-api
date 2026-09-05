@@ -3,12 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as argon2d from 'argon2';
-import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { I18nService } from 'nestjs-i18n';
 import { EnvironmentVariables } from '../../common/config/env.types';
-import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { RefreshTokenInput } from '../inputs/refresh-token.input';
+import { RefreshTokenOutput } from '../outputs/refresh-token.output';
 import { RefreshToken } from '../schemas/refresh-token.schema';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
@@ -23,7 +22,7 @@ export class RefreshTokenUseCase {
     private readonly generateToken: GenerateTokenUseCase,
   ) {}
 
-  async execute(body: RefreshTokenDto): Promise<AuthResponseDto> {
+  async execute(body: RefreshTokenInput): Promise<RefreshTokenOutput> {
     type DecodedToken = { id: string; type: string };
 
     let decodedToken: DecodedToken;
@@ -50,9 +49,9 @@ export class RefreshTokenUseCase {
       throw new NotFoundException(this.i18nService.translate('auth.INVALID_TOKEN'));
 
     const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.execute(
-      decodedToken.id?.toString(),
+      decodedToken.id,
     );
 
-    return plainToInstance(AuthResponseDto, { accessToken, refreshToken: newRefreshToken });
+    return { accessToken, refreshToken: newRefreshToken };
   }
 }
