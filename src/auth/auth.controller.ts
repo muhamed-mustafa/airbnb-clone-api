@@ -18,12 +18,16 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body);
+  async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
+    const input = AuthMapper.toLoginInput(body);
+    const output = await this.authService.login(input);
+    return AuthMapper.toAuthResponse(output);
   }
 
   @Post('refresh-token')
-  refreshToken(@Body() body: RefreshTokenDto) {
-    return this.authService.refreshToken(body);
+  async refreshToken(@Body() body: RefreshTokenDto): Promise<AuthResponseDto> {
+    const input = AuthMapper.toRefreshTokenInput(body);
+    const output = await this.authService.refreshToken(input);
+    return AuthMapper.toAuthResponse(output);
   }
 }
