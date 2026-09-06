@@ -1,0 +1,1 @@
+export const TOKEN_SERVICE_TOKEN = Symbol('TOKEN_SERVICE_TOKEN');
