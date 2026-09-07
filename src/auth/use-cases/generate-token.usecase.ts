@@ -1,49 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import * as argon2d from 'argon2';
-import { Model } from 'mongoose';
-import { EnvironmentVariables } from '../../common/config/env.types';
-import { RefreshToken } from '../schemas/refresh-token.schema';
+import { Inject, Injectable } from '@nestjs/common';
+import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';
+import type { RefreshTokenRepository } from '../repositories/refresh-token.repository';
+import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';
+import type { SecretHashService } from '../services/secret-hash.service';
+import { TOKEN_SERVICE_TOKEN } from '../services/token-service.token';
+import type { TokenService } from '../services/token.service';
 
 @Injectable()
 export class GenerateTokenUseCase {
   constructor(
-    @InjectModel(RefreshToken.name)
-    private readonly refreshTokenModel: Model<RefreshToken>,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService<EnvironmentVariables>,
+    @Inject(REFRESH_TOKEN_REPOSITORY)
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    @Inject(TOKEN_SERVICE_TOKEN)
+    private readonly tokenService: TokenService,
+    @Inject(SECRET_HASH_SERVICE_TOKEN)
+    private readonly secretHashService: SecretHashService,
   ) {}
 
   async execute(id: string) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { id, type: 'access' },
-        {
-          secret: this.configService.get('JWT_SECRET'),
-          expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRE_IN'),
-        },
-      ),
-      this.jwtService.signAsync(
-        { id, type: 'refresh' },
-        {
-          secret: this.configService.get('JWT_SECRET'),
-          expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRE_IN'),
-        },
-      ),
+      this.tokenService.generateAccessToken(id),
+      this.tokenService.generateRefreshToken(id),
     ]);
 
-    const hashedRefreshToken = await argon2d.hash(refreshToken);
+    const hashedRefreshToken = await this.secretHashService.hash(refreshToken);
 
-    await this.refreshTokenModel.findOneAndUpdate(
-      { userId: id },
-      {
-        userId: id,
-        token: hashedRefreshToken,
-      },
-      { returnDocument: 'after', upsert: true },
-    );
+    await this.refreshTokenRepository.save(id, hashedRefreshToken);
 
     return {
       accessToken,

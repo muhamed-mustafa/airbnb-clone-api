@@ -27,4 +27,24 @@ export class JwtTokenService implements TokenService {
       throw new UnauthorizedException(this.i18nService.translate('auth.INVALID_TOKEN'));
     }
   }
+
+  async generateAccessToken(userId: string): Promise<string> {
+    return this.jwtService.signAsync<{ id: string; type: string }>(
+      { id: userId, type: 'access' },
+      {
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
+        expiresIn: this.configService.getOrThrow<number>('ACCESS_TOKEN_EXPIRE_IN'),
+      },
+    );
+  }
+
+  async generateRefreshToken(userId: string): Promise<string> {
+    return this.jwtService.signAsync<{ id: string; type: string }>(
+      { id: userId, type: 'refresh' },
+      {
+        secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
+        expiresIn: this.configService.getOrThrow<number>('REFRESH_TOKEN_EXPIRE_IN'),
+      },
+    );
+  }
 }

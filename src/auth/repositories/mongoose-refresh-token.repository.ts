@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { RefreshToken } from '../schemas/refresh-token.schema';
 import { RefreshTokenRepository } from './refresh-token.repository';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MongooseRefreshTokenRepository implements RefreshTokenRepository {
@@ -20,5 +20,13 @@ export class MongooseRefreshTokenRepository implements RefreshTokenRepository {
       userId: refreshToken.userId,
       token: refreshToken.token,
     };
+  }
+
+  async save(userId: string, token: string): Promise<void> {
+    await this.refreshTokenModel.findOneAndUpdate(
+      { userId },
+      { userId, token },
+      { upsert: true, returnDocument: 'after' },
+    );
   }
 }
