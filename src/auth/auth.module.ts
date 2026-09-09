@@ -11,7 +11,6 @@ import { MongooseRefreshTokenRepository } from './repositories/mongoose-refresh-
 import { REFRESH_TOKEN_REPOSITORY } from './repositories/refresh-token-repository.token';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refresh-token.schema';
 import { JwtTokenService } from './services/jwt-token-service';
-import { PasswordService } from './services/password.service';
 import { SECRET_HASH_SERVICE_TOKEN } from './services/secret-hash-service.token';
 import { TOKEN_SERVICE_TOKEN } from './services/token-service.token';
 import { GenerateTokenUseCase } from './use-cases/generate-token.usecase';
@@ -38,11 +37,10 @@ import { RegisterUseCase } from './use-cases/register.usecase';
     LoginUseCase,
     RefreshTokenUseCase,
     GenerateTokenUseCase,
-    PasswordService,
     { provide: REFRESH_TOKEN_REPOSITORY, useClass: MongooseRefreshTokenRepository },
     { provide: TOKEN_SERVICE_TOKEN, useClass: JwtTokenService },
     { provide: SECRET_HASH_SERVICE_TOKEN, useClass: Argon2SecretHashService },
   ],
-  exports: [PasswordService],
+  exports: [],
 })
 export class AuthModule {}
