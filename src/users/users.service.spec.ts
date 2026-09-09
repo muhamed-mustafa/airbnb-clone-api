@@ -1,6 +1,5 @@
-import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from './schemas/user.schema';
+import { USER_REPOSITORY_TOKEN } from './repositories/user-repository.token';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -11,9 +10,10 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: getModelToken(User.name),
+          provide: USER_REPOSITORY_TOKEN,
           useValue: {
-            findOne: jest.fn().mockReturnValue({ exec: jest.fn() }),
+            create: jest.fn(),
+            findOne: jest.fn(),
           },
         },
       ],
