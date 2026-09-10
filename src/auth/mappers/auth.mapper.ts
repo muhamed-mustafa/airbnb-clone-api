@@ -1,13 +1,13 @@
-import { AuthResponseDto } from '../dtos/auth-response.dto';
-import { LoginDto } from '../dtos/login.dto';
-import { RefreshTokenDto } from '../dtos/refresh-token.dto';
-import { RegisterDto } from '../dtos/register.dto';
 import { LoginInput } from '../inputs/login.input';
 import { RefreshTokenInput } from '../inputs/refresh-token.input';
 import { RegisterInput } from '../inputs/register.input';
 import { LoginOutput } from '../outputs/login.output';
 import { RefreshTokenOutput } from '../outputs/refresh-token.output';
 import { RegisterOutput } from '../outputs/register.output';
+import { AuthResponseDto } from '../presentation/dtos/auth-response.dto';
+import { LoginDto } from '../presentation/dtos/login.dto';
+import { RefreshTokenDto } from '../presentation/dtos/refresh-token.dto';
+import { RegisterDto } from '../presentation/dtos/register.dto';
 
 type AuthOutput = RegisterOutput | LoginOutput | RefreshTokenOutput;
 
