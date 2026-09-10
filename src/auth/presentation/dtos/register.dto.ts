@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEmail } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { trimString } from '../../common/utils/transformers.util';
-import { IsRequiredString } from '../../common/validators/is-required-string.decorator';
+import { normalizeEmail, trimString } from '../../../common/utils/transformers.util';
+import { IsRequiredString } from '../../../common/validators/is-required-string.decorator';
 
-export class CreateUserDto {
+export class RegisterDto {
   @ApiProperty({
     description: 'Full name of the user.',
     example: 'Muhammed Mustafa',
@@ -17,11 +17,11 @@ export class CreateUserDto {
   name!: string;
 
   @ApiProperty({
-    description: 'Unique email address.',
+    description: 'Unique email address. Normalized to lowercase on input.',
     example: 'muhammedmostafa.dev@gmail.com',
     format: 'email',
   })
-  @Transform(trimString)
+  @Transform(normalizeEmail)
   @IsRequiredString()
   @IsEmail(
     {},
@@ -32,8 +32,17 @@ export class CreateUserDto {
   email!: string;
 
   @ApiProperty({
-    description: 'Phone number in international E.164 format or local format stored as provided.',
-    example: '+201555738344',
+    description: 'International dialing code including the leading plus sign.',
+    example: '+20',
+    minLength: 1,
+  })
+  @Transform(trimString)
+  @IsRequiredString()
+  countryCode!: string;
+
+  @ApiProperty({
+    description: 'Phone number without the country code. Validated against the country code.',
+    example: '1555738344',
     minLength: 1,
   })
   @Transform(trimString)
@@ -48,7 +57,6 @@ export class CreateUserDto {
     maxLength: 128,
     writeOnly: true,
   })
-  @Transform(trimString)
   @IsRequiredString({ min: 8, max: 128 })
   password!: string;
 }
