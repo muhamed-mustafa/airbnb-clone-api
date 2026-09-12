@@ -5,9 +5,11 @@ import type { EnvironmentVariables } from '../../config/env.types';
 import { buildSwaggerDocument } from './swagger.config';
 import { SWAGGER_API_TITLE, SWAGGER_PATH } from './swagger.constants';
 import { SWAGGER_UI_CUSTOM_CSS } from './swagger-ui.css';
+import { buildSwaggerUiCustomJs, SWAGGER_UI_FAVICON } from './swagger-ui.script';
 
 export const setupSwagger = (app: INestApplication): void => {
   const configService = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
+  const runtimeEnvironment = process.env.NODE_ENV ?? 'development';
 
   const swaggerConfig = buildSwaggerDocument(configService);
   const document = SwaggerModule.createDocument(app, swaggerConfig);
@@ -15,7 +17,8 @@ export const setupSwagger = (app: INestApplication): void => {
   SwaggerModule.setup(SWAGGER_PATH, app, document, {
     customSiteTitle: SWAGGER_API_TITLE,
     customCss: SWAGGER_UI_CUSTOM_CSS,
-    customfavIcon: 'https://nestjs.com/img/logo-small.svg',
+    customJsStr: buildSwaggerUiCustomJs(runtimeEnvironment),
+    customfavIcon: SWAGGER_UI_FAVICON,
     swaggerOptions: {
       persistAuthorization: true,
       deepLinking: true,
