@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { I18nValidationPipe } from 'nestjs-i18n';
+import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { AppModule } from './app.module';
 import type { EnvironmentVariables } from './common/config/env.types';
 import { setupSwagger } from './common/presentation/swagger/swagger.setup';
@@ -21,6 +21,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.use(I18nMiddleware);
 
   app.setGlobalPrefix('api');
 

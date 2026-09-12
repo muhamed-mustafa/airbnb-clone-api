@@ -2,10 +2,10 @@ import { type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import type { EnvironmentVariables } from '../../config/env.types';
-import { buildSwaggerDocument } from './swagger.config';
-import { SWAGGER_API_TITLE, SWAGGER_PATH } from './swagger.constants';
 import { SWAGGER_UI_CUSTOM_CSS } from './swagger-ui.css';
 import { buildSwaggerUiCustomJs, SWAGGER_UI_FAVICON } from './swagger-ui.script';
+import { buildSwaggerDocument } from './swagger.config';
+import { SWAGGER_API_TITLE, SWAGGER_PATH } from './swagger.constants';
 
 export const setupSwagger = (app: INestApplication): void => {
   const configService = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
@@ -15,6 +15,7 @@ export const setupSwagger = (app: INestApplication): void => {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup(SWAGGER_PATH, app, document, {
+    useGlobalPrefix: true,
     customSiteTitle: SWAGGER_API_TITLE,
     customCss: SWAGGER_UI_CUSTOM_CSS,
     customJsStr: buildSwaggerUiCustomJs(runtimeEnvironment),
