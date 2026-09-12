@@ -5,6 +5,7 @@ import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token
 import type { SecretHashService } from '../services/secret-hash.service';
 import { TOKEN_SERVICE_TOKEN } from '../services/token-service.token';
 import type { TokenService } from '../services/token.service';
+import { ApplicationError } from '../../common/errors/application.error';
 
 @Injectable()
 export class GenerateTokenUseCase {
@@ -26,6 +27,26 @@ export class GenerateTokenUseCase {
     const hashedRefreshToken = await this.secretHashService.hash(refreshToken);
 
     await this.refreshTokenRepository.save(id, hashedRefreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async rotate(id: string, oldTokenHash: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.generateAccessToken(id),
+      this.tokenService.generateRefreshToken(id),
+    ]);
+
+    const hashedRefreshToken = await this.secretHashService.hash(refreshToken);
+
+    const rotated = await this.refreshTokenRepository.rotate(id, oldTokenHash, hashedRefreshToken);
+
+    if (!rotated) {
+      throw new ApplicationError('INVALID_TOKEN');
+    }
 
     return {
       accessToken,

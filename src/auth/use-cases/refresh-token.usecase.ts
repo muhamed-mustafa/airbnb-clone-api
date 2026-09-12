@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ApplicationError } from '../../common/errors/application.error';
 import { RefreshTokenInput } from '../inputs/refresh-token.input';
 import { RefreshTokenOutput } from '../outputs/refresh-token.output';
 import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';
@@ -8,7 +9,6 @@ import type { SecretHashService } from '../services/secret-hash.service';
 import { TOKEN_SERVICE_TOKEN } from '../services/token-service.token';
 import type { TokenService } from '../services/token.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
-import { ApplicationError } from '../../common/errors/application.error';
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -35,8 +35,9 @@ export class RefreshTokenUseCase {
 
     if (!isValidRefreshToken) throw new ApplicationError('INVALID_TOKEN');
 
-    const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.execute(
+    const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.rotate(
       decodedToken.id,
+      refreshToken.token,
     );
 
     return { accessToken, refreshToken: newRefreshToken };
