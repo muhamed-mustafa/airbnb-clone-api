@@ -1,5 +1,5 @@
-import { DocumentBuilder } from '@nestjs/swagger';
 import type { ConfigService } from '@nestjs/config';
+import { DocumentBuilder } from '@nestjs/swagger';
 import type { EnvironmentVariables } from '../../config/env.types';
 import {
   SWAGGER_API_DESCRIPTION,

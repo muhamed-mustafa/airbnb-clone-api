@@ -18,7 +18,7 @@ export class JwtTokenService implements TokenService {
 
     try {
       decodedToken = await this.jwtService.verifyAsync<DecodedToken>(token, {
-        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
+        secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
       });
 
       return decodedToken;
