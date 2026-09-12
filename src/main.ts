@@ -22,6 +22,8 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix('api');
+
   setupSwagger(app);
 
   await app.listen(port);
