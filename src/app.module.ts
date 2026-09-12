@@ -13,7 +13,7 @@ import { UsersModule } from './users/users.module';
   providers: [
     {
       provide: APP_FILTER,
-      useClass: ValidationExceptionFilter,
+      useClass: GlobalExceptionFilter,
     },
     {
       provide: APP_FILTER,
@@ -21,7 +21,7 @@ import { UsersModule } from './users/users.module';
     },
     {
       provide: APP_FILTER,
-      useClass: GlobalExceptionFilter,
+      useClass: ValidationExceptionFilter,
     },
     {
       provide: APP_FILTER,
