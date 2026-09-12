@@ -29,4 +29,18 @@ export class MongooseRefreshTokenRepository implements RefreshTokenRepository {
       { upsert: true, returnDocument: 'after' },
     );
   }
+
+  async rotate(userId: string, oldTokenHash: string, newTokenHash: string): Promise<boolean> {
+    const result = await this.refreshTokenModel.findOneAndUpdate(
+      { userId, token: oldTokenHash },
+      {
+        $set: {
+          token: newTokenHash,
+        },
+      },
+      { returnDocument: 'after' },
+    );
+
+    return result !== null;
+  }
 }
