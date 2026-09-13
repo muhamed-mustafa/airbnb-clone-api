@@ -1,8 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiConflictErrorResponse } from '../common/presentation/swagger/decorators/api-conflict-error-response.decorator';
-import { ApiInternalErrorResponse } from '../common/presentation/swagger/decorators/api-internal-error-response.decorator';
-import { ApiValidationErrorResponse } from '../common/presentation/swagger/decorators/api-validation-error-response.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiCreateUserDocs } from '../common/presentation/swagger/decorators/users/api-create-user-docs.decorator';
 import { SWAGGER_TAGS } from '../common/presentation/swagger/swagger.constants';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
@@ -15,21 +13,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiExtension('x-docs-order', 10)
-  @ApiOperation({
-    operationId: 'usersCreate',
-    summary: 'Create a user',
-    description:
-      'Creates a new user record directly. Prefer `POST /auth/register` for the standard registration flow with token issuance.',
-  })
-  @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({
-    description: 'User created successfully.',
-    type: UserResponseDto,
-  })
-  @ApiValidationErrorResponse()
-  @ApiConflictErrorResponse()
-  @ApiInternalErrorResponse()
+  @ApiCreateUserDocs()
   async create(@Body() data: CreateUserDto): Promise<UserResponseDto> {
     const input = UserMapper.toInput(data);
     const user = await this.usersService.create(input);

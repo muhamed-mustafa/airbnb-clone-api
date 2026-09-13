@@ -1,13 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiConflictErrorResponse } from '../common/presentation/swagger/decorators/api-conflict-error-response.decorator';
-import {
-  ApiInvalidCredentialsResponse,
-  ApiInvalidTokenResponse,
-} from '../common/presentation/swagger/decorators/api-application-error-responses.decorator';
-import { ApiRegisterBadRequestResponses } from '../common/presentation/swagger/decorators/api-register-error-responses.decorator';
-import { ApiInternalErrorResponse } from '../common/presentation/swagger/decorators/api-internal-error-response.decorator';
-import { ApiValidationErrorResponse } from '../common/presentation/swagger/decorators/api-validation-error-response.decorator';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiRegisterDocs } from '../common/presentation/swagger/decorators/auth/api-register-docs.decorator';
+import { ApiLoginDocs } from '../common/presentation/swagger/decorators/auth/api-login-docs.decorator';
+import { ApiRefreshTokenDocs } from '../common/presentation/swagger/decorators/auth/api-refresh-token-docs.decorator';
 import { SWAGGER_TAGS } from '../common/presentation/swagger/swagger.constants';
 import { AuthService } from './auth.service';
 import { AuthMapper } from './mappers/auth.mapper';
@@ -22,21 +17,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiExtension('x-docs-order', 10)
-  @ApiOperation({
-    operationId: 'authRegister',
-    summary: 'Register a new user',
-    description:
-      'Creates a new user account with the provided profile details and returns JWT access and refresh tokens.',
-  })
-  @ApiBody({ type: RegisterDto })
-  @ApiCreatedResponse({
-    description: 'Account created successfully. Returns access and refresh tokens.',
-    type: AuthResponseDto,
-  })
-  @ApiRegisterBadRequestResponses()
-  @ApiConflictErrorResponse()
-  @ApiInternalErrorResponse()
+  @ApiRegisterDocs()
   async register(@Body() body: RegisterDto): Promise<AuthResponseDto> {
     const input = AuthMapper.toRegisterInput(body);
     const output = await this.authService.register(input);
@@ -44,21 +25,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiExtension('x-docs-order', 20)
-  @ApiOperation({
-    operationId: 'authLogin',
-    summary: 'Login user',
-    description:
-      'Validates user credentials and returns JWT access and refresh tokens for authenticated API access.',
-  })
-  @ApiBody({ type: LoginDto })
-  @ApiCreatedResponse({
-    description: 'Authentication successful. Returns access and refresh tokens.',
-    type: AuthResponseDto,
-  })
-  @ApiValidationErrorResponse()
-  @ApiInvalidCredentialsResponse()
-  @ApiInternalErrorResponse()
+  @ApiLoginDocs()
   async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
     const input = AuthMapper.toLoginInput(body);
     const output = await this.authService.login(input);
@@ -66,21 +33,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
-  @ApiExtension('x-docs-order', 30)
-  @ApiOperation({
-    operationId: 'authRefreshToken',
-    summary: 'Refresh access token',
-    description:
-      'Exchanges a valid refresh token for a new access token and refresh token pair. The previous refresh token is invalidated.',
-  })
-  @ApiBody({ type: RefreshTokenDto })
-  @ApiCreatedResponse({
-    description: 'Tokens refreshed successfully. Returns a new access and refresh token pair.',
-    type: AuthResponseDto,
-  })
-  @ApiValidationErrorResponse()
-  @ApiInvalidTokenResponse()
-  @ApiInternalErrorResponse()
+  @ApiRefreshTokenDocs()
   async refreshToken(@Body() body: RefreshTokenDto): Promise<AuthResponseDto> {
     const input = AuthMapper.toRefreshTokenInput(body);
     const output = await this.authService.refreshToken(input);
