@@ -16,7 +16,10 @@ type SwaggerSortableOperation = {
 };
 
 type SwaggerRequest = {
+  body?: unknown;
   headers?: Record<string, string>;
+  method?: string;
+  url?: string;
 };
 
 type SwaggerResponse = {
@@ -124,11 +127,54 @@ const swaggerRequestInterceptor = (request: SwaggerRequest): SwaggerRequest => {
     browserGlobal.localStorage?.getItem('airbnb-clone-api.docs.accept-language') ??
     'en';
   const acceptedLanguage = ['en', 'ar'].includes(storedLanguage) ? storedLanguage : 'en';
+  const storedRefreshToken =
+    browserGlobal.localStorage?.getItem('airbnb-clone-api.docs.refresh-token') ?? '';
 
   request.headers = {
     ...(request.headers ?? {}),
     'Accept-Language': acceptedLanguage,
   };
+
+  const requestMethod = request.method?.toUpperCase();
+  const requestUrl = request.url ?? '';
+
+  if (
+    requestMethod === 'POST' &&
+    requestUrl.endsWith('/api/auth/refresh-token') &&
+    storedRefreshToken
+  ) {
+    const shouldUseStoredToken = (token: unknown): boolean => {
+      const currentToken = typeof token === 'string' ? token.trim() : '';
+
+      return !currentToken || currentToken.includes('example-refresh-token');
+    };
+
+    if (!request.body) {
+      request.body = JSON.stringify({ token: storedRefreshToken });
+    } else if (typeof request.body === 'string') {
+      try {
+        const parsedBody = JSON.parse(request.body) as Record<string, unknown>;
+
+        if (shouldUseStoredToken(parsedBody.token)) {
+          request.body = JSON.stringify({
+            ...parsedBody,
+            token: storedRefreshToken,
+          });
+        }
+      } catch {
+        request.body = JSON.stringify({ token: storedRefreshToken });
+      }
+    } else if (typeof request.body === 'object' && request.body !== null) {
+      const parsedBody = request.body as Record<string, unknown>;
+
+      if (shouldUseStoredToken(parsedBody.token)) {
+        request.body = JSON.stringify({
+          ...parsedBody,
+          token: storedRefreshToken,
+        });
+      }
+    }
+  }
 
   return request;
 };

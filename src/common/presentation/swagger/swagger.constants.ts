@@ -23,7 +23,7 @@ REST API for the Airbnb Clone platform.
 
 Use the Authentication operations in this order: **Register**, **Login**, then **Refresh Token**.
 
-When an operation returns tokens, store the **access token** in the Authentication Context panel and Swagger will reuse it through the native Bearer authorization flow.
+When an operation returns tokens, Swagger captures them automatically. The **access token** is reused through the native Bearer authorization flow, and the **refresh token** is reused for the refresh-token request flow.
 
 Include the token in the \`Authorization\` header:
 

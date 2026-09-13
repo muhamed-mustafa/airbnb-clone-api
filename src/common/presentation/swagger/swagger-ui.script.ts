@@ -36,7 +36,11 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     acceptLanguage: 'airbnb-clone-api.docs.accept-language',
   });
 
-  let contextPanelElements = null;
+  const operationPathDisplayRules = Object.freeze([
+    { tag: 'Authentication', prefix: '/api/auth' },
+  ]);
+
+  let languagePanelElements = null;
 
   const enforceLightTheme = () => {
     document.documentElement.classList.remove('dark-mode');
@@ -109,28 +113,49 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     });
   };
 
-  const setContextStatus = (message) => {
-    if (contextPanelElements?.status) {
-      contextPanelElements.status.textContent = message;
+  const setLanguageStatus = (message) => {
+    if (languagePanelElements?.status) {
+      languagePanelElements.status.textContent = message;
     }
+  };
+
+  const maskToken = (token) => {
+    const normalizedToken = normalizeToken(token);
+
+    if (!normalizedToken) {
+      return 'No refresh token captured yet';
+    }
+
+    if (normalizedToken.length <= 12) {
+      return 'Stored automatically';
+    }
+
+    return 'Stored automatically ...' + normalizedToken.slice(-8);
   };
 
   const syncAuthorizeRefreshTokenField = () => {
-    const input = document.querySelector('#api-docs-authorize-refresh-token');
+    const output = document.querySelector('#api-docs-authorize-refresh-token');
 
-    if (input) {
-      input.value = readStoredValue(storageKeys.refreshToken);
+    if (output) {
+      const token = readStoredValue(storageKeys.refreshToken);
+      output.textContent = maskToken(token);
+      output.dataset.state = token ? 'stored' : 'empty';
+      output.setAttribute(
+        'aria-label',
+        token ? 'Refresh token captured automatically' : 'No refresh token captured yet',
+      );
     }
   };
 
-  const syncContextPanel = () => {
-    if (!contextPanelElements) {
-      return;
+  const syncRequestPreferences = () => {
+    if (languagePanelElements) {
+      languagePanelElements.acceptLanguage.value = getAcceptedLanguage();
+      const selectedLabel =
+        languagePanelElements.acceptLanguage.selectedOptions[0]?.textContent ||
+        languagePanelElements.acceptLanguage.value;
+      setLanguageStatus('Requests use ' + selectedLabel + '.');
     }
 
-    contextPanelElements.accessToken.value = readStoredValue(storageKeys.accessToken);
-    contextPanelElements.refreshToken.value = readStoredValue(storageKeys.refreshToken);
-    contextPanelElements.acceptLanguage.value = getAcceptedLanguage();
     syncAuthorizeRefreshTokenField();
   };
 
@@ -151,11 +176,6 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
 
     writeStoredValue(storageKeys.accessToken, token);
 
-    if (contextPanelElements?.accessToken) {
-      contextPanelElements.accessToken.value = token;
-    }
-
-    setContextStatus('Access token synced from Swagger Authorize.');
   };
 
   const parseMaybeJson = (candidate) => {
@@ -199,16 +219,15 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
       authorizeAccessToken(accessToken);
     }
 
-    syncContextPanel();
+    syncRequestPreferences();
     syncAuthorizeRefreshTokenField();
-    setContextStatus('Tokens captured and access token authorized automatically.');
   };
 
   window.AirbnbCloneApiDocs = {
     authorizeAccessToken,
     getAcceptedLanguage,
+    syncRequestPreferences,
     storeTokensFromResponse,
-    syncContextPanel,
   };
 
   const createText = (tagName, className, text) => {
@@ -236,31 +255,6 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
 
     card.append(labelElement, valueElement);
     return card;
-  };
-
-  const createContextField = (label, control, hint) => {
-    const field = document.createElement('label');
-    field.className = 'api-docs-context-field';
-
-    const labelText = document.createElement('span');
-    labelText.textContent = label;
-
-    const hintText = document.createElement('small');
-    hintText.textContent = hint;
-
-    field.append(labelText, control, hintText);
-    return field;
-  };
-
-  const createTokenInput = (id, placeholder) => {
-    const input = document.createElement('textarea');
-    input.id = id;
-    input.className = 'api-docs-token-input';
-    input.autocomplete = 'off';
-    input.rows = 2;
-    input.spellcheck = false;
-    input.placeholder = placeholder;
-    return input;
   };
 
   const mountHero = () => {
@@ -321,43 +315,37 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     document.body.classList.add('swagger-portal-ready');
   };
 
-  const mountContextPanel = () => {
+  const mountLanguagePanel = () => {
     const hero = document.querySelector('.api-portal-hero');
 
-    if (!hero || document.querySelector('.api-docs-context')) {
+    if (!hero || document.querySelector('.api-docs-language-panel')) {
       return;
     }
 
     const panel = document.createElement('section');
-    panel.className = 'api-docs-context';
-    panel.setAttribute('aria-label', 'Authentication context and request preferences');
+    panel.className = 'api-docs-language-panel';
+    panel.setAttribute('aria-label', 'Request language preference');
 
     const shell = document.createElement('div');
-    shell.className = 'api-docs-context-shell';
+    shell.className = 'api-docs-language-panel-shell';
 
-    const header = document.createElement('div');
-    header.className = 'api-docs-context-header';
-
-    const headerCopy = document.createElement('div');
-    headerCopy.append(
-      createText('p', 'api-docs-context-kicker', 'Request context'),
-      createText('h2', 'api-docs-context-title', 'Authentication Context'),
+    const copy = document.createElement('div');
+    copy.className = 'api-docs-language-panel-copy';
+    copy.append(
+      createText('p', 'api-docs-language-panel-kicker', 'Request preference'),
+      createText('h2', 'api-docs-language-panel-title', 'Accepted Language'),
       createText(
         'p',
-        'api-docs-context-summary',
-        'Store tokens returned by Register, Login, or Refresh Token. The access token is applied to Swagger Bearer auth.',
+        'api-docs-language-panel-summary',
+        'Swagger sends this value as the Accept-Language header for every request.',
       ),
     );
 
-    const status = createText('p', 'api-docs-context-status', 'Ready for authentication testing.');
-    status.setAttribute('aria-live', 'polite');
-    header.append(headerCopy, status);
+    const control = document.createElement('label');
+    control.className = 'api-docs-language-panel-control';
 
-    const accessTokenInput = createTokenInput(
-      'api-docs-access-token',
-      'Paste access token without the Bearer prefix',
-    );
-    const refreshTokenInput = createTokenInput('api-docs-refresh-token', 'Paste refresh token');
+    const controlLabel = document.createElement('span');
+    controlLabel.textContent = 'Language';
 
     const languageSelect = document.createElement('select');
     languageSelect.id = 'api-docs-accept-language';
@@ -369,77 +357,26 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
       languageSelect.appendChild(option);
     });
 
-    const fields = document.createElement('div');
-    fields.className = 'api-docs-context-fields';
-    fields.append(
-      createContextField('Access Token', accessTokenInput, 'Used by native Bearer authorization.'),
-      createContextField('Refresh Token', refreshTokenInput, 'Kept for the refresh-token request flow.'),
-      createContextField('Accepted Language', languageSelect, 'Sent as the Accept-Language header.'),
-    );
+    const status = createText('small', 'api-docs-language-panel-status', '');
+    status.setAttribute('aria-live', 'polite');
 
-    const actions = document.createElement('div');
-    actions.className = 'api-docs-context-actions';
-
-    const applyButton = document.createElement('button');
-    applyButton.type = 'button';
-    applyButton.className = 'api-docs-context-button api-docs-context-button-primary';
-    applyButton.textContent = 'Apply token';
-
-    const clearButton = document.createElement('button');
-    clearButton.type = 'button';
-    clearButton.className = 'api-docs-context-button';
-    clearButton.textContent = 'Clear';
-
-    actions.append(applyButton, clearButton);
-    shell.append(header, fields, actions);
+    control.append(controlLabel, languageSelect, status);
+    shell.append(copy, control);
     panel.appendChild(shell);
     hero.after(panel);
 
-    contextPanelElements = {
-      accessToken: accessTokenInput,
+    languagePanelElements = {
       acceptLanguage: languageSelect,
-      refreshToken: refreshTokenInput,
       status,
     };
 
-    syncContextPanel();
-    authorizeAccessToken(accessTokenInput.value);
-
-    accessTokenInput.addEventListener('input', () => {
-      const token = normalizeToken(accessTokenInput.value);
-      writeStoredValue(storageKeys.accessToken, token);
-      authorizeAccessToken(token);
-      setContextStatus(token ? 'Access token applied to Bearer auth.' : 'Access token cleared.');
-    });
-
-    refreshTokenInput.addEventListener('input', () => {
-      const token = normalizeToken(refreshTokenInput.value);
-      writeStoredValue(storageKeys.refreshToken, token);
-      syncAuthorizeRefreshTokenField();
-      setContextStatus(token ? 'Refresh token stored in this browser.' : 'Refresh token cleared.');
-    });
+    syncRequestPreferences();
+    authorizeAccessToken(readStoredValue(storageKeys.accessToken));
 
     languageSelect.addEventListener('change', () => {
       writeStoredValue(storageKeys.acceptLanguage, languageSelect.value);
       const selectedLabel = languageSelect.selectedOptions[0]?.textContent || languageSelect.value;
-      setContextStatus('Requests will use ' + selectedLabel + '.');
-    });
-
-    applyButton.addEventListener('click', () => {
-      const token = normalizeToken(accessTokenInput.value);
-      writeStoredValue(storageKeys.accessToken, token);
-      authorizeAccessToken(token);
-      setContextStatus(token ? 'Access token applied to Bearer auth.' : 'Add an access token first.');
-    });
-
-    clearButton.addEventListener('click', () => {
-      writeStoredValue(storageKeys.accessToken, '');
-      writeStoredValue(storageKeys.refreshToken, '');
-      accessTokenInput.value = '';
-      refreshTokenInput.value = '';
-      authorizeAccessToken('');
-      syncAuthorizeRefreshTokenField();
-      setContextStatus('Authentication context cleared.');
+      setLanguageStatus('Requests use ' + selectedLabel + '.');
     });
   };
 
@@ -461,30 +398,18 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
       createText(
         'small',
         'api-docs-authorize-refresh-copy',
-        'Captured from Register, Login, or Refresh Token responses and kept for the refresh flow.',
+        'Updated automatically from Register, Login, or Refresh Token responses.',
       ),
     );
 
-    const input = createTokenInput(
-      'api-docs-authorize-refresh-token',
-      'Paste refresh token returned by authentication endpoints',
-    );
-    input.classList.add('api-docs-authorize-refresh-input');
-    input.value = readStoredValue(storageKeys.refreshToken);
+    const tokenPreview = document.createElement('div');
+    tokenPreview.id = 'api-docs-authorize-refresh-token';
+    tokenPreview.className = 'api-docs-authorize-refresh-value';
+    tokenPreview.setAttribute('role', 'status');
 
-    input.addEventListener('input', () => {
-      const token = normalizeToken(input.value);
-      writeStoredValue(storageKeys.refreshToken, token);
-
-      if (contextPanelElements?.refreshToken) {
-        contextPanelElements.refreshToken.value = token;
-      }
-
-      setContextStatus(token ? 'Refresh token stored from Authorize.' : 'Refresh token cleared.');
-    });
-
-    refreshBlock.append(header, input);
+    refreshBlock.append(header, tokenPreview);
     authContainer.appendChild(refreshBlock);
+    syncAuthorizeRefreshTokenField();
 
     if (!modal.dataset.apiDocsNativeAuthSync) {
       modal.dataset.apiDocsNativeAuthSync = 'true';
@@ -525,13 +450,67 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     });
   };
 
+  const setDisplayedPath = (element, displayPath) => {
+    const target = element.querySelector('a span') || element;
+
+    if (target.dataset.displayPath === displayPath) {
+      return;
+    }
+
+    target.textContent = '';
+
+    if (displayPath === '/') {
+      target.textContent = displayPath;
+    } else {
+      displayPath.split('/').forEach((segment, index) => {
+        if (index > 0) {
+          target.append('/');
+          target.append(document.createElement('wbr'));
+        }
+
+        if (segment) {
+          target.append(segment);
+        }
+      });
+    }
+
+    target.dataset.displayPath = displayPath;
+  };
+
+  const decorateOperationPaths = () => {
+    document.querySelectorAll('.swagger-ui .opblock-tag-section').forEach((section) => {
+      const tag = section.querySelector('.opblock-tag');
+      const tagName = tag?.dataset.tag || '';
+      const displayRule = operationPathDisplayRules.find((rule) => rule.tag === tagName);
+
+      if (!displayRule) {
+        return;
+      }
+
+      section.querySelectorAll('.opblock-summary-path[data-path]').forEach((pathElement) => {
+        const fullPath = pathElement.getAttribute('data-path') || '';
+
+        if (!fullPath.startsWith(displayRule.prefix + '/')) {
+          return;
+        }
+
+        const displayPath = fullPath.slice(displayRule.prefix.length) || '/';
+        pathElement.classList.add('api-docs-short-path');
+        pathElement.setAttribute('title', 'Full path: ' + fullPath);
+        pathElement.setAttribute('aria-label', fullPath);
+        setDisplayedPath(pathElement, displayPath);
+      });
+    });
+  };
+
   const decorate = () => {
     enforceLightTheme();
     mountHero();
-    mountContextPanel();
+    mountLanguagePanel();
     mountAuthorizeRefreshTokenField();
     decorateTopbar();
     decorateTags();
+    decorateOperationPaths();
   };
 
   decorate();
