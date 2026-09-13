@@ -38,6 +38,7 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
 
   const operationPathDisplayRules = Object.freeze([
     { tag: 'Authentication', prefix: '/api/auth' },
+    { tag: 'Users', prefix: '/api/users' },
   ]);
 
   let languagePanelElements = null;
@@ -445,8 +446,33 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
   const decorateTags = () => {
     document.querySelectorAll('.swagger-ui .opblock-tag').forEach((tag) => {
       const text = (tag.textContent || '').trim();
-      const tagName = text.split(/\\s+/)[0] || 'API';
+      const tagName = tag.dataset.tag || text.split(/\\s+/)[0] || 'API';
+      const displayRule = operationPathDisplayRules.find((rule) => rule.tag === tagName);
+
       tag.setAttribute('data-tag-initial', tagName.charAt(0).toUpperCase());
+
+      if (!displayRule) {
+        return;
+      }
+
+      const existingBadge = tag.querySelector('.api-docs-tag-base-path');
+
+      if (existingBadge) {
+        existingBadge.textContent = 'Base path ' + displayRule.prefix;
+        return;
+      }
+
+      const badge = document.createElement('span');
+      badge.className = 'api-docs-tag-base-path';
+      badge.textContent = 'Base path ' + displayRule.prefix;
+      badge.title = 'Use ' + displayRule.prefix + ' before the relative paths in this section.';
+
+      const expandButton = tag.querySelector('.expand-operation');
+      if (expandButton) {
+        tag.insertBefore(badge, expandButton);
+      } else {
+        tag.appendChild(badge);
+      }
     });
   };
 
@@ -490,7 +516,7 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
       section.querySelectorAll('.opblock-summary-path[data-path]').forEach((pathElement) => {
         const fullPath = pathElement.getAttribute('data-path') || '';
 
-        if (!fullPath.startsWith(displayRule.prefix + '/')) {
+        if (fullPath !== displayRule.prefix && !fullPath.startsWith(displayRule.prefix + '/')) {
           return;
         }
 
