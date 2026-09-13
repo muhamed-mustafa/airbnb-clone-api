@@ -6,17 +6,26 @@ describe('RefreshTokenUseCase', () => {
 
   const refreshTokenRepository = {
     findByUserId: jest.fn(),
+    save: jest.fn(),
+    rotate: jest.fn(),
   };
 
   const tokenService = {
     verify: jest.fn(),
+    generateAccessToken: jest.fn(),
+    generateRefreshToken: jest.fn(),
   };
+
+  const generateTokenExecute = jest.fn();
+  const generateTokenRotate = jest.fn();
 
   const generateToken = {
-    rotate: jest.fn(),
-  };
+    execute: generateTokenExecute,
+    rotate: generateTokenRotate,
+  } as unknown as ConstructorParameters<typeof RefreshTokenUseCase>[2];
 
   const secretHashService = {
+    hash: jest.fn(),
     verify: jest.fn(),
   };
 
@@ -45,7 +54,7 @@ describe('RefreshTokenUseCase', () => {
 
       secretHashService.verify.mockResolvedValue(true);
 
-      generateToken.rotate.mockResolvedValue({
+      generateTokenRotate.mockResolvedValue({
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
       });
@@ -59,7 +68,7 @@ describe('RefreshTokenUseCase', () => {
         refreshToken: 'new-refresh-token',
       });
 
-      expect(generateToken.rotate).toHaveBeenCalledWith('user-1', 'old-token-hash');
+      expect(generateTokenRotate).toHaveBeenCalledWith('user-1', 'old-token-hash');
     });
 
     it('should throw INVALID_TOKEN when token type is not refresh', async () => {
@@ -92,7 +101,7 @@ describe('RefreshTokenUseCase', () => {
       ).rejects.toEqual(new ApplicationError('INVALID_TOKEN'));
 
       expect(secretHashService.verify).not.toHaveBeenCalled();
-      expect(generateToken.rotate).not.toHaveBeenCalled();
+      expect(generateTokenRotate).not.toHaveBeenCalled();
     });
 
     it('should throw INVALID_TOKEN when refresh token hash verification fails', async () => {
@@ -114,7 +123,7 @@ describe('RefreshTokenUseCase', () => {
         }),
       ).rejects.toEqual(new ApplicationError('INVALID_TOKEN'));
 
-      expect(generateToken.rotate).not.toHaveBeenCalled();
+      expect(generateTokenRotate).not.toHaveBeenCalled();
     });
   });
 });

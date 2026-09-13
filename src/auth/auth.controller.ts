@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiConflictErrorResponse } from '../common/presentation/swagger/decorators/api-conflict-error-response.decorator';
 import {
   ApiInvalidCredentialsResponse,
@@ -22,9 +22,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @ApiExtension('x-docs-order', 10)
   @ApiOperation({
     operationId: 'authRegister',
-    summary: 'Register a new account',
+    summary: 'Register a new user',
     description:
       'Creates a new user account with the provided profile details and returns JWT access and refresh tokens.',
   })
@@ -43,9 +44,10 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiExtension('x-docs-order', 20)
   @ApiOperation({
     operationId: 'authLogin',
-    summary: 'Authenticate with email and password',
+    summary: 'Login user',
     description:
       'Validates user credentials and returns JWT access and refresh tokens for authenticated API access.',
   })
@@ -64,6 +66,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @ApiExtension('x-docs-order', 30)
   @ApiOperation({
     operationId: 'authRefreshToken',
     summary: 'Refresh access token',

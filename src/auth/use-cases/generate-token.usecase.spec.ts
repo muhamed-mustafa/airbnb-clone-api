@@ -5,17 +5,20 @@ describe('GenerateTokenUseCase', () => {
   let useCase: GenerateTokenUseCase;
 
   const refreshTokenRepository = {
+    findByUserId: jest.fn(),
     save: jest.fn(),
     rotate: jest.fn(),
   };
 
   const tokenService = {
+    verify: jest.fn(),
     generateAccessToken: jest.fn(),
     generateRefreshToken: jest.fn(),
   };
 
   const secretHashService = {
     hash: jest.fn(),
+    verify: jest.fn(),
   };
 
   beforeEach(() => {

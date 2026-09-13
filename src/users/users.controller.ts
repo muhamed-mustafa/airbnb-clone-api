@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiConflictErrorResponse } from '../common/presentation/swagger/decorators/api-conflict-error-response.decorator';
 import { ApiInternalErrorResponse } from '../common/presentation/swagger/decorators/api-internal-error-response.decorator';
 import { ApiValidationErrorResponse } from '../common/presentation/swagger/decorators/api-validation-error-response.decorator';
@@ -15,6 +15,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiExtension('x-docs-order', 10)
   @ApiOperation({
     operationId: 'usersCreate',
     summary: 'Create a user',

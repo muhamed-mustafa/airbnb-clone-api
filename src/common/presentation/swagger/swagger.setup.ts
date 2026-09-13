@@ -7,6 +7,143 @@ import { buildSwaggerUiCustomJs, SWAGGER_UI_FAVICON } from './swagger-ui.script'
 import { buildSwaggerDocument } from './swagger.config';
 import { SWAGGER_API_TITLE, SWAGGER_PATH } from './swagger.constants';
 
+type SwaggerSortableOperation = {
+  get?: (key: string) => unknown;
+  getIn?: (path: string[]) => unknown;
+  operation?: Record<string, unknown>;
+  path?: string;
+  method?: string;
+};
+
+type SwaggerRequest = {
+  headers?: Record<string, string>;
+};
+
+type SwaggerResponse = {
+  body?: unknown;
+  data?: unknown;
+  obj?: unknown;
+  text?: unknown;
+};
+
+type SwaggerDocsBridge = {
+  getAcceptedLanguage?: () => string;
+  storeTokensFromResponse?: (body: unknown) => void;
+};
+
+type SwaggerBrowserGlobal = typeof globalThis & {
+  AirbnbCloneApiDocs?: SwaggerDocsBridge;
+  localStorage?: {
+    getItem: (key: string) => string | null;
+  };
+};
+
+const swaggerOperationsSorter = (
+  left: SwaggerSortableOperation,
+  right: SwaggerSortableOperation,
+): number => {
+  const readTopLevelValue = (item: SwaggerSortableOperation, key: string): unknown => {
+    if (typeof item.get === 'function') {
+      return item.get(key);
+    }
+
+    return item[key as keyof SwaggerSortableOperation];
+  };
+
+  const readOperationValue = (item: SwaggerSortableOperation, key: string): unknown => {
+    if (typeof item.getIn === 'function') {
+      return item.getIn(['operation', key]);
+    }
+
+    const operation = readTopLevelValue(item, 'operation');
+
+    if (typeof operation === 'object' && operation !== null) {
+      return (operation as Record<string, unknown>)[key];
+    }
+
+    return undefined;
+  };
+
+  const readOrder = (item: SwaggerSortableOperation): number => {
+    const order = Number(readOperationValue(item, 'x-docs-order'));
+    return Number.isFinite(order) ? order : 1000;
+  };
+
+  const readText = (item: SwaggerSortableOperation, key: string): string => {
+    const value = readTopLevelValue(item, key);
+    return typeof value === 'string' ? value : '';
+  };
+
+  const methodOrder: Record<string, number> = {
+    post: 10,
+    get: 20,
+    put: 30,
+    patch: 40,
+    delete: 50,
+  };
+
+  const leftOrder = readOrder(left);
+  const rightOrder = readOrder(right);
+
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+
+  const leftMethod = readText(left, 'method').toLowerCase();
+  const rightMethod = readText(right, 'method').toLowerCase();
+  const leftMethodOrder = methodOrder[leftMethod] ?? 100;
+  const rightMethodOrder = methodOrder[rightMethod] ?? 100;
+
+  if (leftMethodOrder !== rightMethodOrder) {
+    return leftMethodOrder - rightMethodOrder;
+  }
+
+  return readText(left, 'path').localeCompare(readText(right, 'path'));
+};
+
+const swaggerTagsSorter = (left: string, right: string): number => {
+  const tagOrder: Record<string, number> = {
+    Authentication: 10,
+    Users: 20,
+  };
+
+  const leftOrder = tagOrder[left] ?? 1000;
+  const rightOrder = tagOrder[right] ?? 1000;
+
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+
+  return left.localeCompare(right);
+};
+
+const swaggerRequestInterceptor = (request: SwaggerRequest): SwaggerRequest => {
+  const browserGlobal = globalThis as SwaggerBrowserGlobal;
+  const storedLanguage =
+    browserGlobal.AirbnbCloneApiDocs?.getAcceptedLanguage?.() ??
+    browserGlobal.localStorage?.getItem('airbnb-clone-api.docs.accept-language') ??
+    'en';
+  const acceptedLanguage = ['en', 'ar'].includes(storedLanguage) ? storedLanguage : 'en';
+
+  request.headers = {
+    ...(request.headers ?? {}),
+    'Accept-Language': acceptedLanguage,
+  };
+
+  return request;
+};
+
+const swaggerResponseInterceptor = <TResponse extends SwaggerResponse>(
+  response: TResponse,
+): TResponse => {
+  const browserGlobal = globalThis as SwaggerBrowserGlobal;
+  const responseBody = response.data ?? response.body ?? response.obj ?? response.text;
+
+  browserGlobal.AirbnbCloneApiDocs?.storeTokensFromResponse?.(responseBody);
+
+  return response;
+};
+
 export const setupSwagger = (app: INestApplication): void => {
   const configService = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
   const runtimeEnvironment = process.env.NODE_ENV ?? 'development';
@@ -23,16 +160,18 @@ export const setupSwagger = (app: INestApplication): void => {
     swaggerOptions: {
       persistAuthorization: true,
       deepLinking: true,
-      docExpansion: 'none',
+      docExpansion: 'list',
       filter: true,
       displayRequestDuration: true,
       tryItOutEnabled: true,
+      requestInterceptor: swaggerRequestInterceptor,
+      responseInterceptor: swaggerResponseInterceptor,
       syntaxHighlight: {
         activate: true,
         theme: 'monokai',
       },
-      operationsSorter: 'alpha',
-      tagsSorter: 'alpha',
+      operationsSorter: swaggerOperationsSorter,
+      tagsSorter: swaggerTagsSorter,
     },
   });
 };

@@ -3,9 +3,14 @@ export const SWAGGER_PATH = 'docs';
 export const SWAGGER_BEARER_AUTH = 'access-token';
 
 export const SWAGGER_TAGS = {
-  AUTH: 'Auth',
+  AUTH: 'Authentication',
   USERS: 'Users',
 } as const;
+
+export const SWAGGER_ACCEPTED_LANGUAGES = [
+  { label: 'English', value: 'en' },
+  { label: 'Arabic', value: 'ar' },
+] as const;
 
 export const SWAGGER_API_TITLE = 'Airbnb Clone API';
 
@@ -16,7 +21,9 @@ REST API for the Airbnb Clone platform.
 
 ## Authentication
 
-Most endpoints require a **Bearer JWT access token** obtained from \`POST /auth/register\`, \`POST /auth/login\`, or \`POST /auth/refresh-token\`.
+Use the Authentication operations in this order: **Register**, **Login**, then **Refresh Token**.
+
+When an operation returns tokens, store the **access token** in the Authentication Context panel and Swagger will reuse it through the native Bearer authorization flow.
 
 Include the token in the \`Authorization\` header:
 
