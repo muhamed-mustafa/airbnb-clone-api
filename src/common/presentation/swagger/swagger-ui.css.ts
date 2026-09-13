@@ -718,12 +718,15 @@ body::before {
 
 .swagger-ui .scheme-container .schemes {
   display: grid;
-  grid-template-columns: minmax(150px, 220px) minmax(260px, 1fr) auto;
+  grid-template-columns: minmax(180px, auto) minmax(280px, 420px) auto;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  column-gap: 32px;
+  row-gap: 16px;
   width: min(100% - 48px, var(--docs-page-max));
   max-width: var(--docs-page-max);
-  padding: 18px;
+  min-height: 92px;
+  padding: 20px 24px;
   margin: 0 auto;
   background: var(--docs-surface);
   border: 1px solid var(--docs-border);
@@ -732,10 +735,13 @@ body::before {
 }
 
 .swagger-ui .scheme-container .schemes::before {
+  display: block;
+  max-width: 220px;
   color: var(--docs-ink);
   font-size: 12px;
   font-weight: 850;
   letter-spacing: 0.08em;
+  line-height: 1.35;
   content: "Server and authorization";
   text-transform: uppercase;
 }
@@ -757,7 +763,7 @@ body::before {
 }
 
 .swagger-ui .servers select {
-  width: min(100%, 420px);
+  width: 100%;
 }
 
 .swagger-ui .servers-title {
@@ -783,7 +789,8 @@ body::before {
 }
 
 .swagger-ui select:hover {
-  border-color: rgba(255, 56, 92, 0.44);
+  border-color: rgba(15, 118, 110, 0.36);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
 }
 
 .swagger-ui select:focus-visible {
@@ -797,12 +804,12 @@ body::before {
   width: min(100% - 48px, var(--docs-page-max));
   max-width: var(--docs-page-max);
   padding: 0;
-  margin: 0 auto 22px;
+  margin: 0 auto 28px;
 }
 
 .swagger-ui .filter-container .filter {
   position: relative;
-  width: min(100%, 430px);
+  width: min(100%, 460px);
   height: auto;
   padding: 0;
   margin: 0;
@@ -813,47 +820,48 @@ body::before {
 
 .swagger-ui .filter-container .filter::before {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 50%;
+  left: 18px;
   z-index: 1;
   width: 13px;
   height: 13px;
+  pointer-events: none;
   content: "";
   border: 2px solid var(--docs-muted);
   border-radius: 999px;
+  transform: translateY(-58%);
 }
 
 .swagger-ui .filter-container .filter::after {
   position: absolute;
-  top: 28px;
-  left: 28px;
+  top: 50%;
+  left: 29px;
   z-index: 1;
   width: 8px;
   height: 2px;
+  pointer-events: none;
   content: "";
   background: var(--docs-muted);
   border-radius: 999px;
-  transform: rotate(45deg);
+  transform: translateY(5px) rotate(45deg);
   transform-origin: left center;
 }
 
 .swagger-ui .filter-container .operation-filter-input {
   width: 100%;
-  height: 46px;
-  padding: 0 16px 0 44px;
+  height: 48px;
+  padding: 0 16px 0 50px;
   color: var(--docs-ink);
   font-size: 14px;
   font-weight: 650;
-  background:
-    linear-gradient(var(--docs-surface), var(--docs-surface)) padding-box,
-    linear-gradient(135deg, rgba(255, 56, 92, 0.4), rgba(15, 118, 110, 0.24)) border-box;
-  border: 1px solid transparent;
+  background: var(--docs-surface);
+  border: 1px solid var(--docs-border-strong);
   border-radius: var(--docs-radius-md);
   box-shadow: var(--docs-shadow-sm);
   transition:
+    background 180ms ease,
     border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    box-shadow 180ms ease;
 }
 
 .swagger-ui .filter-container .operation-filter-input::placeholder {
@@ -862,11 +870,14 @@ body::before {
 }
 
 .swagger-ui .filter-container .operation-filter-input:hover {
+  border-color: rgba(15, 118, 110, 0.34);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
 }
 
 .swagger-ui .filter-container .operation-filter-input:focus {
   outline: 0;
+  background: #ffffff;
+  border-color: var(--docs-accent);
   box-shadow:
     0 0 0 4px var(--docs-accent-ring),
     var(--docs-shadow-md);
@@ -920,9 +931,8 @@ body::before {
 
 .swagger-ui .opblock-tag:hover {
   background: linear-gradient(180deg, #ffffff, #fbfcfe);
-  border-color: rgba(255, 56, 92, 0.34);
+  border-color: rgba(15, 118, 110, 0.24);
   box-shadow: var(--docs-shadow-md);
-  transform: translateY(-1px);
 }
 
 .swagger-ui .opblock-tag small {
@@ -964,7 +974,6 @@ body::before {
 .swagger-ui .opblock:hover {
   border-color: rgba(148, 163, 184, 0.75);
   box-shadow: var(--docs-shadow-md);
-  transform: translateY(-1px);
 }
 
 .swagger-ui .opblock.is-open {
@@ -1480,16 +1489,28 @@ body::before {
    ========================================================================== */
 .swagger-ui .auth-wrapper {
   justify-content: flex-end;
+  justify-self: end;
 }
 
 .swagger-ui .authorize {
-  min-height: 42px;
-  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 168px;
+  min-height: 46px;
+  padding: 0 20px;
   color: #ffffff;
-  background: linear-gradient(135deg, var(--docs-success), var(--docs-teal));
-  border: 0;
+  background: linear-gradient(135deg, #047857, #0f766e);
+  border: 1px solid rgba(4, 120, 87, 0.82);
   border-radius: 999px;
-  box-shadow: 0 14px 30px rgba(6, 118, 71, 0.2);
+  box-shadow:
+    0 14px 34px rgba(4, 120, 87, 0.23),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms var(--docs-ease);
 }
 
 .swagger-ui .authorize span {
@@ -1501,12 +1522,24 @@ body::before {
 }
 
 .swagger-ui .authorize svg {
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
   fill: currentColor;
 }
 
+.swagger-ui .authorize.unlocked,
+.swagger-ui .authorize.locked {
+  color: #ffffff;
+}
+
 .swagger-ui .authorize:hover {
-  box-shadow: 0 18px 36px rgba(6, 118, 71, 0.26);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #065f46, #0f766e);
+  border-color: rgba(4, 120, 87, 1);
+  box-shadow:
+    0 16px 36px rgba(4, 120, 87, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-0.5px);
 }
 
 .swagger-ui .auth-container {
@@ -1523,6 +1556,59 @@ body::before {
 
 .swagger-ui .auth-container .errors-wrapper {
   border-radius: var(--docs-radius-sm);
+}
+
+.swagger-ui .auth-container input[type="text"],
+.swagger-ui .auth-container input[type="password"] {
+  min-height: 44px;
+  color: var(--docs-ink);
+  font-size: 13px;
+  font-weight: 650;
+  background: var(--docs-surface);
+  border: 1px solid var(--docs-border-strong);
+  border-radius: var(--docs-radius-sm);
+  box-shadow: var(--docs-shadow-sm);
+}
+
+.api-docs-authorize-refresh {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  margin-top: 16px;
+  background: var(--docs-surface-subtle);
+  border: 1px solid var(--docs-border);
+  border-radius: var(--docs-radius-md);
+}
+
+.api-docs-authorize-refresh-header {
+  display: grid;
+  gap: 4px;
+}
+
+.api-docs-authorize-refresh-title {
+  color: var(--docs-ink);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.api-docs-authorize-refresh-copy {
+  color: var(--docs-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.swagger-ui .api-docs-authorize-refresh-input {
+  min-height: 76px;
+  resize: vertical;
+  color: var(--docs-ink);
+  font-family: var(--docs-font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  background: var(--docs-surface);
 }
 
 .swagger-ui .dialog-ux .modal-ux {
@@ -1559,6 +1645,35 @@ body::before {
   color: var(--docs-accent-strong);
   background: var(--docs-accent-soft);
   border-radius: var(--docs-radius-xs);
+}
+
+.swagger-ui .dialog-ux .modal-ux .modal-btn.auth.authorize {
+  min-width: 170px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #047857, #0f766e);
+  border: 1px solid rgba(4, 120, 87, 0.86);
+  box-shadow:
+    0 14px 34px rgba(4, 120, 87, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.swagger-ui .dialog-ux .modal-ux .modal-btn.auth.authorize:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #065f46, #0f766e);
+  border-color: rgba(4, 120, 87, 1);
+}
+
+.swagger-ui .dialog-ux .modal-ux .modal-btn.auth.btn-done {
+  min-width: 96px;
+  color: var(--docs-ink);
+  background: var(--docs-surface);
+  border: 1px solid var(--docs-border-strong);
+  box-shadow: var(--docs-shadow-sm);
+}
+
+.swagger-ui .dialog-ux .modal-ux .modal-btn.auth.btn-done:hover {
+  background: var(--docs-surface-subtle);
+  border-color: rgba(15, 118, 110, 0.32);
 }
 
 .swagger-ui .dialog-ux .modal-ux-header .close-modal {

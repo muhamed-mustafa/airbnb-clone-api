@@ -115,6 +115,14 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     }
   };
 
+  const syncAuthorizeRefreshTokenField = () => {
+    const input = document.querySelector('#api-docs-authorize-refresh-token');
+
+    if (input) {
+      input.value = readStoredValue(storageKeys.refreshToken);
+    }
+  };
+
   const syncContextPanel = () => {
     if (!contextPanelElements) {
       return;
@@ -123,6 +131,31 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     contextPanelElements.accessToken.value = readStoredValue(storageKeys.accessToken);
     contextPanelElements.refreshToken.value = readStoredValue(storageKeys.refreshToken);
     contextPanelElements.acceptLanguage.value = getAcceptedLanguage();
+    syncAuthorizeRefreshTokenField();
+  };
+
+  const readAuthorizedAccessToken = () => {
+    const authorized = window.ui?.getState?.().get('auth')?.get('authorized');
+    const scheme = authorized?.get?.(portalConfig.authSchemeName);
+    const value = scheme?.get?.('value') || scheme?.value;
+
+    return normalizeToken(value);
+  };
+
+  const syncStoredAccessTokenFromNativeAuthorize = () => {
+    const token = readAuthorizedAccessToken();
+
+    if (!token) {
+      return;
+    }
+
+    writeStoredValue(storageKeys.accessToken, token);
+
+    if (contextPanelElements?.accessToken) {
+      contextPanelElements.accessToken.value = token;
+    }
+
+    setContextStatus('Access token synced from Swagger Authorize.');
   };
 
   const parseMaybeJson = (candidate) => {
@@ -167,7 +200,8 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     }
 
     syncContextPanel();
-    setContextStatus('Tokens captured from the latest authentication response.');
+    syncAuthorizeRefreshTokenField();
+    setContextStatus('Tokens captured and access token authorized automatically.');
   };
 
   window.AirbnbCloneApiDocs = {
@@ -381,6 +415,7 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     refreshTokenInput.addEventListener('input', () => {
       const token = normalizeToken(refreshTokenInput.value);
       writeStoredValue(storageKeys.refreshToken, token);
+      syncAuthorizeRefreshTokenField();
       setContextStatus(token ? 'Refresh token stored in this browser.' : 'Refresh token cleared.');
     });
 
@@ -403,8 +438,64 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
       accessTokenInput.value = '';
       refreshTokenInput.value = '';
       authorizeAccessToken('');
+      syncAuthorizeRefreshTokenField();
       setContextStatus('Authentication context cleared.');
     });
+  };
+
+  const mountAuthorizeRefreshTokenField = () => {
+    const modal = document.querySelector('.swagger-ui .dialog-ux .modal-ux');
+    const authContainer = modal?.querySelector('.auth-container');
+
+    if (!modal || !authContainer || authContainer.querySelector('.api-docs-authorize-refresh')) {
+      return;
+    }
+
+    const refreshBlock = document.createElement('div');
+    refreshBlock.className = 'api-docs-authorize-refresh';
+
+    const header = document.createElement('div');
+    header.className = 'api-docs-authorize-refresh-header';
+    header.append(
+      createText('span', 'api-docs-authorize-refresh-title', 'Refresh Token'),
+      createText(
+        'small',
+        'api-docs-authorize-refresh-copy',
+        'Captured from Register, Login, or Refresh Token responses and kept for the refresh flow.',
+      ),
+    );
+
+    const input = createTokenInput(
+      'api-docs-authorize-refresh-token',
+      'Paste refresh token returned by authentication endpoints',
+    );
+    input.classList.add('api-docs-authorize-refresh-input');
+    input.value = readStoredValue(storageKeys.refreshToken);
+
+    input.addEventListener('input', () => {
+      const token = normalizeToken(input.value);
+      writeStoredValue(storageKeys.refreshToken, token);
+
+      if (contextPanelElements?.refreshToken) {
+        contextPanelElements.refreshToken.value = token;
+      }
+
+      setContextStatus(token ? 'Refresh token stored from Authorize.' : 'Refresh token cleared.');
+    });
+
+    refreshBlock.append(header, input);
+    authContainer.appendChild(refreshBlock);
+
+    if (!modal.dataset.apiDocsNativeAuthSync) {
+      modal.dataset.apiDocsNativeAuthSync = 'true';
+      modal.addEventListener(
+        'click',
+        () => {
+          window.setTimeout(syncStoredAccessTokenFromNativeAuthorize, 120);
+        },
+        true,
+      );
+    }
   };
 
   const decorateTopbar = () => {
@@ -438,6 +529,7 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     enforceLightTheme();
     mountHero();
     mountContextPanel();
+    mountAuthorizeRefreshTokenField();
     decorateTopbar();
     decorateTags();
   };
