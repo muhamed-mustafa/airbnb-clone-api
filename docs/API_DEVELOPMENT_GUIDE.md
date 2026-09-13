@@ -125,9 +125,11 @@ Reuse the existing decorators at the root of that directory:
 - `ApiInvalidPhoneNumberResponse`: 400 application error envelope.
 - `ApiRegisterBadRequestResponses`: a single 400 response using `oneOf` with validation/application DTO references and examples. It registers referenced models through `ApiExtraModels`.
 
-For multiple shapes at one status, compose them into one response as registration does; separate decorators for the same status can overwrite metadata. Do not duplicate common schemas. The current registration Swagger example uses `validation.isEmail`, whereas the runtime formatter emits constraint keys such as `isEmail`; verify examples against execution when changing that contract.
+For multiple shapes at one status, compose them into one response as registration does; separate decorators for the same status can overwrite metadata. Do not duplicate common schemas. Response examples belong under `content["application/json"].examples`, alongside the schema, so Swagger renders a selectable examples dropdown. Validation examples in `examples/validation.examples.ts` are specific to each DTO and were captured from its current validators, including existing untranslated i18n helper output. Keep them aligned when validators change. Authentication failures retain their generic response rather than inventing a field in the application error envelope.
 
 [swagger.config.ts](../src/common/presentation/swagger/swagger.config.ts) builds API information, servers, tags and the security scheme. [swagger.setup.ts](../src/common/presentation/swagger/swagger.setup.ts) generates the document and serves `/api/docs` with `/api/docs-json`. [swagger.constants.ts](../src/common/presentation/swagger/swagger.constants.ts) owns shared names. Preserve the [UI script](../src/common/presentation/swagger/swagger-ui.script.ts) and [CSS](../src/common/presentation/swagger/swagger-ui.css.ts) during endpoint changes.
+
+The create-user endpoint remains implemented and registered at `POST /api/users`, but `ApiCreateUserDocs` composes `ApiExcludeEndpoint()` to hide only that operation from Swagger. Its DTOs, mapper, service, controller and tests remain in the repository. The document configuration keeps the Users tag available for future endpoints; hiding documentation does not disable or authorize a route.
 
 ## 11. Swagger Operation IDs
 
@@ -144,7 +146,9 @@ Keep IDs stable across internal refactors: client generation and documentation c
 
 ## 12. Swagger Ordering and Grouping
 
-Class tags use `SWAGGER_TAGS`: Authentication precedes Users in the custom tag sorter. The operation sorter reads numeric `x-docs-order`: register is 10, login 20, refresh token 30; create user is 10 within Users. Choose numbers to represent the feature workflow and leave room for additions.
+The UI shows a shared path prefix once per group and relative paths beneath it, deriving the prefix from actual path segments. Full paths remain in tooltips and OpenAPI.
+
+Class tags use `SWAGGER_TAGS`: Authentication precedes Users in the custom tag sorter. Tag search is case-insensitive through the Swagger UI `fn.opsFilter` override. The operation sorter reads numeric `x-docs-order`: register is 10, login 20, refresh token 30; create user is 10 within Users. Choose numbers to represent the feature workflow and leave room for additions.
 
 The sorter falls back to 1000 for nonnumeric/missing order, then compares HTTP method priority (POST, GET, PUT, PATCH, DELETE), then path. Preserve extensions inside composites. Add a new tag consistently in constants, document configuration and the tag sorter when intentional positioning is needed.
 
@@ -277,7 +281,7 @@ export const ApiLoginDocs = () =>
       description: 'Authentication successful. Returns access and refresh tokens.',
       type: AuthResponseDto,
     }),
-    ApiValidationErrorResponse(),
+    ApiValidationErrorResponse(LOGIN_VALIDATION_EXAMPLES),
     ApiInvalidCredentialsResponse(),
     ApiInternalErrorResponse(),
   );

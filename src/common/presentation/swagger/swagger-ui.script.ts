@@ -36,11 +36,6 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     acceptLanguage: 'airbnb-clone-api.docs.accept-language',
   });
 
-  const operationPathDisplayRules = Object.freeze([
-    { tag: 'Authentication', prefix: '/api/auth' },
-    { tag: 'Users', prefix: '/api/users' },
-  ]);
-
   let languagePanelElements = null;
 
   const enforceLightTheme = () => {
@@ -447,84 +442,48 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     document.querySelectorAll('.swagger-ui .opblock-tag').forEach((tag) => {
       const text = (tag.textContent || '').trim();
       const tagName = tag.dataset.tag || text.split(/\\s+/)[0] || 'API';
-      const displayRule = operationPathDisplayRules.find((rule) => rule.tag === tagName);
 
       tag.setAttribute('data-tag-initial', tagName.charAt(0).toUpperCase());
 
-      if (!displayRule) {
-        return;
-      }
-
-      const existingBadge = tag.querySelector('.api-docs-tag-base-path');
-
-      if (existingBadge) {
-        existingBadge.textContent = 'Base path ' + displayRule.prefix;
-        return;
-      }
-
-      const badge = document.createElement('span');
-      badge.className = 'api-docs-tag-base-path';
-      badge.textContent = 'Base path ' + displayRule.prefix;
-      badge.title = 'Use ' + displayRule.prefix + ' before the relative paths in this section.';
-
-      const expandButton = tag.querySelector('.expand-operation');
-      if (expandButton) {
-        tag.insertBefore(badge, expandButton);
-      } else {
-        tag.appendChild(badge);
-      }
     });
-  };
-
-  const setDisplayedPath = (element, displayPath) => {
-    const target = element.querySelector('a span') || element;
-
-    if (target.dataset.displayPath === displayPath) {
-      return;
-    }
-
-    target.textContent = '';
-
-    if (displayPath === '/') {
-      target.textContent = displayPath;
-    } else {
-      displayPath.split('/').forEach((segment, index) => {
-        if (index > 0) {
-          target.append('/');
-          target.append(document.createElement('wbr'));
-        }
-
-        if (segment) {
-          target.append(segment);
-        }
-      });
-    }
-
-    target.dataset.displayPath = displayPath;
   };
 
   const decorateOperationPaths = () => {
     document.querySelectorAll('.swagger-ui .opblock-tag-section').forEach((section) => {
       const tag = section.querySelector('.opblock-tag');
-      const tagName = tag?.dataset.tag || '';
-      const displayRule = operationPathDisplayRules.find((rule) => rule.tag === tagName);
+      const paths = Array.from(section.querySelectorAll('.opblock-summary-path[data-path]'));
+      if (!tag || !paths.length) return;
 
-      if (!displayRule) {
-        return;
+      // Compare complete path segments, never infer a route prefix from a tag name.
+      const segments = paths.map((element) =>
+        element.getAttribute('data-path').split('/').filter(Boolean),
+      );
+      const common = segments[0].slice(0, -1);
+      while (common.length && !segments.every((parts) =>
+        common.every((part, index) => parts[index] === part),
+      )) {
+        common.pop();
+      }
+      const prefix = common.length ? '/' + common.join('/') : '';
+      let badge = tag.querySelector('.api-docs-tag-base-path');
+      if (prefix) {
+        if (!badge) {
+          badge = document.createElement('code');
+          badge.className = 'api-docs-tag-base-path';
+          tag.insertBefore(badge, tag.querySelector('.expand-operation'));
+        }
+        if (badge.textContent !== prefix) badge.textContent = prefix;
+      } else {
+        badge?.remove();
       }
 
-      section.querySelectorAll('.opblock-summary-path[data-path]').forEach((pathElement) => {
-        const fullPath = pathElement.getAttribute('data-path') || '';
-
-        if (fullPath !== displayRule.prefix && !fullPath.startsWith(displayRule.prefix + '/')) {
-          return;
-        }
-
-        const displayPath = fullPath.slice(displayRule.prefix.length) || '/';
-        pathElement.classList.add('api-docs-short-path');
-        pathElement.setAttribute('title', 'Full path: ' + fullPath);
-        pathElement.setAttribute('aria-label', fullPath);
-        setDisplayedPath(pathElement, displayPath);
+      paths.forEach((element) => {
+        const fullPath = element.getAttribute('data-path');
+        const displayPath = fullPath.slice(prefix.length) || '/';
+        const target = element.querySelector('a span') || element.querySelector('a') || element;
+        if (target.textContent !== displayPath) target.textContent = displayPath;
+        element.setAttribute('title', fullPath);
+        element.setAttribute('aria-label', fullPath);
       });
     });
   };
@@ -544,8 +503,17 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
   const root = document.getElementById('swagger-ui');
 
   if (root && window.MutationObserver) {
-    const observer = new MutationObserver(decorate);
-    observer.observe(root, { childList: true, subtree: true });
+    const observationOptions = { childList: true, subtree: true };
+    const observer = new MutationObserver(() => {
+      // Our DOM updates must not trigger another decoration pass.
+      observer.disconnect();
+      try {
+        decorate();
+      } finally {
+        observer.observe(root, observationOptions);
+      }
+    });
+    observer.observe(root, observationOptions);
   }
 })();
 `.trim();

@@ -928,9 +928,6 @@ body::before {
   word-break: break-word;
 }
 
-.swagger-ui .opblock .opblock-summary-path.api-docs-short-path {
-  color: #0f172a;
-}
 
 .swagger-ui .opblock .opblock-summary-path__deprecated {
   color: var(--docs-muted);

@@ -1,3 +1,4 @@
+import { REGISTER_VALIDATION_EXAMPLES } from '../examples/validation.examples';
 import { applyDecorators } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiExtraModels, getSchemaPath } from '@nestjs/swagger';
 import { ApplicationErrorResponseDto } from '../dtos/application-error-response.dto';
@@ -9,29 +10,19 @@ export const ApiRegisterBadRequestResponses = () =>
     ApiBadRequestResponse({
       description:
         'Bad request — returned for validation failures or an invalid phone number for the given country code.',
-      schema: {
-        oneOf: [
-          { $ref: getSchemaPath(ValidationErrorsResponseDto) },
-          { $ref: getSchemaPath(ApplicationErrorResponseDto) },
-        ],
-        examples: {
-          validationError: {
-            summary: 'Validation failure',
-            value: {
-              errors: [
-                {
-                  code: 'validation.isEmail',
-                  field: 'email',
-                  message: 'email must be a valid email address',
-                },
-              ],
-            },
+      content: {
+        'application/json': {
+          schema: {
+            oneOf: [
+              { $ref: getSchemaPath(ValidationErrorsResponseDto) },
+              { $ref: getSchemaPath(ApplicationErrorResponseDto) },
+            ],
           },
-          invalidPhone: {
-            summary: 'Invalid phone number',
-            value: {
-              code: 'INVALID_PHONE_NUMBER',
-              message: 'Invalid phone number',
+          examples: {
+            ...REGISTER_VALIDATION_EXAMPLES,
+            invalidPhone: {
+              summary: 'phone ? invalid for country code',
+              value: { code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' },
             },
           },
         },

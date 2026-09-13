@@ -208,6 +208,17 @@ export const setupSwagger = (app: INestApplication): void => {
       deepLinking: true,
       docExpansion: 'list',
       filter: true,
+      fn: {
+        opsFilter: (
+          taggedOperations: {
+            filter: (predicate: (value: unknown, tag: string) => boolean) => unknown;
+          },
+          phrase: string,
+        ) =>
+          taggedOperations.filter((_value, tag) =>
+            tag.toLowerCase().includes(phrase.toLowerCase()),
+          ),
+      },
       displayRequestDuration: true,
       tryItOutEnabled: true,
       requestInterceptor: swaggerRequestInterceptor,
