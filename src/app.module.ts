@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { GlobalExceptionFilter } from './common/errors-handling/filters/global-exception-filter';
@@ -8,10 +8,11 @@ import { ApplicationExceptionFilter } from './common/presentation/filters/applic
 import { RequestContextMiddleware } from './common/presentation/middleware/request-context/request-context.middleware';
 import { RequestContextModule } from './common/request-context/request-context.module';
 import { CoreModule } from './core.module';
+import { LoggingModule } from './infrastructure/logging/logging.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [CoreModule, UsersModule, AuthModule, RequestContextModule],
+  imports: [CoreModule, UsersModule, AuthModule, RequestContextModule, LoggingModule],
   providers: [
     {
       provide: APP_FILTER,
@@ -33,6 +34,8 @@ import { UsersModule } from './users/users.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestContextMiddleware).forRoutes('*');
+    consumer
+      .apply(RequestContextMiddleware)
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

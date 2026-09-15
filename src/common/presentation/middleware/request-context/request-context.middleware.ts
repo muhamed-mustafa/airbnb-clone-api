@@ -10,7 +10,6 @@ export class RequestContextMiddleware implements NestMiddleware {
   use(request: Request, response: Response, next: NextFunction): void {
     const requestId = request.header('x-request-id') ?? randomUUID();
 
-    console.log('REQUEST ID:', requestId);
     response.setHeader('x-request-id', requestId);
 
     this.requestContext.run(

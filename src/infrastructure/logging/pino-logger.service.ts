@@ -15,6 +15,7 @@ export class PinoLoggerService implements Logger {
   ) {
     const environment = this.configService.getOrThrow<string>('NODE_ENV');
     this.logger = pino({
+      redact: ['password', 'accessToken', 'refreshToken', 'apiKey'],
       level: environment === 'production' ? 'info' : 'debug',
       base: {
         service: 'airbnb-clone-api',
@@ -54,7 +55,7 @@ export class PinoLoggerService implements Logger {
     this.logger.warn(this.withRequestContext(context), message);
   }
 
-  error(message: string, context?: LogContext): void {
-    this.logger.error(this.withRequestContext(context), message);
+  error(error: Error, message?: string, context?: LogContext): void {
+    this.logger.error({ err: error, ...this.withRequestContext(context) }, message);
   }
 }
