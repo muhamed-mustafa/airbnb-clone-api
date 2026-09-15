@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EnvironmentVariables } from '../common/config/env.types';
+import { LoggingModule } from '../infrastructure/logging/logging.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -29,6 +30,7 @@ import { RegisterUseCase } from './use-cases/register.usecase';
       }),
       inject: [ConfigService],
     }),
+    LoggingModule,
   ],
   controllers: [AuthController],
   providers: [

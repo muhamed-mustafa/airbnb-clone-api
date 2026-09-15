@@ -2,6 +2,7 @@ import { EnvironmentVariables } from '../../common/config/env.types';
 
 export default (): EnvironmentVariables => ({
   PORT: Number(process.env.PORT ?? 3000),
+  NODE_ENV: (process.env.NODE_ENV as EnvironmentVariables['NODE_ENV']) ?? 'development',
   FALLBACK_LANGUAGE: (process.env.FALLBACK_LANGUAGE as string) ?? 'en',
   MONGO_URI: process.env.MONGO_URI as string,
   JWT_SECRET: process.env.JWT_SECRET as string,

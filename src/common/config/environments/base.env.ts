@@ -2,6 +2,7 @@ import { EnvironmentVariables } from 'src/common/config/env.types';
 
 export const baseEnv = (): EnvironmentVariables => ({
   PORT: Number(process.env.PORT),
+  NODE_ENV: process.env.NODE_ENV as EnvironmentVariables['NODE_ENV'],
   FALLBACK_LANGUAGE: process.env.FALLBACK_LANGUAGE as string,
   MONGO_URI: process.env.MONGO_URI as string,
   JWT_SECRET: process.env.JWT_SECRET as string,

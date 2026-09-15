@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ApplicationError } from '../../common/errors/application.error';
+import type { Logger } from '../../common/logging/logger';
+import { LOGGER } from '../../common/logging/logger.token';
 import { parseAndValidatePhone } from '../../common/utils/phone.util';
 import { UsersService } from '../../users/users.service';
 import { RegisterInput } from '../inputs/register.input';
@@ -7,7 +9,6 @@ import { RegisterOutput } from '../outputs/register.output';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';
 import type { SecretHashService } from '../services/secret-hash.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
-
 @Injectable()
 export class RegisterUseCase {
   constructor(
@@ -15,6 +16,8 @@ export class RegisterUseCase {
     private readonly generateToken: GenerateTokenUseCase,
     @Inject(SECRET_HASH_SERVICE_TOKEN)
     private readonly secretHashService: SecretHashService,
+    @Inject(LOGGER)
+    private readonly logger: Logger,
   ) {}
 
   async execute(body: RegisterInput): Promise<RegisterOutput> {
@@ -32,6 +35,8 @@ export class RegisterUseCase {
       phone: phoneNumber,
       password,
     });
+
+    this.logger.info('User registered successfully', { userId: user.id });
 
     const { accessToken, refreshToken } = await this.generateToken.execute(user.id);
 
