@@ -121,7 +121,7 @@ export default {
 ### Successful Pre-Commit Flow
 
 ```bash
-git add src/users/users.service.ts
+git add src/application/users/services/users.service.ts
 git commit -m "feat(users): add user lookup service"
 ```
 
@@ -142,7 +142,7 @@ Execution output:
 **What happened:**
 
 1. Husky triggered `lint-staged`.
-2. ESLint analyzed `src/users/users.service.ts` (0 errors).
+2. ESLint analyzed `src/application/users/services/users.service.ts` (0 errors).
 3. Prettier formatted the file and staged the changes.
 4. Commitlint validated `"feat(users): add user lookup service"` (Valid Conventional Commit).
 5. The commit succeeded.
@@ -240,12 +240,12 @@ Use specific, meaningful scopes based on the project architecture:
 
 | Scope        | Architectural Area                               | Example File / Module          |
 | :----------- | :----------------------------------------------- | :----------------------------- |
-| `auth`       | Authentication, tokens, guards, strategies       | `src/auth/`                    |
-| `users`      | User management and profiles                     | `src/users/`                   |
+| `auth`       | Authentication, tokens, guards, strategies       | `src/application/auth/`        |
+| `users`      | User management and profiles                     | `src/application/users/`       |
 | `config`     | Environment variables and validation schemas     | `src/common/config/`           |
-| `i18n`       | Internationalization and translations            | `src/i18n/`                    |
+| `i18n`       | Internationalization and translations            | `src/common/i18n/`             |
 | `database`   | MongoDB connection, Mongoose schemas, plugins    | `CoreModule`, schemas          |
-| `errors`     | Exception filters and custom error classes       | `src/common/errors-handling/`  |
+| `errors`     | Exception filters and custom error classes       | `src/presentation/errors/`     |
 | `validation` | DTOs, validation pipes, and error formatters     | Validation pipes, DTOs         |
 | `tooling`    | ESLint, Prettier, Husky, Commitlint              | Tooling configuration files    |
 | `docker`     | Dockerfile, Docker Compose                       | `docker-compose.yml`           |
@@ -334,10 +334,10 @@ git diff --cached
 
 ```bash
 # Stage a specific file
-git add src/auth/auth.service.ts
+git add src/application/auth/services/auth.service.ts
 
 # Stage a specific directory
-git add src/users/
+git add src/application/users/
 
 # Verify what is staged before committing
 git diff --cached
@@ -359,7 +359,7 @@ git status
 git diff
 
 # 3. Stage the files related to your specific task
-git add src/users/users.service.ts src/users/users.controller.ts
+git add src/application/users/services/users.service.ts src/presentation/users/users.controller.ts
 
 # 4. Confirm staged changes
 git diff --cached

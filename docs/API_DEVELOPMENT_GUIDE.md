@@ -4,7 +4,7 @@ This document is the source of truth for AI coding agents when adding or modifyi
 
 ## 1. Purpose
 
-Read this guide before endpoint work, then inspect the closest existing implementation. Follow repository patterns over generic NestJS assumptions. The architecture is organized by feature, with logical boundaries that are not always separate directories. Preserve established behavior; where this guide identifies a gap, do not silently turn it into a new convention or fix it outside the requested scope. Update this guide when an intentional architectural change makes it inaccurate.
+Read this guide before endpoint work, then inspect the closest existing implementation. Follow repository patterns over generic NestJS assumptions. The architecture uses top-level `app/`, `presentation/`, `application/`, `infrastructure/` and `common/` layers, with auth and users grouped by feature within each layer. Preserve established behavior; where this guide identifies a gap, do not silently turn it into a new convention or fix it outside the requested scope. Update this guide when an intentional architectural change makes it inaccurate.
 
 ## 2. Architecture
 
@@ -16,19 +16,19 @@ Controller -> Mapper -> Feature service -> Use case (auth) -> Abstractions
                                                      Infrastructure implements
 ```
 
-| Responsibility | Current locations and boundaries                                                                                                                                   |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Presentation   | Controllers, request/response DTOs, HTTP mapping, Swagger, exception filters. Controllers call feature services.                                                   |
-| Application    | Auth use cases, feature services, plain input/output interfaces and entities. Express business behavior through repository, token and hashing abstractions.        |
-| Abstractions   | Feature `repositories/` interfaces and tokens; auth `services/` interfaces and tokens. Expose application types, not Mongoose queries/documents.                   |
-| Infrastructure | Mongoose repositories and schemas; JWT and Argon2 adapters in auth `infrastructure/services/`. Own persistence, signing, hashing and infrastructure configuration. |
-| Composition    | Feature modules bind tokens with `useClass`; `CoreModule` configures environment, Mongoose and i18n; `AppModule` registers global filters.                         |
+| Responsibility | Current locations and boundaries                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Presentation   | Controllers, request/response DTOs, HTTP mapping, Swagger, exception filters. Controllers call feature services.                                                         |
+| Application    | Auth use cases, feature services, plain input/output interfaces and entities. Express business behavior through repository, token and hashing abstractions.              |
+| Abstractions   | Application feature `repositories/` interfaces and tokens; application auth `services/` interfaces and tokens. Expose application types, not Mongoose queries/documents. |
+| Infrastructure | Mongoose repositories and schemas; JWT and Argon2 adapters in `infrastructure/auth/services/`. Own persistence, signing, hashing and infrastructure configuration.       |
+| Composition    | Feature modules bind tokens with `useClass`; `CoreModule` configures environment, Mongoose and i18n; `AppModule` registers global filters.                               |
 
-See [AuthModule](../src/auth/auth.module.ts), [UsersModule](../src/users/users.module.ts), [CoreModule](../src/core.module.ts) and [AppModule](../src/app.module.ts).
+See [AuthModule](../src/app/auth.module.ts), [UsersModule](../src/app/users.module.ts), [CoreModule](../src/app/core.module.ts) and [AppModule](../src/app/app.module.ts).
 
 Application code uses Nest `@Injectable()` and `@Inject()`; it is not framework-free. Keep Mongoose models/operators, concrete repositories, `JwtService`, `ConfigService`, Argon2 calls, HTTP exceptions, DTO validation and Swagger metadata out of use cases. Use the existing interfaces instead. Module configuration may depend on infrastructure.
 
-Two existing exceptions matter: Mongoose repository implementations live beside their interfaces in `repositories/`, and the users repository reuses `UserMapper`, which also handles presentation DTOs. Do not relocate these files as part of ordinary endpoint work. `UsersService` delegates directly to its repository; there is no users use-case directory or output interface layer to imitate.
+Repository contracts live in `application/`; implementations live in `infrastructure/`. The users repository uses its infrastructure `UserMapper` to copy persistence fields into `UserEntity`; the presentation `UserMapper` handles HTTP DTOs separately. Infrastructure must not import presentation, and application must not import either outer layer. Feature modules live in `app/` and compose these layers. `UsersService` delegates directly to its repository; there is no users use-case directory or output interface layer to imitate.
 
 ## 3. Endpoint Implementation Workflow
 
@@ -43,25 +43,25 @@ Two existing exceptions matter: Mongoose repository implementations live beside 
 
 ## 4. Controllers
 
-[AuthController](../src/auth/auth.controller.ts) and [UsersController](../src/users/users.controller.ts) are the only current controllers. All four endpoints are POSTs and use Nest's default 201 success status. [Bootstrap](../src/main.ts) adds the `/api` prefix.
+[AuthController](../src/presentation/auth/auth.controller.ts) and [UsersController](../src/presentation/users/users.controller.ts) are the only current controllers. All four endpoints are POSTs and use Nest's default 201 success status. [Bootstrap](../src/main.ts) adds the `/api` prefix.
 
 Controllers receive DTOs with `@Body()`, map them to application inputs, call the feature service, and map the result to a response DTO shape. Keep business rules, hashing, token work and database logic outside controllers. Do not inject repositories into controllers. Preserve class-level `@ApiTags(SWAGGER_TAGS.AUTH)` or `SWAGGER_TAGS.USERS`; operation documentation belongs in the endpoint composite decorator.
 
 ## 5. DTOs
 
-Auth request and response classes live in [auth presentation DTOs](../src/auth/presentation/dtos/); users classes live in [users DTOs](../src/users/dtos/). Follow the feature's existing location. These are presentation contracts; application inputs/outputs are separate interfaces.
+Auth request and response classes live in [auth presentation DTOs](../src/presentation/auth/dtos/); users classes live in [users DTOs](../src/presentation/users/dtos/). Follow the feature's existing location. These are presentation contracts; application inputs/outputs are separate interfaces.
 
 - Keep property descriptions, examples, formats, length bounds and flags such as `writeOnly` in `@ApiProperty()` on DTO properties. Swagger metadata does not enforce validation.
-- Reuse [IsRequiredString](../src/common/validators/is-required-string.decorator.ts) for required strings: it composes `IsNotEmpty`, `IsString`, and optional `MinLength`/`MaxLength` with i18n messages.
+- Reuse [IsRequiredString](../src/presentation/validators/is-required-string.decorator.ts) for required strings: it composes `IsNotEmpty`, `IsString`, and optional `MinLength`/`MaxLength` with i18n messages.
 - Use `class-validator` for request shape constraints. Register and create-user email validation use `i18nValidationMessage('validation.isEmail')`.
-- Reuse [transformers](../src/common/utils/transformers.util.ts) via `@Transform`: `trimString` trims strings; `normalizeEmail` trims and lowercases them. Neither changes non-string values.
+- Reuse [transformers](../src/presentation/utils/transformers.util.ts) via `@Transform`: `trimString` trims strings; `normalizeEmail` trims and lowercases them. Neither changes non-string values.
 - Transformations are field-specific. Registration normalizes email and does not trim password; create-user trims email and password; login and refresh DTOs have no transforms. Do not assume every email is lowercased or every string trimmed.
 
-Response mapping is explicit in [AuthMapper](../src/auth/mappers/auth.mapper.ts) and [UserMapper](../src/users/mappers/user.mapper.ts). **Existing serialization gap:** `UserResponseDto` marks password with `@Exclude()`, but `UserMapper.toResponse()` returns a plain object containing password, and bootstrap installs no `ClassSerializerInterceptor`. Do not assume the decorator removes that field from runtime responses. Verify actual output and address any fix within an explicitly scoped change. Similarly, direct user creation does not perform the password hashing implemented by registration.
+Response mapping is explicit in [AuthMapper](../src/presentation/auth/mappers/auth.mapper.ts) and [UserMapper](../src/presentation/users/mappers/user.mapper.ts). **Existing serialization gap:** `UserResponseDto` marks password with `@Exclude()`, but `UserMapper.toResponse()` returns a plain object containing password, and bootstrap installs no `ClassSerializerInterceptor`. Do not assume the decorator removes that field from runtime responses. Verify actual output and address any fix within an explicitly scoped change. Similarly, direct user creation does not perform the password hashing implemented by registration.
 
 ## 6. Application Layer
 
-[AuthService](../src/auth/auth.service.ts) delegates to `RegisterUseCase`, `LoginUseCase` and `RefreshTokenUseCase`. Their `execute(input)` methods consume interfaces in [inputs](../src/auth/inputs/) and return interfaces in [outputs](../src/auth/outputs/). `GenerateTokenUseCase` shares token issuance and rotation behavior. [UsersService](../src/users/users.service.ts) consumes `CreateUserInput`/`UserFilter` and returns `UserEntity` or `null` for a missing lookup.
+[AuthService](../src/application/auth/services/auth.service.ts) delegates to `RegisterUseCase`, `LoginUseCase` and `RefreshTokenUseCase`. Their `execute(input)` methods consume interfaces in [inputs](../src/application/auth/inputs/) and return interfaces in [outputs](../src/application/auth/outputs/). `GenerateTokenUseCase` shares token issuance and rotation behavior. [UsersService](../src/application/users/services/users.service.ts) consumes `CreateUserInput`/`UserFilter` and returns `UserEntity` or `null` for a missing lookup.
 
 Auth use cases consume `UsersService`, `RefreshTokenRepository`, `TokenService` and `SecretHashService`. Symbol tokens are `REFRESH_TOKEN_REPOSITORY`, `TOKEN_SERVICE_TOKEN`, `SECRET_HASH_SERVICE_TOKEN` and, in users, `USER_REPOSITORY_TOKEN`. Inject interface dependencies with `@Inject(TOKEN)` and type-only interface imports where appropriate. Bind adapters in the module, not in a controller or use case.
 
@@ -69,10 +69,10 @@ Application expresses what happens: registration validates a phone through [pars
 
 ## 7. Repository Boundary
 
-| Contract                                                                                                         | Token                                                                                  | Implementation                                                                                  |
-| ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [UserRepository](../src/users/repositories/users.repository.ts): `create`, `findOne`                             | [USER_REPOSITORY_TOKEN](../src/users/repositories/user-repository.token.ts)            | [MongooseUsersRepository](../src/users/repositories/mongoose-users.repository.ts)               |
-| [RefreshTokenRepository](../src/auth/repositories/refresh-token.repository.ts): `findByUserId`, `save`, `rotate` | [REFRESH_TOKEN_REPOSITORY](../src/auth/repositories/refresh-token-repository.token.ts) | [MongooseRefreshTokenRepository](../src/auth/repositories/mongoose-refresh-token.repository.ts) |
+| Contract                                                                                                                     | Token                                                                                              | Implementation                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [UserRepository](../src/application/users/repositories/users.repository.ts): `create`, `findOne`                             | [USER_REPOSITORY_TOKEN](../src/application/users/repositories/user-repository.token.ts)            | [MongooseUsersRepository](../src/infrastructure/users/repositories/mongoose-users.repository.ts)               |
+| [RefreshTokenRepository](../src/application/auth/repositories/refresh-token.repository.ts): `findByUserId`, `save`, `rotate` | [REFRESH_TOKEN_REPOSITORY](../src/application/auth/repositories/refresh-token-repository.token.ts) | [MongooseRefreshTokenRepository](../src/infrastructure/auth/repositories/mongoose-refresh-token.repository.ts) |
 
 Add a method only when application behavior needs a capability absent from the contract. Keep its interface and token in the feature's `repositories/`; implement persistence in its Mongoose repository and register any new binding in the feature module. Application callers must not receive `Model`, `Document`, Mongo operators or query builders.
 
@@ -82,18 +82,18 @@ The users repository currently throws `ConflictException` with `auth.USER_ALREAD
 
 ## 8. Error Handling
 
-[AppModule](../src/app.module.ts) registers four `APP_FILTER` providers. Preserve their wiring and these distinct contracts:
+[AppModule](../src/app/app.module.ts) registers four `APP_FILTER` providers. Preserve their wiring and these distinct contracts:
 
-| Error / filter                                                                                                                                                   | HTTP status and JSON shape                                                                                                                   |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [ApplicationError](../src/common/errors/application.error.ts) / [ApplicationExceptionFilter](../src/common/presentation/filters/application-exception.filter.ts) | `INVALID_TOKEN` and `INVALID_CREDENTIALS`: 401; `INVALID_PHONE_NUMBER`: 400. Body: `{ "code": "INVALID_TOKEN", "message": "..." }`.          |
-| [HttpExceptionFilter](../src/common/errors-handling/filters/http-exception.filter.ts)                                                                            | Preserves exception status; `{ "errors": [{ "code": "auth.USER_ALREADY_EXISTS", "message": "...", "field": "email" }] }`; field is optional. |
-| [ValidationExceptionFilter](../src/common/errors-handling/filters/validation-exception.filter.ts)                                                                | 400; `{ "errors": [{ "code": "isEmail", "field": "email", "message": "..." }] }`.                                                            |
-| [GlobalExceptionFilter](../src/common/errors-handling/filters/global-exception-filter.ts)                                                                        | Logs unexpected errors; 500 with `{ "errors": [{ "message": "..." }] }`.                                                                     |
+| Error / filter                                                                                                                                            | HTTP status and JSON shape                                                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ApplicationError](../src/common/errors/application.error.ts) / [ApplicationExceptionFilter](../src/presentation/filters/application-exception.filter.ts) | `INVALID_TOKEN` and `INVALID_CREDENTIALS`: 401; `INVALID_PHONE_NUMBER`: 400. Body: `{ "code": "INVALID_TOKEN", "message": "..." }`.          |
+| [HttpExceptionFilter](../src/presentation/filters/http-exception.filter.ts)                                                                               | Preserves exception status; `{ "errors": [{ "code": "auth.USER_ALREADY_EXISTS", "message": "...", "field": "email" }] }`; field is optional. |
+| [ValidationExceptionFilter](../src/presentation/filters/validation-exception.filter.ts)                                                                   | 400; `{ "errors": [{ "code": "isEmail", "field": "email", "message": "..." }] }`.                                                            |
+| [GlobalExceptionFilter](../src/presentation/filters/global-exception-filter.ts)                                                                           | Logs unexpected errors; 500 with `{ "errors": [{ "message": "..." }] }`.                                                                     |
 
 `code` is a stable machine identifier; `message` is display text that may vary with translation; `field` identifies the affected input property where supported. Do not standardize these different envelopes during endpoint work.
 
-Application codes are unprefixed union members. Their [status/message maps](../src/common/presentation/errors/application-error-status.map.ts) map to HTTP status and translation keys such as `auth.INVALID_TOKEN`. HTTP [ERROR_CODES](../src/common/errors-handling/error-codes.ts) include namespaced identifiers such as `auth.USER_ALREADY_EXISTS`; [HTTP_ERROR_CODES](../src/common/errors-handling/constants/http-error-codes.ts) supplies defaults such as `errors.NOT_FOUND`. These identifiers and translation keys are not interchangeable.
+Application codes are unprefixed union members. Their [status/message maps](../src/presentation/errors/application-error-status.map.ts) map to HTTP status and translation keys such as `auth.INVALID_TOKEN`. HTTP [ERROR_CODES](../src/common/errors/error-codes.ts) include namespaced identifiers such as `auth.USER_ALREADY_EXISTS`; [HTTP_ERROR_CODES](../src/presentation/errors/constants/http-error-codes.ts) supplies defaults such as `errors.NOT_FOUND`. These identifiers and translation keys are not interchangeable.
 
 For a new application failure, extend the union, both maps, translations and Swagger response documentation together. Keep HTTP status selection in presentation. Do not add ad hoc response construction to controllers.
 
@@ -101,18 +101,18 @@ For a new application failure, extend the union, both maps, translations and Swa
 
 [main.ts](../src/main.ts) installs `I18nValidationPipe` with `whitelist: true`, `transform: true`, and `forbidNonWhitelisted: true`. Unknown request fields are rejected. DTO decorators handle input constraints; application rules such as phone validity and token type belong in use cases.
 
-[CoreModule](../src/core.module.ts) registers `AcceptLanguageResolver` and an English fallback, loading [English translations](../src/i18n/en/) and [Arabic translations](../src/i18n/ar/). Bootstrap also installs `I18nMiddleware`. Add corresponding keys in both languages; reuse `validation.isNotEmpty`, `validation.isString`, `validation.isEmail`, `validation.minLength` and `validation.maxLength` as appropriate. The configured i18n fallback is literally `en`, despite the separate environment field named `FALLBACK_LANGUAGE`.
+[CoreModule](../src/app/core.module.ts) registers `AcceptLanguageResolver` and an English fallback, loading [English translations](../src/common/i18n/en/) and [Arabic translations](../src/common/i18n/ar/). Bootstrap also installs `I18nMiddleware`. Add corresponding keys in both languages; reuse `validation.isNotEmpty`, `validation.isString`, `validation.isEmail`, `validation.minLength` and `validation.maxLength` as appropriate. The configured i18n fallback is literally `en`, despite the separate environment field named `FALLBACK_LANGUAGE`.
 
 Verify localization at the HTTP boundary rather than assuming it:
 
-- [formatInputValidationErrors](../src/common/errors-handling/input-validation/format-input-validation-errors.ts) copies top-level constraint keys and messages into `{ code, field, message }`; it does not translate messages or recurse into child errors. Constraint codes are `isEmail`/`minLength`, not `validation.isEmail`/`validation.minLength`.
+- [formatInputValidationErrors](../src/presentation/errors/input-validation/format-input-validation-errors.ts) copies top-level constraint keys and messages into `{ code, field, message }`; it does not translate messages or recurse into child errors. Constraint codes are `isEmail`/`minLength`, not `validation.isEmail`/`validation.minLength`.
 - `IsRequiredString` and registration/create-user email validators use i18n message helpers. Login/refresh validators use default messages. The custom validation filter does not explicitly translate helper output; test the actual message before claiming localized prose.
 - The HTTP filter uses request `I18nContext`. The application filter calls `I18nService.translate` without an explicit language. Test both `Accept-Language: en` and `ar` for any localized contract.
 - The catch-all filter requests `errors.internal_server_error`, while translation files contain `INTERNAL_SERVER_ERROR`. This existing mismatch must not be documented as guaranteed localized output.
 
 ## 10. Swagger / OpenAPI
 
-Use **one semantic operation documentation decorator per endpoint**, implemented with plain `applyDecorators()`. Existing files live under [Swagger decorators](../src/common/presentation/swagger/decorators/) in `auth/` and `users/`. Name new ones `Api<Operation>Docs` in `api-<operation>-docs.decorator.ts`; follow `ApiRegisterDocs`, `ApiLoginDocs`, `ApiRefreshTokenDocs` and `ApiCreateUserDocs`. Do not introduce a generic configurable Swagger factory.
+Use **one semantic operation documentation decorator per endpoint**, implemented with plain `applyDecorators()`. Existing files live under [Swagger decorators](../src/presentation/swagger/decorators/) in `auth/` and `users/`. Name new ones `Api<Operation>Docs` in `api-<operation>-docs.decorator.ts`; follow `ApiRegisterDocs`, `ApiLoginDocs`, `ApiRefreshTokenDocs` and `ApiCreateUserDocs`. Do not introduce a generic configurable Swagger factory.
 
 The composite owns `ApiExtension('x-docs-order', ...)`, `ApiOperation` (explicit ID, summary, description), request DTO references, success response DTO/status/description, reusable error decorators and applicable security metadata. DTO property schemas remain in DTOs. Preserve IDs, examples, schemas, descriptions, statuses and extensions when moving existing documentation.
 
@@ -127,7 +127,7 @@ Reuse the existing decorators at the root of that directory:
 
 For multiple shapes at one status, compose them into one response as registration does; separate decorators for the same status can overwrite metadata. Do not duplicate common schemas. Response examples belong under `content["application/json"].examples`, alongside the schema, so Swagger renders a selectable examples dropdown. Validation examples in `examples/validation.examples.ts` are specific to each DTO and were captured from its current validators, including existing untranslated i18n helper output. Keep them aligned when validators change. Authentication failures retain their generic response rather than inventing a field in the application error envelope.
 
-[swagger.config.ts](../src/common/presentation/swagger/swagger.config.ts) builds API information, servers, tags and the security scheme. [swagger.setup.ts](../src/common/presentation/swagger/swagger.setup.ts) generates the document and serves `/api/docs` with `/api/docs-json`. [swagger.constants.ts](../src/common/presentation/swagger/swagger.constants.ts) owns shared names. Preserve the [UI script](../src/common/presentation/swagger/swagger-ui.script.ts) and [CSS](../src/common/presentation/swagger/swagger-ui.css.ts) during endpoint changes.
+[swagger.config.ts](../src/presentation/swagger/swagger.config.ts) builds API information, servers, tags and the security scheme. [swagger.setup.ts](../src/presentation/swagger/swagger.setup.ts) generates the document and serves `/api/docs` with `/api/docs-json`. [swagger.constants.ts](../src/presentation/swagger/swagger.constants.ts) owns shared names. Preserve the [UI script](../src/presentation/swagger/swagger-ui.script.ts) and [CSS](../src/presentation/swagger/swagger-ui.css.ts) during endpoint changes.
 
 The create-user endpoint remains implemented and registered at `POST /api/users`, but `ApiCreateUserDocs` composes `ApiExcludeEndpoint()` to hide only that operation from Swagger. Its DTOs, mapper, service, controller and tests remain in the repository. The document configuration keeps the Users tag available for future endpoints; hiding documentation does not disable or authorize a route.
 
@@ -166,12 +166,12 @@ The custom UI stores returned tokens, reuses access tokens through Swagger autho
 
 Jest/ts-jest runs colocated `src/**/*.spec.ts` unit tests. E2E tests use Supertest with [test/jest-e2e.json](../test/jest-e2e.json).
 
-| Layer                | Existing coverage and what to add for endpoint work                                                                                                                                                                                                                                                                                                                                          |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Application/use case | [RefreshTokenUseCase tests](../src/auth/use-cases/refresh-token.usecase.spec.ts) test success, wrong token type, missing stored token and invalid hash, with mocked abstractions. [GenerateTokenUseCase tests](../src/auth/use-cases/generate-token.usecase.spec.ts) cover rotation success/failure. Add business rules, errors and meaningful dependency interactions for changed behavior. |
-| Repository           | [MongooseRefreshTokenRepository tests](../src/auth/repositories/mongoose-refresh-token.repository.spec.ts) mock the model and check the conditional update and boolean result. They do not prove database-level concurrency. Add real persistence/integration coverage where a change depends on database semantics.                                                                         |
-| Controller/service   | Existing controller and feature-service tests use Nest testing modules and mocked dependencies, but only assert construction. Add input/output mapping and delegation assertions when relevant; direct method tests do not execute HTTP pipes or filters.                                                                                                                                    |
-| E2E                  | [app.e2e-spec.ts](../test/app.e2e-spec.ts) imports `AppModule` and checks only an unknown-route 404. It does not install bootstrap's prefix, validation pipe, middleware or Swagger. For endpoint contract tests, configure the relevant bootstrap behavior and assert success/error bodies, validation, authentication if present, and localization where applicable.                       |
+| Layer                | Existing coverage and what to add for endpoint work                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Application/use case | [RefreshTokenUseCase tests](../src/application/auth/use-cases/refresh-token.usecase.spec.ts) test success, wrong token type, missing stored token and invalid hash, with mocked abstractions. [GenerateTokenUseCase tests](../src/application/auth/use-cases/generate-token.usecase.spec.ts) cover rotation success/failure. Add business rules, errors and meaningful dependency interactions for changed behavior. |
+| Repository           | [MongooseRefreshTokenRepository tests](../src/infrastructure/auth/repositories/mongoose-refresh-token.repository.spec.ts) mock the model and check the conditional update and boolean result. They do not prove database-level concurrency. Add real persistence/integration coverage where a change depends on database semantics.                                                                                  |
+| Controller/service   | Existing controller and feature-service tests use Nest testing modules and mocked dependencies, but only assert construction. Add input/output mapping and delegation assertions when relevant; direct method tests do not execute HTTP pipes or filters.                                                                                                                                                            |
+| E2E                  | [app.e2e-spec.ts](../test/app.e2e-spec.ts) imports `AppModule` and checks only an unknown-route 404. It does not install bootstrap's prefix, validation pipe, middleware or Swagger. For endpoint contract tests, configure the relevant bootstrap behavior and assert success/error bodies, validation, authentication if present, and localization where applicable.                                               |
 
 `AppModule` E2E tests require valid environment configuration and a reachable MongoDB instance. Use isolated test data/database for persistence tests. Required environment settings are defined in [env.schema.ts](../src/common/config/env.schema.ts); use [.env.example](../.env.example) for setup. Do not claim endpoint coverage merely because the existing bootstrap test passes.
 
@@ -222,7 +222,7 @@ pnpm exec prettier --check docs/API_DEVELOPMENT_GUIDE.md
 
 ### A. Simple endpoint
 
-From [UsersController](../src/users/users.controller.ts), with imports omitted:
+From [UsersController](../src/presentation/users/users.controller.ts), with imports omitted:
 
 ```ts
 @Post()
@@ -238,7 +238,7 @@ This demonstrates thin HTTP mapping. Review the serialization and hashing gaps i
 
 ### B. Authentication flow; no protected endpoint exists
 
-From [RefreshTokenUseCase](../src/auth/use-cases/refresh-token.usecase.ts):
+From [RefreshTokenUseCase](../src/application/auth/use-cases/refresh-token.usecase.ts):
 
 ```ts
 const decodedToken = await this.tokenService.verify(body.token);
@@ -250,14 +250,14 @@ This validates a body-supplied refresh token through an abstraction. It is not b
 
 ### C. Validation and application errors
 
-The password property in [RegisterDto](../src/auth/presentation/dtos/register.dto.ts) uses the following validation (Swagger metadata omitted here):
+The password property in [RegisterDto](../src/presentation/auth/dtos/register.dto.ts) uses the following validation (Swagger metadata omitted here):
 
 ```ts
 @IsRequiredString({ min: 8, max: 128 })
 password!: string;
 ```
 
-Separately, [RegisterUseCase](../src/auth/use-cases/register.usecase.ts) enforces the application phone rule:
+Separately, [RegisterUseCase](../src/application/auth/use-cases/register.usecase.ts) enforces the application phone rule:
 
 ```ts
 const phoneNumber = parseAndValidatePhone(body.countryCode, body.phone);
@@ -269,7 +269,7 @@ if (!phoneNumber) {
 
 ### D. Semantic Swagger composition
 
-Excerpt from [ApiLoginDocs](../src/common/presentation/swagger/decorators/auth/api-login-docs.decorator.ts); imports omitted, operation metadata abbreviated:
+Excerpt from [ApiLoginDocs](../src/presentation/swagger/decorators/auth/api-login-docs.decorator.ts); imports omitted, operation metadata abbreviated:
 
 ```ts
 export const ApiLoginDocs = () =>
