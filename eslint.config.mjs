@@ -13,6 +13,23 @@ const restrictedLayers = {
   common: ['app', 'presentation', 'application', 'infrastructure'],
 };
 
+// Implementation packages used by the project, not Nest DI or testing utilities.
+const applicationRestrictedPackages = [
+  '@nestjs/mongoose',
+  'mongoose',
+  'mongodb',
+  '@nestjs/jwt',
+  '@nestjs/config',
+  'argon2',
+  'nestjs-pino',
+  'pino',
+  'pino-pretty',
+  '@nestjs/platform-express',
+  'express',
+  '@nestjs/swagger',
+  'nestjs-i18n',
+];
+
 export default tseslint.config(
   {
     ignores: [
@@ -63,10 +80,19 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
-          patterns: forbidden.map((target) => ({
-            regex: `^(?:@|src/|(?:\\.{1,2}/)+(?:src/)?)${target}(?:/|$)`,
-            message: `The ${layer} layer must not depend on the ${target} layer.`,
-          })),
+          patterns: [
+            ...forbidden.map((target) => ({
+              regex: `^(?:@|src/|(?:\\.{1,2}/)+(?:src/)?)${target}(?:/|$)`,
+              message: `The ${layer} layer must not depend on the ${target} layer.`,
+            })),
+            ...(layer === 'application'
+              ? applicationRestrictedPackages.map((packageName) => ({
+                  // Include package subpaths and explicit node_modules relative imports.
+                  regex: `^(?:(?:\\.{1,2}/)*node_modules/)?${packageName}(?:/|$)`,
+                  message: `The application layer must not depend on ${packageName}. Use an application-owned contract implemented outside the application layer.`,
+                }))
+              : []),
+          ],
         },
       ],
     },
