@@ -4,6 +4,15 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+// Match layer aliases, baseUrl imports, and relative paths at any nesting depth.
+// Ordinary same-layer imports such as ./foo and ../foo remain valid.
+const restrictedLayers = {
+  application: ['app', 'presentation', 'infrastructure'],
+  presentation: ['app', 'infrastructure'],
+  infrastructure: ['app', 'presentation'],
+  common: ['app', 'presentation', 'application', 'infrastructure'],
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -48,4 +57,18 @@ export default tseslint.config(
       '@typescript-eslint/unbound-method': 'error',
     },
   },
+  ...Object.entries(restrictedLayers).map(([layer, forbidden]) => ({
+    files: [`src/${layer}/**/*.ts`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: forbidden.map((target) => ({
+            regex: `^(?:@|src/|(?:\\.{1,2}/)+(?:src/)?)${target}(?:/|$)`,
+            message: `The ${layer} layer must not depend on the ${target} layer.`,
+          })),
+        },
+      ],
+    },
+  })),
 );
