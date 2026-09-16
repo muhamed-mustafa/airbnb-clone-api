@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { SecretHashService } from '../../../application/auth/services/secret-hash.service';
+import { SecretHashService } from '@application/auth/services/secret-hash.service';
 
 @Injectable()
 export class Argon2SecretHashService implements SecretHashService {

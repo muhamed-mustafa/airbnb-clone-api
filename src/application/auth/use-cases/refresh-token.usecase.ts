@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { RefreshTokenInput } from '../inputs/refresh-token.input';
 import { RefreshTokenOutput } from '../outputs/refresh-token.output';
 import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';

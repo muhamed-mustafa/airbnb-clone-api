@@ -1,7 +1,7 @@
 import { type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
-import type { EnvironmentVariables } from '../../common/config/env.types';
+import type { EnvironmentVariables } from '@common/config/env.types';
 import { SWAGGER_UI_CUSTOM_CSS } from './swagger-ui.css';
 import { buildSwaggerUiCustomJs, SWAGGER_UI_FAVICON } from './swagger-ui.script';
 import { buildSwaggerDocument } from './swagger.config';

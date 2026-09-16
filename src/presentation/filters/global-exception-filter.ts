@@ -1,9 +1,9 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Inject } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nContext } from 'nestjs-i18n';
-import type { Logger } from '../../common/logging/logger';
-import { LOGGER } from '../../common/logging/logger.token';
-import { toError } from '../../common/utils/to-error';
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
+import { toError } from '@common/utils/to-error';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

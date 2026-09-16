@@ -1,8 +1,8 @@
-import { LOGIN_VALIDATION_EXAMPLES } from '../../examples/validation.examples';
+import { LOGIN_VALIDATION_EXAMPLES } from '@presentation/swagger/examples/validation.examples';
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
-import { AuthResponseDto } from '../../../auth/dtos/auth-response.dto';
-import { LoginDto } from '../../../auth/dtos/login.dto';
+import { AuthResponseDto } from '@presentation/auth/dtos/auth-response.dto';
+import { LoginDto } from '@presentation/auth/dtos/login.dto';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
 import { ApiInvalidCredentialsResponse } from '../api-application-error-responses.decorator';

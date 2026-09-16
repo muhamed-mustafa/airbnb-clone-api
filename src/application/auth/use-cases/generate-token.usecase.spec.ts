@@ -1,4 +1,4 @@
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { GenerateTokenUseCase } from './generate-token.usecase';
 
 describe('GenerateTokenUseCase', () => {

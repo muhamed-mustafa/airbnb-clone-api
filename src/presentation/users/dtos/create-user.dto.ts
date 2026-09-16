@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEmail } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
-import { trimString } from '../../utils/transformers.util';
-import { IsRequiredString } from '../../validators/is-required-string.decorator';
+import { trimString } from '@presentation/utils/transformers.util';
+import { IsRequiredString } from '@presentation/validators/is-required-string.decorator';
 
 export class CreateUserDto {
   @ApiProperty({

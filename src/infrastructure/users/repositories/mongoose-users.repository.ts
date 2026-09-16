@@ -1,14 +1,14 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
-import { ERROR_CODES } from '../../../common/errors/error-codes';
-import { UserEntity } from '../../../application/users/entities/user.entity';
-import { CreateUserInput } from '../../../application/users/inputs/create-user.input';
+import { getDuplicateKeyField } from '@infrastructure/database/is-duplicate-key-error';
+import { ERROR_CODES } from '@common/errors/error-codes';
+import { UserEntity } from '@application/users/entities/user.entity';
+import { CreateUserInput } from '@application/users/inputs/create-user.input';
 import { UserMapper } from '../mappers/user.mapper';
 import { User } from '../schemas/user.schema';
-import { UserFilter } from '../../../application/users/repositories/user-filter';
-import { UserRepository } from '../../../application/users/repositories/users.repository';
+import { UserFilter } from '@application/users/repositories/user-filter';
+import { UserRepository } from '@application/users/repositories/users.repository';
 
 @Injectable()
 export class MongooseUsersRepository implements UserRepository {

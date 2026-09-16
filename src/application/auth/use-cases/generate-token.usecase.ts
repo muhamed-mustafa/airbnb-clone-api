@@ -5,7 +5,7 @@ import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token
 import type { SecretHashService } from '../services/secret-hash.service';
 import { TOKEN_SERVICE_TOKEN } from '../services/token-service.token';
 import type { TokenService } from '../services/token.service';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 
 @Injectable()
 export class GenerateTokenUseCase {

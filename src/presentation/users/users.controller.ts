@@ -5,7 +5,7 @@ import { SWAGGER_TAGS } from '../swagger/swagger.constants';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { UserMapper } from './mappers/user.mapper';
-import { UsersService } from '../../application/users/services/users.service';
+import { UsersService } from '@application/users/services/users.service';
 
 @ApiTags(SWAGGER_TAGS.USERS)
 @Controller('users')

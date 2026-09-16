@@ -1,7 +1,7 @@
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
-import { UserEntity } from '../../../application/users/entities/user.entity';
-import { CreateUserInput } from '../../../application/users/inputs/create-user.input';
+import { UserEntity } from '@application/users/entities/user.entity';
+import { CreateUserInput } from '@application/users/inputs/create-user.input';
 
 export class UserMapper {
   static toInput(dto: CreateUserDto): CreateUserInput {

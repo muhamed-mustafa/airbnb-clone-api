@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nService } from 'nestjs-i18n';
-import { ApplicationError } from '../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import {
   applicationErrorMessageMap,
   applicationErrorStatusMap,

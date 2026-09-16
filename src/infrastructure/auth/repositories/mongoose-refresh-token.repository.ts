@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RefreshTokenEntity } from '../../../application/auth/entities/refresh-token.entity';
+import { RefreshTokenEntity } from '@application/auth/entities/refresh-token.entity';
 import { RefreshToken } from '../schemas/refresh-token.schema';
-import { RefreshTokenRepository } from '../../../application/auth/repositories/refresh-token.repository';
+import { RefreshTokenRepository } from '@application/auth/repositories/refresh-token.repository';
 
 @Injectable()
 export class MongooseRefreshTokenRepository implements RefreshTokenRepository {

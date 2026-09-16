@@ -4,7 +4,7 @@ import { ApiRegisterDocs } from '../swagger/decorators/auth/api-register-docs.de
 import { ApiLoginDocs } from '../swagger/decorators/auth/api-login-docs.decorator';
 import { ApiRefreshTokenDocs } from '../swagger/decorators/auth/api-refresh-token-docs.decorator';
 import { SWAGGER_TAGS } from '../swagger/swagger.constants';
-import { AuthService } from '../../application/auth/services/auth.service';
+import { AuthService } from '@application/auth/services/auth.service';
 import { AuthMapper } from './mappers/auth.mapper';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { LoginDto } from './dtos/login.dto';

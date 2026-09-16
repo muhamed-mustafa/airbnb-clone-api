@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RequestContext } from '../../common/request-context/request-context';
+import { RequestContext } from '@common/request-context/request-context';
 import { AuthController } from './auth.controller';
-import { AuthService } from '../../application/auth/services/auth.service';
+import { AuthService } from '@application/auth/services/auth.service';
 
 describe('AuthController', () => {
   let controller: AuthController;

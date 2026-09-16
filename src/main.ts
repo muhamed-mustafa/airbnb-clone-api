@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
-import { AppModule } from './app/app.module';
-import type { EnvironmentVariables } from './common/config/env.types';
-import { setupSwagger } from './presentation/swagger/swagger.setup';
+import { AppModule } from '@app/app.module';
+import type { EnvironmentVariables } from '@common/config/env.types';
+import { setupSwagger } from '@presentation/swagger/swagger.setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import pino from 'pino';
 
-import { EnvironmentVariables } from '../../common/config/env.types';
-import { RequestContext } from '../../common/request-context/request-context';
+import { EnvironmentVariables } from '@common/config/env.types';
+import { RequestContext } from '@common/request-context/request-context';
 import { PinoLoggerService } from './pino-logger.service';
 
 jest.mock('pino', () => ({

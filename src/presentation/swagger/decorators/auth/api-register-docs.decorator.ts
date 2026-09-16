@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
-import { AuthResponseDto } from '../../../auth/dtos/auth-response.dto';
-import { RegisterDto } from '../../../auth/dtos/register.dto';
+import { AuthResponseDto } from '@presentation/auth/dtos/auth-response.dto';
+import { RegisterDto } from '@presentation/auth/dtos/register.dto';
 import { ApiRegisterBadRequestResponses } from '../api-register-error-responses.decorator';
 import { ApiConflictErrorResponse } from '../api-conflict-error-response.decorator';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';

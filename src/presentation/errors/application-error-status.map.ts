@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import type { ApplicationErrorCode } from '../../common/errors/application.error';
+import type { ApplicationErrorCode } from '@common/errors/application.error';
 
 export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   INVALID_TOKEN: HttpStatus.UNAUTHORIZED,

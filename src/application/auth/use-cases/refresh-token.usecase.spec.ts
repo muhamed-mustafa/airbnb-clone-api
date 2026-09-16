@@ -1,4 +1,4 @@
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { RefreshTokenUseCase } from './refresh-token.usecase';
 
 describe('RefreshTokenUseCase', () => {

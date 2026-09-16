@@ -1,4 +1,4 @@
-import { CREATE_USER_VALIDATION_EXAMPLES } from '../../examples/validation.examples';
+import { CREATE_USER_VALIDATION_EXAMPLES } from '@presentation/swagger/examples/validation.examples';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBody,
@@ -7,8 +7,8 @@ import {
   ApiExtension,
   ApiOperation,
 } from '@nestjs/swagger';
-import { UserResponseDto } from '../../../users/dtos/user-response.dto';
-import { CreateUserDto } from '../../../users/dtos/create-user.dto';
+import { UserResponseDto } from '@presentation/users/dtos/user-response.dto';
+import { CreateUserDto } from '@presentation/users/dtos/create-user.dto';
 import { ApiConflictErrorResponse } from '../api-conflict-error-response.decorator';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';

@@ -3,8 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
 import * as path from 'path';
-import envMapper from '../common/config/env.mapper';
-import { envSchema } from '../common/config/env.schema';
+import envMapper from '@common/config/env.mapper';
+import { envSchema } from '@common/config/env.schema';
 @Module({
   imports: [
     ConfigModule.forRoot({

@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { ApplicationError } from '../../../common/errors/application.error';
-import type { Logger } from '../../../common/logging/logger';
-import { LOGGER } from '../../../common/logging/logger.token';
-import { toError } from '../../../common/utils/to-error';
-import type { TokenService } from '../../../application/auth/services/token.service';
+import { ApplicationError } from '@common/errors/application.error';
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
+import { toError } from '@common/utils/to-error';
+import type { TokenService } from '@application/auth/services/token.service';
 
 @Injectable()
 export class JwtTokenService implements TokenService {

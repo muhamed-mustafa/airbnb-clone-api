@@ -1,4 +1,4 @@
-import { EnvironmentVariables } from 'src/common/config/env.types';
+import { EnvironmentVariables } from '@common/config/env.types';
 
 export const baseEnv = (): EnvironmentVariables => ({
   PORT: Number(process.env.PORT),

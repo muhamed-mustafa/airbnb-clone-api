@@ -1,4 +1,4 @@
-import { EnvironmentVariables } from '../../common/config/env.types';
+import { EnvironmentVariables } from '@common/config/env.types';
 
 export default (): EnvironmentVariables => ({
   PORT: Number(process.env.PORT ?? 3000),

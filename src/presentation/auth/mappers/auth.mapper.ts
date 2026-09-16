@@ -1,9 +1,9 @@
-import { LoginInput } from '../../../application/auth/inputs/login.input';
-import { RefreshTokenInput } from '../../../application/auth/inputs/refresh-token.input';
-import { RegisterInput } from '../../../application/auth/inputs/register.input';
-import { LoginOutput } from '../../../application/auth/outputs/login.output';
-import { RefreshTokenOutput } from '../../../application/auth/outputs/refresh-token.output';
-import { RegisterOutput } from '../../../application/auth/outputs/register.output';
+import { LoginInput } from '@application/auth/inputs/login.input';
+import { RefreshTokenInput } from '@application/auth/inputs/refresh-token.input';
+import { RegisterInput } from '@application/auth/inputs/register.input';
+import { LoginOutput } from '@application/auth/outputs/login.output';
+import { RefreshTokenOutput } from '@application/auth/outputs/refresh-token.output';
+import { RegisterOutput } from '@application/auth/outputs/register.output';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';

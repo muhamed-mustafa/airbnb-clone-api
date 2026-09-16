@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../../../common/errors/application.error';
-import { UsersService } from '../../users/services/users.service';
+import { ApplicationError } from '@common/errors/application.error';
+import { UsersService } from '@application/users/services/users.service';
 import { LoginInput } from '../inputs/login.input';
 import { LoginOutput } from '../outputs/login.output';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';
