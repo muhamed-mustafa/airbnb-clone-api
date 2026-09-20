@@ -5,5 +5,6 @@
   "isPhoneNumber": "Please provide a valid phone number",
   "minLength": "This field must be at least {constraints.0} characters",
   "maxLength": "This field must not exceed {constraints.0} characters",
-  "password": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+  "password": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  "isMongoId": "Please provide a valid Mongo ID"
 }

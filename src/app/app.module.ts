@@ -10,9 +10,17 @@ import { RequestContextModule } from '@common/request-context/request-context.mo
 import { CoreModule } from './core.module';
 import { LoggingModule } from '@infrastructure/logging/logging.module';
 import { UsersModule } from './users.module';
+import { CountriesModule } from './countries.module';
 
 @Module({
-  imports: [CoreModule, UsersModule, AuthModule, RequestContextModule, LoggingModule],
+  imports: [
+    CoreModule,
+    UsersModule,
+    AuthModule,
+    RequestContextModule,
+    LoggingModule,
+    CountriesModule,
+  ],
   providers: [
     {
       provide: APP_FILTER,

@@ -5,6 +5,7 @@ export const SWAGGER_BEARER_AUTH = 'access-token';
 export const SWAGGER_TAGS = {
   AUTH: 'Authentication',
   USERS: 'Users',
+  COUNTRIES: 'Countries',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [
