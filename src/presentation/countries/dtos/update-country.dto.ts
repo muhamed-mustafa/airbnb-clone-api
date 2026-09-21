@@ -1,9 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { isOptionalString } from '@presentation/validators/is-required-string.decorator';
 import { Transform } from 'class-transformer';
-import { trimString } from '../../utils/transformers.util';
+import { trimString, trimUppercaseString } from '../../utils/transformers.util';
+import { AtLeastOneField } from '../../validators/at-least-one-field.decorator';
 
 export class UpdateCountryDto {
+  @AtLeastOneField(['name', 'code'])
+  private readonly _atLeastOneField!: undefined;
+
   @ApiPropertyOptional({
     description: 'Country name.',
     example: 'Egypt',
@@ -20,7 +24,7 @@ export class UpdateCountryDto {
     minLength: 2,
     maxLength: 2,
   })
-  @Transform(trimString)
+  @Transform(trimUppercaseString)
   @isOptionalString({ min: 2, max: 2 })
   code!: string;
 }

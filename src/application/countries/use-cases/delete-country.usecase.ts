@@ -8,12 +8,10 @@ export class DeleteCountryUseCase {
   constructor(@Inject(COUNTRY_REPOSITORY) private readonly countryRepository: CountryRepository) {}
 
   async execute(id: string): Promise<void> {
-    const country = await this.countryRepository.findById(id);
+    const country = await this.countryRepository.delete(id);
 
     if (!country) {
       throw new ApplicationError('COUNTRY_NOT_FOUND');
     }
-
-    await this.countryRepository.delete(id);
   }
 }

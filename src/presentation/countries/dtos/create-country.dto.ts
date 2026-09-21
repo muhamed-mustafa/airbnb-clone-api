@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsRequiredString } from '@presentation/validators/is-required-string.decorator';
 import { Transform } from 'class-transformer';
-import { trimString } from '../../utils/transformers.util';
+import { trimString, trimUppercaseString } from '../../utils/transformers.util';
 
 export class CreateCountryDto {
   @ApiProperty({
@@ -20,7 +20,7 @@ export class CreateCountryDto {
     minLength: 2,
     maxLength: 2,
   })
-  @Transform(trimString)
+  @Transform(trimUppercaseString)
   @IsRequiredString({ min: 2, max: 2 })
   code!: string;
 }

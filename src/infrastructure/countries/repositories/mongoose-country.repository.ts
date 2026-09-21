@@ -1,14 +1,14 @@
+import { CountryEntity } from '@application/countries/entities/country.entity';
+import { CreateCountryInput } from '@application/countries/inputs/create-country.input';
+import { UpdateCountryInput } from '@application/countries/inputs/update-country.input';
+import { CountryFilter } from '@application/countries/repositories/country-filter';
+import { CountryRepository } from '@application/countries/repositories/country.repository';
+import { ERROR_CODES } from '@common/errors/error-codes';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CountryEntity } from '../../../application/countries/entities/country.entity';
-import { CreateCountryInput } from '../../../application/countries/inputs/create-country.input';
-import { UpdateCountryInput } from '../../../application/countries/inputs/update-country.input';
-import { CountryFilter } from '../../../application/countries/repositories/country-filter';
-import { CountryRepository } from '../../../application/countries/repositories/country.repository';
-import { ERROR_CODES } from '../../../common/errors/error-codes';
-import { CountryMapper } from '../mappers/country.mapper';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
+import { CountryMapper } from '../mappers/country.mapper';
 import { Country } from '../schemas/countries.schema';
 
 @Injectable()
@@ -98,12 +98,14 @@ export class MongooseCountryRepository implements CountryRepository {
     }
   }
 
-  async delete(id: string): Promise<void> {
-    await this.countryModel
+  async delete(id: string): Promise<boolean> {
+    const result = await this.countryModel
       .updateOne(
         { _id: id, isDeleted: false },
         { $set: { isDeleted: true, deletedAt: new Date() } },
       )
       .exec();
+
+    return result.modifiedCount > 0;
   }
 }

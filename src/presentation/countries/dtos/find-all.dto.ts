@@ -1,33 +1,42 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
+import { trimUppercaseString } from '../../utils/transformers.util';
 
 export class FindAllDto {
   @ApiPropertyOptional({
     description: 'Country name.',
     example: 'Egypt',
+    minLength: 3,
+    maxLength: 50,
   })
   @IsOptional()
   @IsString()
-  name!: string;
+  @Transform(trimUppercaseString)
+  name?: string;
 
   @ApiPropertyOptional({
-    description: 'Country code.',
+    description: 'Country code (ISO 3166-1 alpha-2).',
     example: 'EG',
+    minLength: 2,
+    maxLength: 2,
   })
   @IsOptional()
   @IsString()
-  code!: string;
+  @Transform(trimUppercaseString)
+  @Matches(/^[A-Z]{2}$/)
+  code?: string;
 
   @ApiPropertyOptional({
     description: 'Page number.',
     example: 1,
+    minimum: 1,
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page!: number;
+  page?: number;
 
   @ApiPropertyOptional({
     description: 'Number of items per page.',
@@ -36,9 +45,9 @@ export class FindAllDto {
     maximum: 100,
   })
   @IsOptional()
-  @IsInt()
   @Type(() => Number)
+  @IsInt()
   @Min(1)
   @Max(100)
-  limit!: number;
+  limit?: number;
 }

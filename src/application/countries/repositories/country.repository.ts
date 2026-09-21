@@ -10,5 +10,5 @@ export interface CountryRepository {
   findById(id: string): Promise<CountryEntity | null>;
   findOne(filter: CountryFilter): Promise<CountryEntity | null>;
   update(id: string, country: UpdateCountryInput): Promise<CountryEntity | null>;
-  delete(id: string): Promise<void>;
+  delete(id: string): Promise<boolean>;
 }
