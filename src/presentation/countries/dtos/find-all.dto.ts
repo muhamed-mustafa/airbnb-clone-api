@@ -1,6 +1,15 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { trimUppercaseString } from '../../utils/transformers.util';
 
 export class FindAllDto {
@@ -12,6 +21,8 @@ export class FindAllDto {
   })
   @IsOptional()
   @IsString()
+  @MinLength(3)
+  @MaxLength(50)
   @Transform(trimUppercaseString)
   name?: string;
 
