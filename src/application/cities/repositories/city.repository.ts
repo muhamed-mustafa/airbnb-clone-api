@@ -1,3 +1,4 @@
+import type { TransactionSession } from '@common/transactions/transaction-runner';
 import { CityEntity } from '../entities/city.entity';
 import { CreateCityInput } from '../inputs/create-city.input';
 import { UpdateCityInput } from '../inputs/update-city.input';
@@ -10,5 +11,5 @@ export interface CityRepository {
   findById(id: string): Promise<CityEntity | null>;
   update(id: string, city: UpdateCityInput): Promise<CityEntity | null>;
   delete(id: string): Promise<boolean>;
-  deleteByCountry(country: string): Promise<number>;
+  deleteByCountry(country: string, session?: TransactionSession): Promise<number>;
 }

@@ -4,10 +4,12 @@ import { UpdateCityInput } from '@application/cities/inputs/update-city.input';
 import { CityFilter } from '@application/cities/repositories/city-filter';
 import { CityRepository } from '@application/cities/repositories/city.repository';
 import { ERROR_CODES } from '@common/errors/error-codes';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { isDuplicateKeyError } from '../../database/is-duplicate-key-error';
+import { toClientSession } from '../../database/mongoose-transaction-runner';
 import { CityMapper } from '../mappers/city.mapper';
 import { City } from '../schemas/cities.schema';
 
@@ -101,11 +103,12 @@ export class MongooseCityRepository implements CityRepository {
     return result.modifiedCount > 0;
   }
 
-  async deleteByCountry(country: string): Promise<number> {
+  async deleteByCountry(country: string, session?: TransactionSession): Promise<number> {
     const result = await this.cityModel
       .updateMany(
         { country, isDeleted: false },
         { $set: { isDeleted: true, deletedAt: new Date() } },
+        { session: toClientSession(session) },
       )
       .exec();
 

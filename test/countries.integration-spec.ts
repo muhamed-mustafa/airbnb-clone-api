@@ -7,6 +7,10 @@ import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app/app.module';
+import { CountriesModule } from '../src/app/countries.module';
+import { CITY_REPOSITORY } from '../src/application/cities/repositories/city-repository.token';
+import type { CityRepository } from '../src/application/cities/repositories/city.repository';
+import type { TransactionSession } from '../src/common/transactions/transaction-runner';
 import { City } from '../src/infrastructure/cities/schemas/cities.schema';
 import { Country, CountrySchema } from '../src/infrastructure/countries/schemas/countries.schema';
 
@@ -501,6 +505,54 @@ describe('Countries HTTP API with MongoDB', () => {
         });
 
       expect(await cityModel().countDocuments({ isDeleted: false })).toBe(3);
+    });
+
+    it('rolls back the country deletion when the city cascade fails', async () => {
+      // The exact instance DeleteCountryUseCase receives: strict keeps the lookup inside
+      // CountriesModule instead of returning CitiesModule's own binding of the same token.
+      const cityRepository: CityRepository = moduleFixture!
+        .select(CountriesModule)
+        .get<CityRepository, CityRepository>(CITY_REPOSITORY, { strict: true });
+      let cascadeSession: TransactionSession | undefined;
+      let citiesDeletedBeforeFailure: number | undefined;
+
+      // Run the real cascade inside the transaction, then fail, so both writes must be undone.
+      const cascade = jest
+        .spyOn(cityRepository, 'deleteByCountry')
+        .mockImplementationOnce(async (country, session) => {
+          cascade.mockRestore();
+          cascadeSession = session;
+          citiesDeletedBeforeFailure = await cityRepository.deleteByCountry(country, session);
+          throw new Error('Simulated city cascade failure');
+        });
+
+      try {
+        await request(app!.getHttpServer()).delete(`/api/countries/${primaryId}`).expect(500);
+      } finally {
+        cascade.mockRestore();
+      }
+
+      expect(cascadeSession).toBeDefined();
+      expect(citiesDeletedBeforeFailure).toBe(2);
+
+      const country = await connection!.model<Country>(Country.name).findById(primaryId);
+
+      expect(country?.isDeleted).toBe(false);
+      expect(country?.deletedAt).toBeUndefined();
+
+      for (const id of [cairoId, alexandriaId, parisId]) {
+        const city = await cityModel().findById(id);
+
+        expect(city?.isDeleted).toBe(false);
+        expect(city?.deletedAt).toBeUndefined();
+      }
+
+      expect((await cityModel().findById(gizaId))?.deletedAt).toEqual(previouslyDeletedAt);
+
+      // With the failure removed, the same request now commits both writes.
+      await request(app!.getHttpServer()).delete(`/api/countries/${primaryId}`).expect(204);
+
+      expect(await cityModel().countDocuments({ country: primaryId, isDeleted: false })).toBe(0);
     });
   });
 });

@@ -8,17 +8,18 @@ import { DeleteCountryUseCase } from '@application/countries/use-cases/delete-co
 import { FindAllCountriesUseCase } from '@application/countries/use-cases/find-all-countries.usecase';
 import { FindCountryByIdUseCase } from '@application/countries/use-cases/find-country-by-id.usecase';
 import { UpdateCountryUseCase } from '@application/countries/use-cases/update-country.usecase';
+import { TRANSACTION_RUNNER } from '@common/transactions/transaction-runner.token';
 import { MongooseCityRepository } from '@infrastructure/cities/repositories/mongoose-city.repository';
 import { City, CitySchema } from '@infrastructure/cities/schemas/cities.schema';
 import { MongooseCountryRepository } from '@infrastructure/countries/repositories/mongoose-country.repository';
 import { Country, CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
+import { MongooseTransactionRunner } from '@infrastructure/database/mongoose-transaction-runner';
 import { CountryController } from '@presentation/countries/country.controller';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Country.name, schema: CountrySchema },
-      // Country deletion cascades to cities; CitiesModule imports this module, so bind here.
       { name: City.name, schema: CitySchema },
     ]),
   ],
@@ -32,6 +33,7 @@ import { CountryController } from '@presentation/countries/country.controller';
     DeleteCountryUseCase,
     { provide: COUNTRY_REPOSITORY, useClass: MongooseCountryRepository },
     { provide: CITY_REPOSITORY, useClass: MongooseCityRepository },
+    { provide: TRANSACTION_RUNNER, useClass: MongooseTransactionRunner },
   ],
   exports: [CountryService],
 })

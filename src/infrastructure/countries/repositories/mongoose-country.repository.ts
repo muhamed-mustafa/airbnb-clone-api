@@ -4,10 +4,12 @@ import { UpdateCountryInput } from '@application/countries/inputs/update-country
 import { CountryFilter } from '@application/countries/repositories/country-filter';
 import { CountryRepository } from '@application/countries/repositories/country.repository';
 import { ERROR_CODES } from '@common/errors/error-codes';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
+import { toClientSession } from '../../database/mongoose-transaction-runner';
 import { CountryMapper } from '../mappers/country.mapper';
 import { Country } from '../schemas/countries.schema';
 
@@ -109,11 +111,12 @@ export class MongooseCountryRepository implements CountryRepository {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, session?: TransactionSession): Promise<boolean> {
     const result = await this.countryModel
       .updateOne(
         { _id: id, isDeleted: false },
         { $set: { isDeleted: true, deletedAt: new Date() } },
+        { session: toClientSession(session) },
       )
       .exec();
 
