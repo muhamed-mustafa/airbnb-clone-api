@@ -1,8 +1,3 @@
-import { ApiDeleteCountryDocs } from '../swagger/decorators/countries/api-delete-country-docs.decorator';
-import { ApiUpdateCountryDocs } from '../swagger/decorators/countries/api-update-country-docs.decorator';
-import { ApiFindCountryByIdDocs } from '../swagger/decorators/countries/api-find-country-by-id-docs.decorator';
-import { ApiFindAllCountriesDocs } from '../swagger/decorators/countries/api-find-all-countries-docs.decorator';
-import { ApiCreateCountryDocs } from '../swagger/decorators/countries/api-create-country-docs.decorator';
 import {
   Body,
   Controller,
@@ -17,10 +12,16 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CountryService } from '../../application/countries/services/country.service';
+import { PaginatedResult } from '../../common/pagination/pagination.types';
+import { ApiCreateCountryDocs } from '../swagger/decorators/countries/api-create-country-docs.decorator';
+import { ApiDeleteCountryDocs } from '../swagger/decorators/countries/api-delete-country-docs.decorator';
+import { ApiFindAllCountriesDocs } from '../swagger/decorators/countries/api-find-all-countries-docs.decorator';
+import { ApiFindCountryByIdDocs } from '../swagger/decorators/countries/api-find-country-by-id-docs.decorator';
+import { ApiUpdateCountryDocs } from '../swagger/decorators/countries/api-update-country-docs.decorator';
 import { SWAGGER_TAGS } from '../swagger/swagger.constants';
+import { CountryIdDto } from './dtos/country-id.dto';
 import { CountryResponseDto } from './dtos/country-response.dto';
 import { CreateCountryDto } from './dtos/create-country.dto';
-import { CountryIdDto } from './dtos/country-id.dto';
 import { FindAllDto } from './dtos/find-all.dto';
 import { UpdateCountryDto } from './dtos/update-country.dto';
 import { CountryMapper } from './mappers/country.mapper';
@@ -40,9 +41,13 @@ export class CountryController {
 
   @Get()
   @ApiFindAllCountriesDocs()
-  async findAll(@Query() query: FindAllDto): Promise<CountryResponseDto[]> {
+  async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<CountryResponseDto>> {
     const output = await this.countryService.findAll(query);
-    return output.map((country) => CountryMapper.toResponse(country));
+
+    return {
+      data: output.data.map((country) => CountryMapper.toResponse(country)),
+      meta: output.meta,
+    };
   }
 
   @Get(':id')

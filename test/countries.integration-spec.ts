@@ -134,13 +134,33 @@ describe('Countries HTTP API with MongoDB', () => {
       .get('/api/countries')
       .query({ name: 'EGY' })
       .expect(200)
-      .expect([{ id: primaryId, name: 'egypt', code: 'EG' }]);
+      .expect({
+        data: [{ id: primaryId, name: 'egypt', code: 'EG' }],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      });
 
     await request(app!.getHttpServer())
       .get('/api/countries')
-      .query({ name: '.*' })
+      .query({ name: 'E.*' })
       .expect(200)
-      .expect([]);
+      .expect({
+        data: [],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      });
   });
 
   it('paginates in name order', async () => {
@@ -151,7 +171,17 @@ describe('Countries HTTP API with MongoDB', () => {
         limit: 1,
       })
       .expect(200)
-      .expect([{ id: secondaryId, name: 'france', code: 'FR' }]);
+      .expect({
+        data: [{ id: secondaryId, name: 'france', code: 'FR' }],
+        meta: {
+          page: 2,
+          limit: 1,
+          total: 2,
+          totalPages: 2,
+          hasNextPage: false,
+          hasPreviousPage: true,
+        },
+      });
   });
 
   it.each([{ limit: 101 }, { limit: 0 }, { page: -1 }, { page: 1.5 }])(
@@ -243,7 +273,17 @@ describe('Countries HTTP API with MongoDB', () => {
         code: 'EG',
       })
       .expect(200)
-      .expect([]);
+      .expect({
+        data: [],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      });
 
     await request(app!.getHttpServer())
       .patch(`/api/countries/${primaryId}`)
@@ -269,5 +309,26 @@ describe('Countries HTTP API with MongoDB', () => {
 
   it('rejects an empty update payload', async () => {
     await request(app!.getHttpServer()).patch(`/api/countries/${primaryId}`).send({}).expect(400);
+  });
+
+  it('returns pagination metadata', async () => {
+    await request(app!.getHttpServer())
+      .get('/api/countries')
+      .query({ page: 1, limit: 2 })
+      .expect(200)
+      .expect({
+        data: [
+          { id: primaryId, name: 'egypt', code: 'EG' },
+          { id: secondaryId, name: 'france', code: 'FR' },
+        ],
+        meta: {
+          page: 1,
+          limit: 2,
+          total: 2,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      });
   });
 });

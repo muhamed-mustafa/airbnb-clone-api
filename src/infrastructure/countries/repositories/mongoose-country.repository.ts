@@ -38,23 +38,34 @@ export class MongooseCountryRepository implements CountryRepository {
     }
   }
 
-  async find(filter: CountryFilter): Promise<CountryEntity[]> {
+  async find(filter: CountryFilter): Promise<{ items: CountryEntity[]; total: number }> {
     const { page = 1, limit = 10, name, code } = filter;
 
     const escapedName = name?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const countries = await this.countryModel
-      .find({
+    const [countries, total] = await Promise.all([
+      this.countryModel
+        .find({
+          ...(code !== undefined ? { code } : {}),
+          ...(escapedName ? { name: { $regex: escapedName, $options: 'i' } } : {}),
+          isDeleted: false,
+        })
+        .sort({ name: 1, _id: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+
+      this.countryModel.countDocuments({
         ...(code !== undefined ? { code } : {}),
         ...(escapedName ? { name: { $regex: escapedName, $options: 'i' } } : {}),
         isDeleted: false,
-      })
-      .sort({ name: 1, _id: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec();
+      }),
+    ]);
 
-    return countries.map((country) => CountryMapper.toEntity(country));
+    return {
+      items: countries.map((country) => CountryMapper.toEntity(country)),
+      total,
+    };
   }
 
   async findById(id: string): Promise<CountryEntity | null> {

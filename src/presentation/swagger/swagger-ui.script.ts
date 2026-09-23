@@ -174,6 +174,53 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
 
   };
 
+  const findRefreshTokenPath = () => {
+    const paths = window.ui?.specSelectors?.specJson?.()?.get?.('paths');
+    const pathNames = paths?.keySeq?.().toArray?.() || [];
+
+    return pathNames.find((pathName) => pathName.endsWith('/auth/refresh-token'));
+  };
+
+  // Mirrors the latest captured refresh token into the Refresh Token request body editor.
+  const syncRefreshTokenRequestBody = () => {
+    const token = readStoredValue(storageKeys.refreshToken);
+    const path = findRefreshTokenPath();
+    const setRequestBodyValue = window.ui?.oas3Actions?.setRequestBodyValue;
+
+    if (!token || !path || !setRequestBodyValue) {
+      return false;
+    }
+
+    setRequestBodyValue({
+      value: JSON.stringify({ token }, null, 2),
+      pathMethod: [path, 'post'],
+    });
+
+    return true;
+  };
+
+  // Replaces the example body with the stored token whenever the operation is opened.
+  const prefillRefreshTokenRequestBody = () => {
+    const path = findRefreshTokenPath();
+    const editor = path
+      ? document.querySelector(
+          '.opblock.is-open .opblock-summary-path[data-path="' + path + '"]',
+        )
+          ?.closest('.opblock')
+          ?.querySelector('textarea.body-param__text')
+      : null;
+
+    if (!editor || editor.dataset.apiDocsRefreshTokenPrefilled) {
+      return;
+    }
+
+    editor.dataset.apiDocsRefreshTokenPrefilled = 'true';
+
+    if (!editor.value.trim() || editor.value.includes('example-refresh-token')) {
+      syncRefreshTokenRequestBody();
+    }
+  };
+
   const parseMaybeJson = (candidate) => {
     if (!candidate) {
       return undefined;
@@ -217,6 +264,10 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
 
     syncRequestPreferences();
     syncAuthorizeRefreshTokenField();
+
+    if (refreshToken) {
+      syncRefreshTokenRequestBody();
+    }
   };
 
   window.AirbnbCloneApiDocs = {
@@ -496,6 +547,8 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     decorateTopbar();
     decorateTags();
     decorateOperationPaths();
+
+    prefillRefreshTokenRequestBody();
   };
 
   decorate();

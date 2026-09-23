@@ -206,7 +206,7 @@ export const setupSwagger = (app: INestApplication): void => {
     swaggerOptions: {
       persistAuthorization: true,
       deepLinking: true,
-      docExpansion: 'list',
+      docExpansion: 'none',
       filter: true,
       fn: {
         opsFilter: (

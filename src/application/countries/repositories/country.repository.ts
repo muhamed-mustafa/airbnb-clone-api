@@ -6,7 +6,7 @@ import { CountryFilter } from './country-filter';
 export interface CountryRepository {
   create(country: CreateCountryInput): Promise<CountryEntity>;
   existsByNameOrCode(name: string, code: string): Promise<boolean>;
-  find(filter: CountryFilter): Promise<CountryEntity[]>;
+  find(filter: CountryFilter): Promise<{ items: CountryEntity[]; total: number }>;
   findById(id: string): Promise<CountryEntity | null>;
   findOne(filter: CountryFilter): Promise<CountryEntity | null>;
   update(id: string, country: UpdateCountryInput): Promise<CountryEntity | null>;

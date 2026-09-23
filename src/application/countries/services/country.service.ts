@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { PaginatedResult } from '../../../common/pagination/pagination.types';
 import { CountryEntity } from '../entities/country.entity';
 import { CreateCountryInput } from '../inputs/create-country.input';
+import { UpdateCountryInput } from '../inputs/update-country.input';
 import { CountryFilter } from '../repositories/country-filter';
 import { CreateCountryUseCase } from '../use-cases/create-country.usecase';
 import { DeleteCountryUseCase } from '../use-cases/delete-country.usecase';
 import { FindAllCountriesUseCase } from '../use-cases/find-all-countries.usecase';
 import { FindCountryByIdUseCase } from '../use-cases/find-country-by-id.usecase';
 import { UpdateCountryUseCase } from '../use-cases/update-country.usecase';
-import { UpdateCountryInput } from '../inputs/update-country.input';
 
 @Injectable()
 export class CountryService {
@@ -23,7 +24,7 @@ export class CountryService {
     return await this.createCountryUseCase.execute(data);
   }
 
-  async findAll(query: CountryFilter = {}): Promise<CountryEntity[]> {
+  async findAll(query: CountryFilter = {}): Promise<PaginatedResult<CountryEntity>> {
     return await this.findAllCountriesUseCase.execute(query);
   }
 
