@@ -7,6 +7,8 @@ export type ApplicationErrorCode = keyof Pick<
   | 'INVALID_PHONE_NUMBER'
   | 'COUNTRY_ALREADY_EXISTS'
   | 'COUNTRY_NOT_FOUND'
+  | 'CITY_ALREADY_EXISTS'
+  | 'CITY_NOT_FOUND'
 >;
 
 export class ApplicationError extends Error {

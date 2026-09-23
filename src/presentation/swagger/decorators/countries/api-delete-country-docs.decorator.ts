@@ -15,10 +15,12 @@ export const ApiDeleteCountryDocs = () =>
       operationId: 'countriesDelete',
       summary: 'Delete a country',
       description:
-        'Soft deletes a country by setting isDeleted and deletedAt. The document remains stored.',
+        'Soft deletes a country by setting isDeleted and deletedAt, and soft deletes all of its active cities the same way. No documents are removed.',
     }),
     ApiCountryIdParam(),
-    ApiNoContentResponse({ description: 'Country soft deleted successfully. No response body.' }),
+    ApiNoContentResponse({
+      description: 'Country and its cities soft deleted successfully. No response body.',
+    }),
     ApiCountryNotFoundResponse(),
     ApiCountryValidationResponse(),
     ApiInternalErrorResponse(),

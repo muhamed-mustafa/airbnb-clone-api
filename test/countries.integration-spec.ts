@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app/app.module';
+import { City } from '../src/infrastructure/cities/schemas/cities.schema';
 import { Country, CountrySchema } from '../src/infrastructure/countries/schemas/countries.schema';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
@@ -330,5 +331,176 @@ describe('Countries HTTP API with MongoDB', () => {
           hasPreviousPage: false,
         },
       });
+  });
+
+  describe('cascade soft delete to cities', () => {
+    const cairoId = '670d1234567890abcdef5671';
+    const alexandriaId = '670d1234567890abcdef5672';
+    const gizaId = '670d1234567890abcdef5673';
+    const parisId = '670d1234567890abcdef5674';
+    const countryWithoutCitiesId = '670d1234567890abcdef1237';
+    const previouslyDeletedAt = new Date('2024-01-01T00:00:00.000Z');
+
+    const cityModel = () => connection!.model<City>(City.name);
+
+    const expectCityNotFound = ({ body }: { body: unknown }) => {
+      expect(body).toMatchObject({ code: 'CITY_NOT_FOUND' });
+    };
+
+    const pageOf = (data: unknown[]) => ({
+      data,
+      meta: {
+        page: 1,
+        limit: 10,
+        total: data.length,
+        totalPages: data.length ? 1 : 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    });
+
+    const paris = { id: parisId, name: 'paris', country: secondaryId };
+
+    beforeEach(async () => {
+      await cityModel().deleteMany({});
+
+      await cityModel().create([
+        { _id: cairoId, name: 'Cairo', country: primaryId },
+        { _id: alexandriaId, name: 'Alexandria', country: primaryId },
+        {
+          _id: gizaId,
+          name: 'Giza',
+          country: primaryId,
+          isDeleted: true,
+          deletedAt: previouslyDeletedAt,
+        },
+        { _id: parisId, name: 'Paris', country: secondaryId },
+      ]);
+    });
+
+    it('soft deletes the country and all of its active cities only', async () => {
+      await request(app!.getHttpServer())
+        .delete(`/api/countries/${primaryId}`)
+        .expect(204)
+        .expect('');
+
+      const country = await connection!.model<Country>(Country.name).findById(primaryId);
+
+      expect(country?.isDeleted).toBe(true);
+      expect(country?.deletedAt).toBeInstanceOf(Date);
+
+      const cities = await cityModel().find({ country: primaryId, isDeleted: false });
+
+      expect(cities).toHaveLength(0);
+
+      for (const id of [cairoId, alexandriaId]) {
+        const city = await cityModel().findById(id);
+
+        expect(city?.isDeleted).toBe(true);
+        expect(city?.deletedAt).toBeInstanceOf(Date);
+        expect(city!.deletedAt!.getTime()).toBeGreaterThan(previouslyDeletedAt.getTime());
+      }
+
+      const giza = await cityModel().findById(gizaId);
+
+      expect(giza?.isDeleted).toBe(true);
+      expect(giza?.deletedAt).toEqual(previouslyDeletedAt);
+
+      const parisDocument = await cityModel().findById(parisId);
+
+      expect(parisDocument?.isDeleted).toBe(false);
+      expect(parisDocument?.deletedAt).toBeUndefined();
+    });
+
+    it('hides cascaded cities from every city endpoint', async () => {
+      await request(app!.getHttpServer()).delete(`/api/countries/${primaryId}`).expect(204);
+
+      await request(app!.getHttpServer())
+        .get('/api/cities')
+        .expect(200)
+        .expect(pageOf([paris]));
+
+      await request(app!.getHttpServer())
+        .get('/api/cities')
+        .query({ name: 'cai' })
+        .expect(200)
+        .expect(pageOf([]));
+
+      await request(app!.getHttpServer())
+        .get('/api/cities')
+        .query({ country: primaryId })
+        .expect(200)
+        .expect(pageOf([]));
+
+      await request(app!.getHttpServer())
+        .get('/api/cities')
+        .query({ country: secondaryId })
+        .expect(200)
+        .expect(pageOf([paris]));
+
+      for (const id of [cairoId, alexandriaId]) {
+        await request(app!.getHttpServer())
+          .get(`/api/cities/${id}`)
+          .expect(404)
+          .expect(expectCityNotFound);
+
+        await request(app!.getHttpServer())
+          .patch(`/api/cities/${id}`)
+          .send({ name: 'Renamed' })
+          .expect(404)
+          .expect(expectCityNotFound);
+
+        await request(app!.getHttpServer())
+          .delete(`/api/cities/${id}`)
+          .expect(404)
+          .expect(expectCityNotFound);
+      }
+
+      await request(app!.getHttpServer())
+        .post('/api/cities')
+        .send({ name: 'New Cairo', country: primaryId })
+        .expect(404)
+        .expect(({ body }: { body: unknown }) => {
+          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+        });
+    });
+
+    it('deletes a country that has no cities without touching other cities', async () => {
+      await connection!
+        .model(Country.name)
+        .create({ _id: countryWithoutCitiesId, name: 'Germany', code: 'DE' });
+
+      await request(app!.getHttpServer())
+        .delete(`/api/countries/${countryWithoutCitiesId}`)
+        .expect(204);
+
+      expect(await cityModel().countDocuments({ isDeleted: false })).toBe(3);
+    });
+
+    it('keeps returning COUNTRY_NOT_FOUND for an already deleted country without re-stamping cities', async () => {
+      await request(app!.getHttpServer()).delete(`/api/countries/${primaryId}`).expect(204);
+
+      const cairoDeletedAt = (await cityModel().findById(cairoId))?.deletedAt;
+
+      await request(app!.getHttpServer())
+        .delete(`/api/countries/${primaryId}`)
+        .expect(404)
+        .expect(({ body }: { body: unknown }) => {
+          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+        });
+
+      expect((await cityModel().findById(cairoId))?.deletedAt).toEqual(cairoDeletedAt);
+    });
+
+    it('returns COUNTRY_NOT_FOUND for a missing country and leaves cities active', async () => {
+      await request(app!.getHttpServer())
+        .delete(`/api/countries/${missingId}`)
+        .expect(404)
+        .expect(({ body }: { body: unknown }) => {
+          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+        });
+
+      expect(await cityModel().countDocuments({ isDeleted: false })).toBe(3);
+    });
   });
 });

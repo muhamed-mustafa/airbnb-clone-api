@@ -11,6 +11,7 @@ import { CoreModule } from './core.module';
 import { LoggingModule } from '@infrastructure/logging/logging.module';
 import { UsersModule } from './users.module';
 import { CountriesModule } from './countries.module';
+import { CitiesModule } from './cities.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CountriesModule } from './countries.module';
     RequestContextModule,
     LoggingModule,
     CountriesModule,
+    CitiesModule,
   ],
   providers: [
     {

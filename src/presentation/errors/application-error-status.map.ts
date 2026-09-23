@@ -7,6 +7,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   INVALID_PHONE_NUMBER: HttpStatus.BAD_REQUEST,
   COUNTRY_ALREADY_EXISTS: HttpStatus.CONFLICT,
   COUNTRY_NOT_FOUND: HttpStatus.NOT_FOUND,
+  CITY_ALREADY_EXISTS: HttpStatus.CONFLICT,
+  CITY_NOT_FOUND: HttpStatus.NOT_FOUND,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -15,4 +17,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   INVALID_PHONE_NUMBER: 'auth.INVALID_PHONE_NUMBER',
   COUNTRY_ALREADY_EXISTS: 'countries.COUNTRY_ALREADY_EXISTS',
   COUNTRY_NOT_FOUND: 'countries.COUNTRY_NOT_FOUND',
+  CITY_ALREADY_EXISTS: 'cities.CITY_ALREADY_EXISTS',
+  CITY_NOT_FOUND: 'cities.CITY_NOT_FOUND',
 };
