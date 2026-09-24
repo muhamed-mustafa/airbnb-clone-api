@@ -14,6 +14,7 @@ import { CountriesModule } from './countries.module';
 import { CitiesModule } from './cities.module';
 import { CurrenciesModule } from './currencies.module';
 import { UnitCategoriesModule } from './unit-categories.module';
+import { AppSettingsModule } from './app-settings.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UnitCategoriesModule } from './unit-categories.module';
     CitiesModule,
     CurrenciesModule,
     UnitCategoriesModule,
+    AppSettingsModule,
   ],
   providers: [
     {
