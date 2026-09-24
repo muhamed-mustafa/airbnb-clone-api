@@ -13,6 +13,7 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   CURRENCY_NOT_FOUND: HttpStatus.NOT_FOUND,
   UNIT_CATEGORY_ALREADY_EXISTS: HttpStatus.CONFLICT,
   UNIT_CATEGORY_NOT_FOUND: HttpStatus.NOT_FOUND,
+  APP_SETTINGS_NOT_FOUND: HttpStatus.NOT_FOUND,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -27,4 +28,5 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   CURRENCY_NOT_FOUND: 'currencies.CURRENCY_NOT_FOUND',
   UNIT_CATEGORY_ALREADY_EXISTS: 'unit-categories.UNIT_CATEGORY_ALREADY_EXISTS',
   UNIT_CATEGORY_NOT_FOUND: 'unit-categories.UNIT_CATEGORY_NOT_FOUND',
+  APP_SETTINGS_NOT_FOUND: 'app-settings.APP_SETTINGS_NOT_FOUND',
 };
