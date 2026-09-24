@@ -1,0 +1,4 @@
+{
+  "CURRENCY_ALREADY_EXISTS": "A currency with this name or code already exists.",
+  "CURRENCY_NOT_FOUND": "Currency not found."
+}
