@@ -13,6 +13,7 @@ import { UsersModule } from './users.module';
 import { CountriesModule } from './countries.module';
 import { CitiesModule } from './cities.module';
 import { CurrenciesModule } from './currencies.module';
+import { UnitCategoriesModule } from './unit-categories.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CurrenciesModule } from './currencies.module';
     CountriesModule,
     CitiesModule,
     CurrenciesModule,
+    UnitCategoriesModule,
   ],
   providers: [
     {
