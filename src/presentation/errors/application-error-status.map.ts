@@ -9,6 +9,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   COUNTRY_NOT_FOUND: HttpStatus.NOT_FOUND,
   CITY_ALREADY_EXISTS: HttpStatus.CONFLICT,
   CITY_NOT_FOUND: HttpStatus.NOT_FOUND,
+  CURRENCY_ALREADY_EXISTS: HttpStatus.CONFLICT,
+  CURRENCY_NOT_FOUND: HttpStatus.NOT_FOUND,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -19,4 +21,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   COUNTRY_NOT_FOUND: 'countries.COUNTRY_NOT_FOUND',
   CITY_ALREADY_EXISTS: 'cities.CITY_ALREADY_EXISTS',
   CITY_NOT_FOUND: 'cities.CITY_NOT_FOUND',
+  CURRENCY_ALREADY_EXISTS: 'currencies.CURRENCY_ALREADY_EXISTS',
+  CURRENCY_NOT_FOUND: 'currencies.CURRENCY_NOT_FOUND',
 };

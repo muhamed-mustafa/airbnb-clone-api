@@ -12,6 +12,7 @@ import { LoggingModule } from '@infrastructure/logging/logging.module';
 import { UsersModule } from './users.module';
 import { CountriesModule } from './countries.module';
 import { CitiesModule } from './cities.module';
+import { CurrenciesModule } from './currencies.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CitiesModule } from './cities.module';
     LoggingModule,
     CountriesModule,
     CitiesModule,
+    CurrenciesModule,
   ],
   providers: [
     {

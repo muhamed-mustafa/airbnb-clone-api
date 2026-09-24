@@ -9,6 +9,8 @@ export type ApplicationErrorCode = keyof Pick<
   | 'COUNTRY_NOT_FOUND'
   | 'CITY_ALREADY_EXISTS'
   | 'CITY_NOT_FOUND'
+  | 'CURRENCY_ALREADY_EXISTS'
+  | 'CURRENCY_NOT_FOUND'
 >;
 
 export class ApplicationError extends Error {

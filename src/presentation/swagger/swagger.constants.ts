@@ -7,6 +7,7 @@ export const SWAGGER_TAGS = {
   USERS: 'Users',
   COUNTRIES: 'Countries',
   CITIES: 'Cities',
+  CURRENCIES: 'Currencies',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [
