@@ -8,6 +8,7 @@ export const SWAGGER_TAGS = {
   COUNTRIES: 'Countries',
   CITIES: 'Cities',
   CURRENCIES: 'Currencies',
+  UNIT_CATEGORIES: 'Unit Categories',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [

@@ -11,6 +11,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   CITY_NOT_FOUND: HttpStatus.NOT_FOUND,
   CURRENCY_ALREADY_EXISTS: HttpStatus.CONFLICT,
   CURRENCY_NOT_FOUND: HttpStatus.NOT_FOUND,
+  UNIT_CATEGORY_ALREADY_EXISTS: HttpStatus.CONFLICT,
+  UNIT_CATEGORY_NOT_FOUND: HttpStatus.NOT_FOUND,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -23,4 +25,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   CITY_NOT_FOUND: 'cities.CITY_NOT_FOUND',
   CURRENCY_ALREADY_EXISTS: 'currencies.CURRENCY_ALREADY_EXISTS',
   CURRENCY_NOT_FOUND: 'currencies.CURRENCY_NOT_FOUND',
+  UNIT_CATEGORY_ALREADY_EXISTS: 'unit-categories.UNIT_CATEGORY_ALREADY_EXISTS',
+  UNIT_CATEGORY_NOT_FOUND: 'unit-categories.UNIT_CATEGORY_NOT_FOUND',
 };
