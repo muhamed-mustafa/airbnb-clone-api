@@ -24,8 +24,8 @@ describe('Currencies HTTP API with MongoDB', () => {
   const secondaryId = '670d1234567890abcdef1235';
   const missingId = '670d1234567890abcdef1236';
 
-  const dollar = { id: primaryId, name: 'us dollar', currencyCode: 'USD' };
-  const euro = { id: secondaryId, name: 'euro', currencyCode: 'EUR' };
+  const dollar = { id: primaryId, name: 'US Dollar', currencyCode: 'USD' };
+  const euro = { id: secondaryId, name: 'Euro', currencyCode: 'EUR' };
 
   const pageOf = (data: unknown[], overrides: Record<string, unknown> = {}) => ({
     data,
@@ -112,13 +112,13 @@ describe('Currencies HTTP API with MongoDB', () => {
         .expect(({ body }: { body: unknown }) => {
           expect(body).toEqual({
             id: expect.any(String) as string,
-            name: 'japanese yen',
+            name: 'Japanese Yen',
             currencyCode: 'JPY',
           });
         });
     });
 
-    it('normalizes name to lowercase and code to uppercase', async () => {
+    it('trims the name and uppercases the code', async () => {
       await request(app!.getHttpServer())
         .post('/api/currencies')
         .send({ name: '  British Pound  ', currencyCode: ' gbp ' })
@@ -126,7 +126,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .expect(({ body }: { body: unknown }) => {
           expect(body).toEqual({
             id: expect.any(String) as string,
-            name: 'british pound',
+            name: 'British Pound',
             currencyCode: 'GBP',
           });
         });
@@ -250,7 +250,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .patch(`/api/currencies/${primaryId}`)
         .send({ name: 'United States Dollar' })
         .expect(200)
-        .expect({ id: primaryId, name: 'united states dollar', currencyCode: 'USD' });
+        .expect({ id: primaryId, name: 'United States Dollar', currencyCode: 'USD' });
     });
 
     it('updates only the supplied currency code', async () => {
@@ -258,7 +258,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .patch(`/api/currencies/${primaryId}`)
         .send({ currencyCode: 'usa' })
         .expect(200)
-        .expect({ id: primaryId, name: 'us dollar', currencyCode: 'USA' });
+        .expect({ id: primaryId, name: 'US Dollar', currencyCode: 'USA' });
     });
 
     it('updates both fields at once', async () => {
@@ -266,7 +266,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .patch(`/api/currencies/${primaryId}`)
         .send({ name: 'Dollar', currencyCode: 'DOL' })
         .expect(200)
-        .expect({ id: primaryId, name: 'dollar', currencyCode: 'DOL' });
+        .expect({ id: primaryId, name: 'Dollar', currencyCode: 'DOL' });
     });
 
     it('rejects a duplicate update and permits retaining the same values', async () => {

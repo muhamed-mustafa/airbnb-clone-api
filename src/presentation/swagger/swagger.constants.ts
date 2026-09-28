@@ -2,14 +2,18 @@ export const SWAGGER_PATH = 'docs';
 
 export const SWAGGER_BEARER_AUTH = 'access-token';
 
+export const SWAGGER_TAG_GROUPS = {
+  ADMIN: 'Admin',
+} as const;
+
 export const SWAGGER_TAGS = {
   AUTH: 'Authentication',
   USERS: 'Users',
-  COUNTRIES: 'Countries',
-  CITIES: 'Cities',
-  CURRENCIES: 'Currencies',
-  UNIT_CATEGORIES: 'Unit Categories',
-  APP_SETTINGS: 'App Settings',
+  COUNTRIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Countries`,
+  CITIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Cities`,
+  CURRENCIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Currencies`,
+  UNIT_CATEGORIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Unit Categories`,
+  APP_SETTINGS: `${SWAGGER_TAG_GROUPS.ADMIN} / App Settings`,
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [

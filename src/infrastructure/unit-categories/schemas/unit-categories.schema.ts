@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 
 @Schema({ timestamps: true })
 export class UnitCategory {
-  @Prop({ required: true, lowercase: true, trim: true })
+  @Prop({ required: true, trim: true })
   name!: string;
 
   @Prop({ default: '', trim: true })
@@ -22,5 +23,6 @@ UnitCategorySchema.index(
   {
     unique: true,
     partialFilterExpression: { isDeleted: false },
+    collation: CASE_INSENSITIVE_COLLATION,
   },
 );

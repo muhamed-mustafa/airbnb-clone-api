@@ -1,3 +1,5 @@
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
 import { ApplicationError } from '@common/errors/application.error';
 import { RefreshTokenInput } from '../inputs/refresh-token.input';
@@ -20,25 +22,38 @@ export class RefreshTokenUseCase {
     private readonly generateToken: GenerateTokenUseCase,
     @Inject(SECRET_HASH_SERVICE_TOKEN)
     private readonly secretHashService: SecretHashService,
+    @Inject(LOGGER)
+    private readonly logger: Logger,
   ) {}
 
   async execute(body: RefreshTokenInput): Promise<RefreshTokenOutput> {
     const decodedToken = await this.tokenService.verify(body.token);
 
-    if (decodedToken.type !== 'refresh') throw new ApplicationError('INVALID_TOKEN');
+    if (decodedToken.type !== 'refresh') {
+      this.logger.warn('Refresh token rejected: invalid token');
+      throw new ApplicationError('INVALID_TOKEN');
+    }
 
     const refreshToken = await this.refreshTokenRepository.findByUserId(decodedToken.id);
 
-    if (!refreshToken) throw new ApplicationError('INVALID_TOKEN');
+    if (!refreshToken) {
+      this.logger.warn('Refresh token rejected: invalid token');
+      throw new ApplicationError('INVALID_TOKEN');
+    }
 
     const isValidRefreshToken = await this.secretHashService.verify(refreshToken.token, body.token);
 
-    if (!isValidRefreshToken) throw new ApplicationError('INVALID_TOKEN');
+    if (!isValidRefreshToken) {
+      this.logger.warn('Refresh token rejected: invalid token');
+      throw new ApplicationError('INVALID_TOKEN');
+    }
 
     const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.rotate(
       decodedToken.id,
       refreshToken.token,
     );
+
+    this.logger.info('Refresh token rotated', { userId: decodedToken.id });
 
     return { accessToken, refreshToken: newRefreshToken };
   }

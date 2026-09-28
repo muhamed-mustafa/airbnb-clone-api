@@ -7,6 +7,7 @@ import { ERROR_CODES } from '@common/errors/error-codes';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { UnitCategoryMapper } from '../mappers/unit-category.mapper';
 import { UnitCategory } from '../schemas/unit-categories.schema';
@@ -18,7 +19,9 @@ export class MongooseUnitCategoryRepository implements UnitCategoryRepository {
   ) {}
 
   async existsByName(name: string): Promise<boolean> {
-    const exists = await this.unitCategoryModel.exists({ name, isDeleted: false });
+    const exists = await this.unitCategoryModel
+      .exists({ name, isDeleted: false })
+      .collation(CASE_INSENSITIVE_COLLATION);
     return exists !== null;
   }
 

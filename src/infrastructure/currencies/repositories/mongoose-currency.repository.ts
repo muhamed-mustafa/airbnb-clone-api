@@ -7,6 +7,7 @@ import { ERROR_CODES } from '@common/errors/error-codes';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { CurrencyMapper } from '../mappers/currency.mapper';
 import { Currency } from '../schemas/currencies.schema';
@@ -16,10 +17,12 @@ export class MongooseCurrencyRepository implements CurrencyRepository {
   constructor(@InjectModel(Currency.name) private readonly currencyModel: Model<Currency>) {}
 
   async existsByNameOrCode(name: string, currencyCode: string): Promise<boolean> {
-    const exists = await this.currencyModel.exists({
-      $or: [{ name }, { currencyCode }],
-      isDeleted: false,
-    });
+    const exists = await this.currencyModel
+      .exists({
+        $or: [{ name }, { currencyCode }],
+        isDeleted: false,
+      })
+      .collation(CASE_INSENSITIVE_COLLATION);
     return exists !== null;
   }
 

@@ -106,8 +106,13 @@ const swaggerOperationsSorter = (
 
 const swaggerTagsSorter = (left: string, right: string): number => {
   const tagOrder: Record<string, number> = {
-    Authentication: 10,
-    Users: 20,
+    'Admin / Countries': 10,
+    'Admin / Cities': 11,
+    'Admin / Currencies': 12,
+    'Admin / Unit Categories': 13,
+    'Admin / App Settings': 14,
+    Authentication: 100,
+    Users: 110,
   };
 
   const leftOrder = tagOrder[left] ?? 1000;

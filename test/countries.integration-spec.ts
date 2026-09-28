@@ -108,7 +108,7 @@ describe('Countries HTTP API with MongoDB', () => {
       .expect(({ body }: { body: unknown }) => {
         expect(body).toEqual({
           id: expect.any(String) as string,
-          name: 'germany',
+          name: 'Germany',
           code: 'DE',
         });
       });
@@ -116,9 +116,21 @@ describe('Countries HTTP API with MongoDB', () => {
 
   it.each([
     { name: 'Egypt', code: 'XX' },
+    { name: 'EGYPT', code: 'XX' },
+    { name: 'egypt', code: 'XX' },
     { name: 'Another country', code: 'EG' },
-  ])('rejects duplicate names or codes: %j', async (data) => {
+  ])('rejects duplicate names (case-insensitively) or codes: %j', async (data) => {
     await request(app!.getHttpServer()).post('/api/countries').send(data).expect(409);
+  });
+
+  it('preserves the original casing of a created name', async () => {
+    await request(app!.getHttpServer())
+      .post('/api/countries')
+      .send({ name: 'Saudi Arabia', code: 'SA' })
+      .expect(201)
+      .expect(({ body }: { body: { name?: string } }) => {
+        expect(body.name).toBe('Saudi Arabia');
+      });
   });
 
   it('enforces uniqueness for concurrent create requests', async () => {
@@ -140,7 +152,7 @@ describe('Countries HTTP API with MongoDB', () => {
       .query({ name: 'EGY' })
       .expect(200)
       .expect({
-        data: [{ id: primaryId, name: 'egypt', code: 'EG' }],
+        data: [{ id: primaryId, name: 'Egypt', code: 'EG' }],
         meta: {
           page: 1,
           limit: 10,
@@ -177,7 +189,7 @@ describe('Countries HTTP API with MongoDB', () => {
       })
       .expect(200)
       .expect({
-        data: [{ id: secondaryId, name: 'france', code: 'FR' }],
+        data: [{ id: secondaryId, name: 'France', code: 'FR' }],
         meta: {
           page: 2,
           limit: 1,
@@ -199,7 +211,7 @@ describe('Countries HTTP API with MongoDB', () => {
   it('finds a country by id and reports invalid/missing ids', async () => {
     await request(app!.getHttpServer()).get(`/api/countries/${primaryId}`).expect(200).expect({
       id: primaryId,
-      name: 'egypt',
+      name: 'Egypt',
       code: 'EG',
     });
 
@@ -217,7 +229,7 @@ describe('Countries HTTP API with MongoDB', () => {
       .expect(200)
       .expect({
         id: primaryId,
-        name: 'new egypt',
+        name: 'New Egypt',
         code: 'EG',
       });
   });
@@ -323,8 +335,8 @@ describe('Countries HTTP API with MongoDB', () => {
       .expect(200)
       .expect({
         data: [
-          { id: primaryId, name: 'egypt', code: 'EG' },
-          { id: secondaryId, name: 'france', code: 'FR' },
+          { id: primaryId, name: 'Egypt', code: 'EG' },
+          { id: secondaryId, name: 'France', code: 'FR' },
         ],
         meta: {
           page: 1,
@@ -363,7 +375,7 @@ describe('Countries HTTP API with MongoDB', () => {
       },
     });
 
-    const paris = { id: parisId, name: 'paris', country: secondaryId };
+    const paris = { id: parisId, name: 'Paris', country: secondaryId };
 
     beforeEach(async () => {
       await cityModel().deleteMany({});

@@ -8,6 +8,7 @@ import type { TransactionSession } from '@common/transactions/transaction-runner
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { toClientSession } from '../../database/mongoose-transaction-runner';
 import { CountryMapper } from '../mappers/country.mapper';
@@ -18,7 +19,9 @@ export class MongooseCountryRepository implements CountryRepository {
   constructor(@InjectModel(Country.name) private readonly countryModel: Model<Country>) {}
 
   async existsByNameOrCode(name: string, code: string): Promise<boolean> {
-    const exists = await this.countryModel.exists({ $or: [{ name }, { code }], isDeleted: false });
+    const exists = await this.countryModel
+      .exists({ $or: [{ name }, { code }], isDeleted: false })
+      .collation(CASE_INSENSITIVE_COLLATION);
     return exists !== null;
   }
 

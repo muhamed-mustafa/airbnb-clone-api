@@ -35,7 +35,12 @@ export const buildSwaggerDocument = (configService: ConfigService<EnvironmentVar
       SWAGGER_BEARER_AUTH,
     )
     .addTag(SWAGGER_TAGS.AUTH, 'User authentication: registration, login, and token refresh.')
-    .addTag(SWAGGER_TAGS.USERS, 'User account management.');
+    .addTag(SWAGGER_TAGS.USERS, 'User account management.')
+    .addTag(SWAGGER_TAGS.COUNTRIES, 'Manage countries.')
+    .addTag(SWAGGER_TAGS.CITIES, 'Manage cities.')
+    .addTag(SWAGGER_TAGS.CURRENCIES, 'Manage currencies.')
+    .addTag(SWAGGER_TAGS.UNIT_CATEGORIES, 'Manage unit categories.')
+    .addTag(SWAGGER_TAGS.APP_SETTINGS, 'Manage application settings.');
 
   if (apiBaseUrl) {
     builder.addServer(apiBaseUrl, 'Production');

@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { Country } from '../../countries/schemas/countries.schema';
 
 @Schema({ timestamps: true })
 export class City {
-  @Prop({ required: true, lowercase: true, trim: true })
+  @Prop({ required: true, trim: true })
   name!: string;
 
   @Prop({ type: Types.ObjectId, required: true, ref: Country.name })
@@ -25,5 +26,6 @@ CitySchema.index(
   {
     unique: true,
     partialFilterExpression: { isDeleted: false },
+    collation: CASE_INSENSITIVE_COLLATION,
   },
 );

@@ -1834,6 +1834,198 @@ body::before {
 }
 
 /* ==========================================================================
+   17b. Admin tag group
+   ========================================================================== */
+.api-docs-admin-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(100% - 48px, var(--docs-page-max));
+  max-width: var(--docs-page-max);
+  margin: 8px auto 0;
+  padding: 18px 22px;
+  text-align: left;
+  color: #ffffff;
+  background:
+    radial-gradient(120% 160% at 0% 0%, rgba(255, 255, 255, 0.22), transparent 48%),
+    linear-gradient(120deg, var(--docs-accent) 0%, #ec4899 55%, var(--docs-accent-strong) 100%);
+  border: 0;
+  border-radius: var(--docs-radius-lg) var(--docs-radius-lg) 0 0;
+  box-shadow: 0 16px 34px rgba(255, 56, 92, 0.24);
+  cursor: pointer;
+  transition:
+    filter 180ms ease,
+    border-radius 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Collapsed: a standalone rounded section bar (the default first impression). */
+.api-docs-admin-group-header[data-collapsed="true"] {
+  margin-bottom: 22px;
+  border-radius: var(--docs-radius-lg);
+}
+
+.api-docs-admin-group-header:hover {
+  filter: brightness(1.04) saturate(1.05);
+  box-shadow: 0 20px 40px rgba(255, 56, 92, 0.3);
+}
+
+.api-docs-admin-group-header:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.api-docs-admin-group-leading {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 3px 14px;
+  min-width: 0;
+}
+
+.api-docs-admin-group-badge {
+  grid-row: 1 / 3;
+  align-self: center;
+  padding: 5px 11px;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--docs-radius-sm);
+}
+
+.api-docs-admin-group-title {
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+}
+
+.api-docs-admin-group-subtitle {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.api-docs-admin-group-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.api-docs-admin-group-count {
+  padding: 5px 12px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+}
+
+.api-docs-admin-group-chevron {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: var(--docs-accent-strong);
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+  transition: transform 220ms var(--docs-ease);
+}
+
+.api-docs-admin-group-chevron::before {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  content: "";
+}
+
+.api-docs-admin-group-header[data-collapsed="true"] .api-docs-admin-group-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Nested resources: a clean indented list under an accent rail — no boxed frame. */
+.swagger-ui .opblock-tag-section.api-docs-admin-member {
+  position: relative;
+  width: min(100% - 48px, var(--docs-page-max));
+  max-width: var(--docs-page-max);
+  margin: 0 auto;
+  padding: 0 0 0 30px;
+  background: transparent;
+  border: 0;
+  animation: none;
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-member-first {
+  padding-top: 14px;
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-member-last {
+  margin-bottom: 30px;
+}
+
+/* Continuous accent rail down the nested resources. */
+.swagger-ui .opblock-tag-section.api-docs-admin-member::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 12px;
+  width: 2px;
+  background: rgba(255, 56, 92, 0.26);
+  content: "";
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-member-first::before {
+  top: 14px;
+}
+
+/* Short connector tick from the rail to each resource card. */
+.swagger-ui .opblock-tag-section.api-docs-admin-member .opblock-tag::after {
+  position: absolute;
+  top: 50%;
+  left: -18px;
+  width: 16px;
+  height: 2px;
+  background: rgba(255, 56, 92, 0.26);
+  transform: translateY(-50%);
+  content: "";
+}
+
+/* Nested resource cards read one level below the top-level tags. */
+.swagger-ui .opblock-tag-section.api-docs-admin-member .opblock-tag {
+  min-height: 62px;
+  margin-bottom: 12px;
+  padding: 13px 18px 13px 56px;
+  font-size: 16px;
+  border-color: var(--docs-border);
+  box-shadow: none;
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-member .opblock-tag:hover {
+  box-shadow: var(--docs-shadow-sm);
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-member .opblock-tag::before {
+  left: 15px;
+  width: 28px;
+  height: 28px;
+}
+
+.swagger-ui .opblock-tag-section.api-docs-admin-hidden {
+  display: none;
+}
+
+/* ==========================================================================
    18. Reduced motion
    ========================================================================== */
 @keyframes docsFadeUp {

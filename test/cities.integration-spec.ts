@@ -27,9 +27,9 @@ describe('Cities HTTP API with MongoDB', () => {
   const cairoId = '670d1234567890abcdef5673';
   const missingId = '670d1234567890abcdef5679';
 
-  const alexandria = { id: alexandriaId, name: 'alexandria', country: egyptId };
-  const boston = { id: bostonId, name: 'boston', country: usaId };
-  const cairo = { id: cairoId, name: 'cairo', country: egyptId };
+  const alexandria = { id: alexandriaId, name: 'Alexandria', country: egyptId };
+  const boston = { id: bostonId, name: 'Boston', country: usaId };
+  const cairo = { id: cairoId, name: 'Cairo', country: egyptId };
 
   const emptyPage = {
     data: [],
@@ -129,7 +129,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .expect(({ body }: { body: unknown }) => {
           expect(body).toEqual({
             id: expect.any(String) as string,
-            name: 'giza',
+            name: 'Giza',
             country: egyptId,
           });
         });
@@ -151,7 +151,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .send({ name: 'Cairo', country: usaId })
         .expect(201)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ name: 'cairo', country: usaId });
+          expect(body).toMatchObject({ name: 'Cairo', country: usaId });
         });
     });
 
@@ -331,7 +331,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .patch(`/api/cities/${cairoId}`)
         .send({ name: 'New Cairo' })
         .expect(200)
-        .expect({ ...cairo, name: 'new cairo' });
+        .expect({ ...cairo, name: 'New Cairo' });
     });
 
     it('moves a city to another existing country', async () => {

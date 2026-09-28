@@ -3,6 +3,7 @@ import {
   SWAGGER_API_TITLE,
   SWAGGER_API_VERSION,
   SWAGGER_BEARER_AUTH,
+  SWAGGER_TAG_GROUPS,
 } from './swagger.constants';
 
 const toJavaScriptString = (value: unknown): string => JSON.stringify(value);
@@ -28,6 +29,8 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     environment: ${toJavaScriptString(environment)},
     authSchemeName: ${toJavaScriptString(SWAGGER_BEARER_AUTH)},
     supportedLanguages: Object.freeze(${toJavaScriptString(SWAGGER_ACCEPTED_LANGUAGES)}),
+    adminGroup: ${toJavaScriptString(SWAGGER_TAG_GROUPS.ADMIN)},
+    adminTagPrefix: ${toJavaScriptString(`${SWAGGER_TAG_GROUPS.ADMIN} / `)},
   });
 
   const storageKeys = Object.freeze({
@@ -489,6 +492,122 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     link.appendChild(brand);
   };
 
+  // Always starts collapsed on every page load; the expanded state is kept only in memory
+  // for the current visit and is intentionally not persisted across reloads.
+  let adminCollapsed = true;
+  const isAdminCollapsed = () => adminCollapsed;
+
+  const setAdminCollapsed = (collapsed) => {
+    adminCollapsed = collapsed;
+  };
+
+  const getSectionTag = (section) => {
+    const header = section.querySelector('.opblock-tag');
+    return (
+      section.getAttribute('data-tag') ||
+      header?.getAttribute('data-tag') ||
+      (header?.textContent || '').trim()
+    );
+  };
+
+  const isAdminSection = (section) =>
+    getSectionTag(section).indexOf(portalConfig.adminTagPrefix) === 0;
+
+  // Strips the "Admin / " group prefix from the child tag label and refreshes its avatar initial.
+  // Derives the short name from the stable data-tag so repeated passes stay idempotent.
+  const relabelAdminTag = (section) => {
+    const header = section.querySelector('.opblock-tag');
+    if (!header) return;
+
+    const fullTag = getSectionTag(section);
+    if (fullTag.indexOf(portalConfig.adminTagPrefix) !== 0) return;
+
+    const shortName = fullTag.slice(portalConfig.adminTagPrefix.length).trim();
+    const label = header.querySelector('a span') || header.querySelector('a');
+
+    if (label && (label.textContent || '').trim() !== shortName) {
+      label.textContent = shortName;
+    }
+    header.setAttribute('data-tag-initial', (shortName.charAt(0) || 'A').toUpperCase());
+  };
+
+  const buildAdminGroupHeader = () => {
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.className = 'api-docs-admin-group-header';
+    header.setAttribute('aria-label', portalConfig.adminGroup + ' endpoints group');
+
+    const leading = document.createElement('span');
+    leading.className = 'api-docs-admin-group-leading';
+    leading.append(
+      createText('span', 'api-docs-admin-group-badge', 'Section'),
+      createText('span', 'api-docs-admin-group-title', portalConfig.adminGroup),
+      createText(
+        'small',
+        'api-docs-admin-group-subtitle',
+        'Administration-only resource management.',
+      ),
+    );
+
+    const trailing = document.createElement('span');
+    trailing.className = 'api-docs-admin-group-trailing';
+    trailing.append(
+      createText('span', 'api-docs-admin-group-count', ''),
+      createText('span', 'api-docs-admin-group-chevron', ''),
+    );
+
+    header.append(leading, trailing);
+    header.addEventListener('click', () => {
+      setAdminCollapsed(!isAdminCollapsed());
+      renderAdminGroup();
+    });
+
+    return header;
+  };
+
+  // Wraps the "Admin / *" tag sections under a single collapsible group header
+  // without moving the React-managed section nodes.
+  const renderAdminGroup = () => {
+    const sections = Array.from(
+      document.querySelectorAll('.swagger-ui .opblock-tag-section'),
+    ).filter(isAdminSection);
+
+    const existingHeader = document.querySelector('.api-docs-admin-group-header');
+
+    if (!sections.length) {
+      existingHeader?.remove();
+      return;
+    }
+
+    const collapsed = isAdminCollapsed();
+    const firstSection = sections[0];
+    const parent = firstSection.parentNode;
+    if (!parent) return;
+
+    const header = existingHeader || buildAdminGroupHeader();
+
+    // Keep the group header docked immediately before the first admin section.
+    if (header.parentNode !== parent || header.nextElementSibling !== firstSection) {
+      parent.insertBefore(header, firstSection);
+    }
+
+    const count = header.querySelector('.api-docs-admin-group-count');
+    if (count) {
+      count.textContent = sections.length + (sections.length === 1 ? ' resource' : ' resources');
+    }
+    header.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
+    header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+
+    const lastIndex = sections.length - 1;
+    sections.forEach((section, index) => {
+      section.classList.add('api-docs-admin-member');
+      section.classList.toggle('api-docs-admin-member-first', index === 0);
+      section.classList.toggle('api-docs-admin-member-last', index === lastIndex);
+      section.classList.toggle('api-docs-admin-hidden', collapsed);
+      relabelAdminTag(section);
+    });
+  };
+
   const decorateTags = () => {
     document.querySelectorAll('.swagger-ui .opblock-tag').forEach((tag) => {
       const text = (tag.textContent || '').trim();
@@ -547,6 +666,7 @@ export const buildSwaggerUiCustomJs = (runtimeEnvironment: string): string => {
     decorateTopbar();
     decorateTags();
     decorateOperationPaths();
+    renderAdminGroup();
 
     prefillRefreshTokenRequestBody();
   };

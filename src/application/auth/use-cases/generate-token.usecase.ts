@@ -1,3 +1,5 @@
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
 import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';
 import type { RefreshTokenRepository } from '../repositories/refresh-token.repository';
@@ -16,6 +18,8 @@ export class GenerateTokenUseCase {
     private readonly tokenService: TokenService,
     @Inject(SECRET_HASH_SERVICE_TOKEN)
     private readonly secretHashService: SecretHashService,
+    @Inject(LOGGER)
+    private readonly logger: Logger,
   ) {}
 
   async execute(id: string) {
@@ -27,6 +31,8 @@ export class GenerateTokenUseCase {
     const hashedRefreshToken = await this.secretHashService.hash(refreshToken);
 
     await this.refreshTokenRepository.save(id, hashedRefreshToken);
+
+    this.logger.info('Tokens generated', { userId: id });
 
     return {
       accessToken,
@@ -45,8 +51,11 @@ export class GenerateTokenUseCase {
     const rotated = await this.refreshTokenRepository.rotate(id, oldTokenHash, hashedRefreshToken);
 
     if (!rotated) {
+      this.logger.warn('Token rotation failed', { userId: id });
       throw new ApplicationError('INVALID_TOKEN');
     }
+
+    this.logger.info('Tokens rotated', { userId: id });
 
     return {
       accessToken,

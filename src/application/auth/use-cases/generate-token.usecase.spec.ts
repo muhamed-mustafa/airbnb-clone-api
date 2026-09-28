@@ -21,10 +21,17 @@ describe('GenerateTokenUseCase', () => {
     verify: jest.fn(),
   };
 
+  const logger = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() };
+
   beforeEach(() => {
     jest.clearAllMocks();
 
-    useCase = new GenerateTokenUseCase(refreshTokenRepository, tokenService, secretHashService);
+    useCase = new GenerateTokenUseCase(
+      refreshTokenRepository,
+      tokenService,
+      secretHashService,
+      logger,
+    );
   });
 
   describe('rotate', () => {

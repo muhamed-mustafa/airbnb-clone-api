@@ -24,8 +24,8 @@ describe('Unit Categories HTTP API with MongoDB', () => {
   const secondaryId = '670d1234567890abcdef1235';
   const missingId = '670d1234567890abcdef1236';
 
-  const weight = { id: primaryId, name: 'weight', icon: 'weight-icon' };
-  const length = { id: secondaryId, name: 'length', icon: 'length-icon' };
+  const weight = { id: primaryId, name: 'Weight', icon: 'weight-icon' };
+  const length = { id: secondaryId, name: 'Length', icon: 'length-icon' };
 
   const pageOf = (data: unknown[]) => ({
     data,
@@ -111,13 +111,13 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .expect(({ body }: { body: unknown }) => {
           expect(body).toEqual({
             id: expect.any(String) as string,
-            name: 'volume',
+            name: 'Volume',
             icon: 'volume-icon',
           });
         });
     });
 
-    it('normalizes name to lowercase, trims, and defaults icon to empty string', async () => {
+    it('trims the name and defaults icon to empty string', async () => {
       await request(app!.getHttpServer())
         .post('/api/unit-categories')
         .send({ name: '  Temperature  ' })
@@ -125,7 +125,7 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .expect(({ body }: { body: unknown }) => {
           expect(body).toEqual({
             id: expect.any(String) as string,
-            name: 'temperature',
+            name: 'Temperature',
             icon: '',
           });
         });
@@ -234,7 +234,7 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .patch(`/api/unit-categories/${primaryId}`)
         .send({ name: 'Mass' })
         .expect(200)
-        .expect({ id: primaryId, name: 'mass', icon: 'weight-icon' });
+        .expect({ id: primaryId, name: 'Mass', icon: 'weight-icon' });
     });
 
     it('updates only the supplied icon', async () => {
@@ -242,7 +242,7 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .patch(`/api/unit-categories/${primaryId}`)
         .send({ icon: 'scale-icon' })
         .expect(200)
-        .expect({ id: primaryId, name: 'weight', icon: 'scale-icon' });
+        .expect({ id: primaryId, name: 'Weight', icon: 'scale-icon' });
     });
 
     it('updates both fields at once', async () => {
@@ -250,7 +250,7 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .patch(`/api/unit-categories/${primaryId}`)
         .send({ name: 'Mass', icon: 'scale-icon' })
         .expect(200)
-        .expect({ id: primaryId, name: 'mass', icon: 'scale-icon' });
+        .expect({ id: primaryId, name: 'Mass', icon: 'scale-icon' });
     });
 
     it('rejects a duplicate update and permits retaining the same values', async () => {
