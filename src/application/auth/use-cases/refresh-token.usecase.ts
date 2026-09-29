@@ -1,7 +1,7 @@
+import { ApplicationError } from '@common/errors/application.error';
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '@common/errors/application.error';
 import { RefreshTokenInput } from '../inputs/refresh-token.input';
 import { RefreshTokenOutput } from '../outputs/refresh-token.output';
 import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';
@@ -34,7 +34,7 @@ export class RefreshTokenUseCase {
       throw new ApplicationError('INVALID_TOKEN');
     }
 
-    const refreshToken = await this.refreshTokenRepository.findByUserId(decodedToken.id);
+    const refreshToken = await this.refreshTokenRepository.findByUserId(decodedToken.payload.id);
 
     if (!refreshToken) {
       this.logger.warn('Refresh token rejected: invalid token');
@@ -49,11 +49,11 @@ export class RefreshTokenUseCase {
     }
 
     const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.rotate(
-      decodedToken.id,
+      decodedToken.payload,
       refreshToken.token,
     );
 
-    this.logger.info('Refresh token rotated', { userId: decodedToken.id });
+    this.logger.info('Refresh token rotated', { userId: decodedToken.payload.id });
 
     return { accessToken, refreshToken: newRefreshToken };
   }

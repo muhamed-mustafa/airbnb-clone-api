@@ -14,6 +14,7 @@ export type ApplicationErrorCode = keyof Pick<
   | 'UNIT_CATEGORY_ALREADY_EXISTS'
   | 'UNIT_CATEGORY_NOT_FOUND'
   | 'APP_SETTINGS_NOT_FOUND'
+  | 'ADMIN_NOT_FOUND'
 >;
 
 export class ApplicationError extends Error {

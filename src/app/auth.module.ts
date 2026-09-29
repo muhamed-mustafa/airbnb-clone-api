@@ -46,6 +46,6 @@ import { RegisterUseCase } from '@application/auth/use-cases/register.usecase';
     { provide: TOKEN_SERVICE_TOKEN, useClass: JwtTokenService },
     { provide: SECRET_HASH_SERVICE_TOKEN, useClass: Argon2SecretHashService },
   ],
-  exports: [],
+  exports: [GenerateTokenUseCase],
 })
 export class AuthModule {}

@@ -1,5 +1,5 @@
-import { HttpStatus } from '@nestjs/common';
 import type { ApplicationErrorCode } from '@common/errors/application.error';
+import { HttpStatus } from '@nestjs/common';
 
 export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   INVALID_TOKEN: HttpStatus.UNAUTHORIZED,
@@ -14,6 +14,7 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   UNIT_CATEGORY_ALREADY_EXISTS: HttpStatus.CONFLICT,
   UNIT_CATEGORY_NOT_FOUND: HttpStatus.NOT_FOUND,
   APP_SETTINGS_NOT_FOUND: HttpStatus.NOT_FOUND,
+  ADMIN_NOT_FOUND: HttpStatus.NOT_FOUND,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -29,4 +30,5 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   UNIT_CATEGORY_ALREADY_EXISTS: 'unit-categories.UNIT_CATEGORY_ALREADY_EXISTS',
   UNIT_CATEGORY_NOT_FOUND: 'unit-categories.UNIT_CATEGORY_NOT_FOUND',
   APP_SETTINGS_NOT_FOUND: 'app-settings.APP_SETTINGS_NOT_FOUND',
+  ADMIN_NOT_FOUND: 'admins.ADMIN_NOT_FOUND',
 };

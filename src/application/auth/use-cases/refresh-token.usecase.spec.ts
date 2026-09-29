@@ -1,8 +1,12 @@
+import { ROLES } from '@common/constants/roles.constant';
 import { ApplicationError } from '@common/errors/application.error';
+import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { RefreshTokenUseCase } from './refresh-token.usecase';
 
 describe('RefreshTokenUseCase', () => {
   let useCase: RefreshTokenUseCase;
+
+  const payload: JwtPayload = { id: 'user-1', role: ROLES.USER };
 
   const refreshTokenRepository = {
     findByUserId: jest.fn(),
@@ -46,7 +50,7 @@ describe('RefreshTokenUseCase', () => {
   describe('execute', () => {
     it('should refresh tokens successfully', async () => {
       tokenService.verify.mockResolvedValue({
-        id: 'user-1',
+        payload,
         type: 'refresh',
       });
 
@@ -71,12 +75,12 @@ describe('RefreshTokenUseCase', () => {
         refreshToken: 'new-refresh-token',
       });
 
-      expect(generateTokenRotate).toHaveBeenCalledWith('user-1', 'old-token-hash');
+      expect(generateTokenRotate).toHaveBeenCalledWith(payload, 'old-token-hash');
     });
 
     it('should throw INVALID_TOKEN when token type is not refresh', async () => {
       tokenService.verify.mockResolvedValue({
-        id: 'user-1',
+        payload,
         type: 'access',
       });
 
@@ -91,7 +95,7 @@ describe('RefreshTokenUseCase', () => {
 
     it('should throw INVALID_TOKEN when stored refresh token is not found', async () => {
       tokenService.verify.mockResolvedValue({
-        id: 'user-1',
+        payload,
         type: 'refresh',
       });
 
@@ -109,7 +113,7 @@ describe('RefreshTokenUseCase', () => {
 
     it('should throw INVALID_TOKEN when refresh token hash verification fails', async () => {
       tokenService.verify.mockResolvedValue({
-        id: 'user-1',
+        payload,
         type: 'refresh',
       });
 
