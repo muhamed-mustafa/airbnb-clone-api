@@ -48,6 +48,7 @@ export class MongooseAdminRepository implements AdminRepository {
   async findOne(filter: AdminFilter): Promise<AdminEntity | null> {
     const admin = await this.adminModel
       .findOne({
+        ...(filter.id !== undefined ? { _id: filter.id } : {}),
         ...(filter.name !== undefined ? { name: filter.name } : {}),
         ...(filter.email !== undefined ? { email: filter.email } : {}),
         ...(filter.isSuperAdmin !== undefined ? { isSuperAdmin: filter.isSuperAdmin } : {}),

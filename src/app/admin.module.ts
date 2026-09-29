@@ -1,6 +1,3 @@
-import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ADMIN_REPOSITORY } from '@application/admin/repositories/admin-repository.token';
 import { AdminService } from '@application/admin/services/admin.service';
 import { FindAllAdminsUseCase } from '@application/admin/use-cases/find-all-admins.usecase';
@@ -17,6 +14,9 @@ import { Admin, AdminSchema } from '@infrastructure/admin/schemas/admin.schema';
 import { MongooseAdminRepository } from '@infrastructure/admin/schemas/repositories/mongoose-admin.repository';
 import { Argon2SecretHashService } from '@infrastructure/auth/services/argon2-secret-hash.service';
 import { LoggingModule } from '@infrastructure/logging/logging.module';
+import { Module, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from '@presentation/admin/admin.controller';
 import { AuthModule } from './auth.module';
 
@@ -47,4 +47,10 @@ import { AuthModule } from './auth.module';
   ],
   exports: [AdminService],
 })
-export class AdminModule {}
+export class AdminModule implements OnModuleInit {
+  constructor(private readonly initializeAdminUseCase: InitializeAdminUseCase) {}
+
+  async onModuleInit() {
+    await this.initializeAdminUseCase.execute();
+  }
+}

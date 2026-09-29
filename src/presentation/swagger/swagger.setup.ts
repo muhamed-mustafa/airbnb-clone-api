@@ -106,6 +106,7 @@ const swaggerOperationsSorter = (
 
 const swaggerTagsSorter = (left: string, right: string): number => {
   const tagOrder: Record<string, number> = {
+    'Admin / Admins': 9,
     'Admin / Countries': 10,
     'Admin / Cities': 11,
     'Admin / Currencies': 12,

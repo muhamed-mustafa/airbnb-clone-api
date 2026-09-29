@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AdminService } from '../../application/admin/services/admin.service';
 import { PaginatedResult } from '../../common/pagination/pagination.types';
 import { AuthResponseDto } from '../auth/dtos/auth-response.dto';
 import { ApiAdminLoginDocs } from '../swagger/decorators/admins/api-admin-login-docs.decorator';
+import { ApiFindAdminByIdDocs } from '../swagger/decorators/admins/api-find-admin-by-id-docs.decorator';
 import { ApiFindAllAdminsDocs } from '../swagger/decorators/admins/api-find-all-admins-docs.decorator';
 import { SWAGGER_TAGS } from '../swagger/swagger.constants';
+import { AdminIdDto } from './dtos/admin-id.dto';
 import { AdminResponseDto } from './dtos/admin-response.dto';
 import { FindAllDto } from './dtos/find-all-admins.dto';
 import { LoginAdminDto } from './dtos/login-admin.dto';
@@ -33,5 +35,12 @@ export class AdminController {
       data: output.data.map((admin) => AdminMapper.toResponse(admin)),
       meta: output.meta,
     };
+  }
+
+  @Get(':id')
+  @ApiFindAdminByIdDocs()
+  async findById(@Param() params: AdminIdDto): Promise<AdminResponseDto> {
+    const output = await this.adminService.findOne({ id: params.id });
+    return AdminMapper.toResponse(output);
   }
 }
