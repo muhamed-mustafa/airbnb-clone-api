@@ -27,14 +27,9 @@ export class RefreshTokenUseCase {
   ) {}
 
   async execute(body: RefreshTokenInput): Promise<RefreshTokenOutput> {
-    const decodedToken = await this.tokenService.verify(body.token);
+    const decodedToken = await this.tokenService.verifyRefreshToken(body.token);
 
-    if (decodedToken.type !== 'refresh') {
-      this.logger.warn('Refresh token rejected: invalid token');
-      throw new ApplicationError('INVALID_TOKEN');
-    }
-
-    const refreshToken = await this.refreshTokenRepository.findByUserId(decodedToken.payload.id);
+    const refreshToken = await this.refreshTokenRepository.findByUserId(decodedToken.id);
 
     if (!refreshToken) {
       this.logger.warn('Refresh token rejected: invalid token');
@@ -49,11 +44,11 @@ export class RefreshTokenUseCase {
     }
 
     const { accessToken, refreshToken: newRefreshToken } = await this.generateToken.rotate(
-      decodedToken.payload,
+      decodedToken,
       refreshToken.token,
     );
 
-    this.logger.info('Refresh token rotated', { userId: decodedToken.payload.id });
+    this.logger.info('Refresh token rotated', { userId: decodedToken.id });
 
     return { accessToken, refreshToken: newRefreshToken };
   }

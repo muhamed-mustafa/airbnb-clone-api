@@ -12,17 +12,20 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UnitCategoryService } from '../../application/unit-categories/services/unit-category.service';
+import { Roles } from '../../common/constants/roles.constant';
 import { PaginatedResult } from '../../common/pagination/pagination.types';
+import { IsPublic } from '../auth/decorators/is-public.decorator';
+import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiCreateUnitCategoryDocs } from '../swagger/decorators/unit-categories/api-create-unit-category-docs.decorator';
 import { ApiDeleteUnitCategoryDocs } from '../swagger/decorators/unit-categories/api-delete-unit-category-docs.decorator';
 import { ApiFindAllUnitCategoriesDocs } from '../swagger/decorators/unit-categories/api-find-all-unit-categories-docs.decorator';
 import { ApiFindUnitCategoryByIdDocs } from '../swagger/decorators/unit-categories/api-find-unit-category-by-id-docs.decorator';
 import { ApiUpdateUnitCategoryDocs } from '../swagger/decorators/unit-categories/api-update-unit-category-docs.decorator';
 import { SWAGGER_TAGS } from '../swagger/swagger.constants';
-import { UnitCategoryIdDto } from './dtos/unit-category-id.dto';
-import { UnitCategoryResponseDto } from './dtos/unit-category-response.dto';
 import { CreateUnitCategoryDto } from './dtos/create-unit-category.dto';
 import { FindAllDto } from './dtos/find-all.dto';
+import { UnitCategoryIdDto } from './dtos/unit-category-id.dto';
+import { UnitCategoryResponseDto } from './dtos/unit-category-response.dto';
 import { UpdateUnitCategoryDto } from './dtos/update-unit-category.dto';
 import { UnitCategoryMapper } from './mappers/unit-category.mapper';
 
@@ -32,6 +35,7 @@ export class UnitCategoryController {
   constructor(private readonly unitCategoryService: UnitCategoryService) {}
 
   @Post()
+  @AllowedRoles(Roles.ADMIN)
   @ApiCreateUnitCategoryDocs()
   async create(@Body() body: CreateUnitCategoryDto): Promise<UnitCategoryResponseDto> {
     const input = UnitCategoryMapper.toUnitCategoryInput(body);
@@ -40,6 +44,7 @@ export class UnitCategoryController {
   }
 
   @Get()
+  @IsPublic()
   @ApiFindAllUnitCategoriesDocs()
   async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<UnitCategoryResponseDto>> {
     const output = await this.unitCategoryService.findAll(query);
@@ -51,6 +56,7 @@ export class UnitCategoryController {
   }
 
   @Get(':id')
+  @IsPublic()
   @ApiFindUnitCategoryByIdDocs()
   async findById(@Param() params: UnitCategoryIdDto): Promise<UnitCategoryResponseDto> {
     const output = await this.unitCategoryService.findById(params.id);
@@ -58,6 +64,7 @@ export class UnitCategoryController {
   }
 
   @Patch(':id')
+  @AllowedRoles(Roles.ADMIN)
   @ApiUpdateUnitCategoryDocs()
   async update(
     @Param() params: UnitCategoryIdDto,
@@ -69,6 +76,7 @@ export class UnitCategoryController {
   }
 
   @Delete(':id')
+  @AllowedRoles(Roles.ADMIN)
   @ApiDeleteUnitCategoryDocs()
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param() params: UnitCategoryIdDto): Promise<void> {

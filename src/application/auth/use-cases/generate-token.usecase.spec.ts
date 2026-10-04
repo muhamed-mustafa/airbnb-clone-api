@@ -1,4 +1,4 @@
-import { ROLES } from '@common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 import { ApplicationError } from '@common/errors/application.error';
 import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { GenerateTokenUseCase } from './generate-token.usecase';
@@ -6,7 +6,7 @@ import { GenerateTokenUseCase } from './generate-token.usecase';
 describe('GenerateTokenUseCase', () => {
   let useCase: GenerateTokenUseCase;
 
-  const payload: JwtPayload = { id: 'user-1', role: ROLES.USER };
+  const payload: JwtPayload = { id: 'user-1', role: Roles.USER };
 
   const refreshTokenRepository = {
     findByUserId: jest.fn(),
@@ -15,7 +15,8 @@ describe('GenerateTokenUseCase', () => {
   };
 
   const tokenService = {
-    verify: jest.fn(),
+    verifyAccessToken: jest.fn(),
+    verifyRefreshToken: jest.fn(),
     generateAccessToken: jest.fn(),
     generateRefreshToken: jest.fn(),
   };

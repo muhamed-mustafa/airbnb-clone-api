@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppSettingsService } from '../../application/app-settings/services/app-settings.service';
+import { Roles } from '../../common/constants/roles.constant';
+import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiFindAppSettingsDocs } from '../swagger/decorators/app-settings/api-find-app-settings-docs.decorator';
 import { ApiUpsertAppSettingsDocs } from '../swagger/decorators/app-settings/api-upsert-app-settings-docs.decorator';
 import { SWAGGER_TAGS } from '../swagger/swagger.constants';
@@ -14,6 +16,7 @@ export class AppSettingsController {
   constructor(private readonly appSettingsService: AppSettingsService) {}
 
   @Get()
+  @AllowedRoles(Roles.ADMIN)
   @ApiFindAppSettingsDocs()
   async findOne(): Promise<AppSettingsResponseDto> {
     const output = await this.appSettingsService.findOne();
@@ -21,6 +24,7 @@ export class AppSettingsController {
   }
 
   @Put()
+  @AllowedRoles(Roles.ADMIN)
   @ApiUpsertAppSettingsDocs()
   async upsert(@Body() body: UpsertAppSettingsDto): Promise<AppSettingsResponseDto> {
     const input = AppSettingsMapper.toUpsertInput(body);

@@ -2,7 +2,7 @@ import { ApplicationError } from '@common/errors/application.error';
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { ROLES } from '../../../common/constants/roles.constant';
+import { Roles } from '../../../common/constants/roles.constant';
 import { SECRET_HASH_SERVICE_TOKEN } from '../../auth/services/secret-hash-service.token';
 import type { SecretHashService } from '../../auth/services/secret-hash.service';
 import { GenerateTokenUseCase } from '../../auth/use-cases/generate-token.usecase';
@@ -41,7 +41,7 @@ export class LoginAdminUseCase {
 
     const { accessToken, refreshToken } = await this.generateToken.execute({
       id: admin.id,
-      role: ROLES.ADMIN,
+      role: Roles.ADMIN,
     });
 
     return { accessToken, refreshToken };
