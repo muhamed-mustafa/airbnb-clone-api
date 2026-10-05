@@ -47,12 +47,7 @@ export class UnitCategoryController {
   @IsPublic()
   @ApiFindAllUnitCategoriesDocs()
   async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<UnitCategoryResponseDto>> {
-    const output = await this.unitCategoryService.findAll(query);
-
-    return {
-      data: output.data.map((unitCategory) => UnitCategoryMapper.toResponse(unitCategory)),
-      meta: output.meta,
-    };
+    return await this.unitCategoryService.findAll(query);
   }
 
   @Get(':id')

@@ -47,12 +47,7 @@ export class CountryController {
   @IsPublic()
   @ApiFindAllCountriesDocs()
   async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<CountryResponseDto>> {
-    const output = await this.countryService.findAll(query);
-
-    return {
-      data: output.data.map((country) => CountryMapper.toResponse(country)),
-      meta: output.meta,
-    };
+    return await this.countryService.findAll(query);
   }
 
   @Get(':id')

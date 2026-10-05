@@ -17,6 +17,7 @@ import { LoggingModule } from '@infrastructure/logging/logging.module';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AdminAuthController } from '@presentation/admin/admin-auth.controller';
 import { AdminController } from '@presentation/admin/admin.controller';
 import { AuthModule } from './auth.module';
 
@@ -26,7 +27,7 @@ import { AuthModule } from './auth.module';
     LoggingModule,
     AuthModule,
   ],
-  controllers: [AdminController],
+  controllers: [AdminController, AdminAuthController],
   providers: [
     AdminService,
     FindAllAdminsUseCase,

@@ -1,5 +1,5 @@
 import { AuthService } from '@application/auth/services/auth.service';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
 import { ApiGetMeDocs } from '../swagger/decorators/auth/api-get-me-docs.decorator';
@@ -32,6 +32,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @IsPublic()
   @ApiLoginDocs()
   async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
@@ -41,6 +42,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
   @IsPublic()
   @ApiRefreshTokenDocs()
   async refreshToken(@Body() body: RefreshTokenDto): Promise<AuthResponseDto> {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppSettingsService } from '../../application/app-settings/services/app-settings.service';
 import { Roles } from '../../common/constants/roles.constant';
@@ -23,7 +23,7 @@ export class AppSettingsController {
     return AppSettingsMapper.toResponse(output);
   }
 
-  @Put()
+  @Patch()
   @AllowedRoles(Roles.ADMIN)
   @ApiUpsertAppSettingsDocs()
   async upsert(@Body() body: UpsertAppSettingsDto): Promise<AppSettingsResponseDto> {

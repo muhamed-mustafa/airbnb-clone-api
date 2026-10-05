@@ -100,7 +100,7 @@ describe('App Settings HTTP API with MongoDB', () => {
   describe('upsert', () => {
     it('creates the document on the first upsert', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 14, minPrice: 500 })
         .expect(200)
         .expect({ vatRate: 14, minPrice: 500 });
@@ -110,7 +110,7 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('creates the document with schema defaults for an empty body', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({})
         .expect(200)
         .expect({ vatRate: 0, minPrice: 0 });
@@ -120,12 +120,12 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('updates the existing document on a second upsert', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 14, minPrice: 500 })
         .expect(200);
 
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 20, minPrice: 900 })
         .expect(200)
         .expect({ vatRate: 20, minPrice: 900 });
@@ -135,12 +135,12 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('updates only vatRate and preserves minPrice', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 14, minPrice: 500 })
         .expect(200);
 
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 21 })
         .expect(200)
         .expect({ vatRate: 21, minPrice: 500 });
@@ -148,12 +148,12 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('updates only minPrice and preserves vatRate', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 14, minPrice: 500 })
         .expect(200);
 
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ minPrice: 750 })
         .expect(200)
         .expect({ vatRate: 14, minPrice: 750 });
@@ -161,7 +161,7 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('accepts decimal values within range', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 14.5, minPrice: 99.99 })
         .expect(200)
         .expect({ vatRate: 14.5, minPrice: 99.99 });
@@ -169,15 +169,15 @@ describe('App Settings HTTP API with MongoDB', () => {
 
     it('never creates more than one settings document across repeated upserts', async () => {
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 5, minPrice: 100 })
         .expect(200);
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 10, minPrice: 200 })
         .expect(200);
       await request(app!.getHttpServer())
-        .put('/api/app-settings')
+        .patch('/api/app-settings')
         .send({ vatRate: 15, minPrice: 300 })
         .expect(200)
         .expect({ vatRate: 15, minPrice: 300 });
@@ -188,7 +188,7 @@ describe('App Settings HTTP API with MongoDB', () => {
     it('keeps a single document under concurrent upserts', async () => {
       const results = await Promise.all(
         [8, 12, 20].map((vatRate) =>
-          request(app!.getHttpServer()).put('/api/app-settings').send({ vatRate }),
+          request(app!.getHttpServer()).patch('/api/app-settings').send({ vatRate }),
         ),
       );
 
@@ -208,7 +208,7 @@ describe('App Settings HTTP API with MongoDB', () => {
       { minPrice: null },
       { vatRate: 10, unexpected: true },
     ])('rejects invalid upsert payloads: %j', async (data) => {
-      await request(app!.getHttpServer()).put('/api/app-settings').send(data).expect(400);
+      await request(app!.getHttpServer()).patch('/api/app-settings').send(data).expect(400);
 
       expect(await countDocuments()).toBe(0);
     });

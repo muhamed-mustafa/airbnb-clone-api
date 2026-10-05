@@ -1,6 +1,6 @@
 import { LOGIN_VALIDATION_EXAMPLES } from '@presentation/swagger/examples/validation.examples';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
 import { AuthResponseDto } from '@presentation/auth/dtos/auth-response.dto';
 import { LoginDto } from '@presentation/auth/dtos/login.dto';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
@@ -9,6 +9,7 @@ import { ApiInvalidCredentialsResponse } from '../api-application-error-response
 
 export const ApiLoginDocs = () =>
   applyDecorators(
+    ApiExtension('x-docs-audience', 'user'),
     ApiExtension('x-docs-order', 20),
     ApiOperation({
       operationId: 'authLogin',
@@ -17,7 +18,7 @@ export const ApiLoginDocs = () =>
         'Validates user credentials and returns JWT access and refresh tokens for authenticated API access.',
     }),
     ApiBody({ type: LoginDto }),
-    ApiCreatedResponse({
+    ApiOkResponse({
       description: 'Authentication successful. Returns access and refresh tokens.',
       type: AuthResponseDto,
     }),

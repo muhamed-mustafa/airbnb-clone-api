@@ -1,6 +1,6 @@
 import { REFRESH_TOKEN_VALIDATION_EXAMPLES } from '@presentation/swagger/examples/validation.examples';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiExtension, ApiOperation } from '@nestjs/swagger';
 import { AuthResponseDto } from '@presentation/auth/dtos/auth-response.dto';
 import { RefreshTokenDto } from '@presentation/auth/dtos/refresh-token.dto';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
@@ -17,7 +17,7 @@ export const ApiRefreshTokenDocs = () =>
         'Exchanges a valid refresh token for a new access token and refresh token pair. The previous refresh token is invalidated.',
     }),
     ApiBody({ type: RefreshTokenDto }),
-    ApiCreatedResponse({
+    ApiOkResponse({
       description: 'Tokens refreshed successfully. Returns a new access and refresh token pair.',
       type: AuthResponseDto,
     }),

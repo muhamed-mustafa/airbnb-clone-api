@@ -1,11 +1,13 @@
 import { type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
+import type { Request, Response } from 'express';
 import type { EnvironmentVariables } from '@common/config/env.types';
 import { SWAGGER_UI_CUSTOM_CSS } from './swagger-ui.css';
 import { buildSwaggerUiCustomJs, SWAGGER_UI_FAVICON } from './swagger-ui.script';
 import { buildSwaggerDocument } from './swagger.config';
 import { SWAGGER_API_TITLE, SWAGGER_PATH } from './swagger.constants';
+import { buildAudienceDocument, DOCS_AUDIENCES } from './swagger.documents';
 
 type SwaggerSortableOperation = {
   get?: (key: string) => unknown;
@@ -23,6 +25,8 @@ type SwaggerRequest = {
 };
 
 type SwaggerResponse = {
+  url?: string;
+  status?: number;
   body?: unknown;
   data?: unknown;
   obj?: unknown;
@@ -31,7 +35,8 @@ type SwaggerResponse = {
 
 type SwaggerDocsBridge = {
   getAcceptedLanguage?: () => string;
-  storeTokensFromResponse?: (body: unknown) => void;
+  getRefreshToken?: () => string;
+  storeTokensFromResponse?: (body: unknown, context?: { url?: string; status?: number }) => void;
 };
 
 type SwaggerBrowserGlobal = typeof globalThis & {
@@ -105,16 +110,7 @@ const swaggerOperationsSorter = (
 };
 
 const swaggerTagsSorter = (left: string, right: string): number => {
-  const tagOrder: Record<string, number> = {
-    'Admin / Admins': 9,
-    'Admin / Countries': 10,
-    'Admin / Cities': 11,
-    'Admin / Currencies': 12,
-    'Admin / Unit Categories': 13,
-    'Admin / App Settings': 14,
-    Authentication: 100,
-    Users: 110,
-  };
+  const tagOrder: Record<string, number> = { Authentication: 0, Admins: 1 };
 
   const leftOrder = tagOrder[left] ?? 1000;
   const rightOrder = tagOrder[right] ?? 1000;
@@ -133,8 +129,7 @@ const swaggerRequestInterceptor = (request: SwaggerRequest): SwaggerRequest => {
     browserGlobal.localStorage?.getItem('airbnb-clone-api.docs.accept-language') ??
     'en';
   const acceptedLanguage = ['en', 'ar'].includes(storedLanguage) ? storedLanguage : 'en';
-  const storedRefreshToken =
-    browserGlobal.localStorage?.getItem('airbnb-clone-api.docs.refresh-token') ?? '';
+  const storedRefreshToken = browserGlobal.AirbnbCloneApiDocs?.getRefreshToken?.() ?? '';
 
   request.headers = {
     ...(request.headers ?? {}),
@@ -191,50 +186,108 @@ const swaggerResponseInterceptor = <TResponse extends SwaggerResponse>(
   const browserGlobal = globalThis as SwaggerBrowserGlobal;
   const responseBody = response.data ?? response.body ?? response.obj ?? response.text;
 
-  browserGlobal.AirbnbCloneApiDocs?.storeTokensFromResponse?.(responseBody);
+  browserGlobal.AirbnbCloneApiDocs?.storeTokensFromResponse?.(responseBody, {
+    url: response.url,
+    status: response.status,
+  });
 
   return response;
 };
 
-export const setupSwagger = (app: INestApplication): void => {
+export const setupSwagger = (app: INestApplication, globalPrefix = 'api'): void => {
   const configService = app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
   const runtimeEnvironment = process.env.NODE_ENV ?? 'development';
 
   const swaggerConfig = buildSwaggerDocument(configService);
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
-  SwaggerModule.setup(SWAGGER_PATH, app, document, {
-    useGlobalPrefix: true,
-    customSiteTitle: SWAGGER_API_TITLE,
-    customCss: SWAGGER_UI_CUSTOM_CSS,
-    customJsStr: buildSwaggerUiCustomJs(runtimeEnvironment),
-    customfavIcon: SWAGGER_UI_FAVICON,
-    swaggerOptions: {
-      persistAuthorization: true,
-      deepLinking: true,
-      docExpansion: 'none',
-      filter: true,
-      fn: {
-        opsFilter: (
-          taggedOperations: {
-            filter: (predicate: (value: unknown, tag: string) => boolean) => unknown;
+  for (const audience of DOCS_AUDIENCES) {
+    SwaggerModule.setup(
+      `${SWAGGER_PATH}/${audience}`,
+      app,
+      buildAudienceDocument(document, audience),
+      {
+        useGlobalPrefix: true,
+        customSiteTitle: SWAGGER_API_TITLE,
+        customCss: SWAGGER_UI_CUSTOM_CSS,
+        customJsStr: buildSwaggerUiCustomJs(runtimeEnvironment, audience),
+        customfavIcon: SWAGGER_UI_FAVICON,
+        swaggerOptions: {
+          persistAuthorization: false,
+          defaultModelsExpandDepth: 0,
+          deepLinking: true,
+          docExpansion: 'list',
+          filter: true,
+          fn: {
+            opsFilter: (
+              taggedOperations: {
+                map: (
+                  mapper: (
+                    entry: {
+                      get: (key: string) => {
+                        filter: (
+                          predicate: (operation: {
+                            get: (key: string) => string;
+                            getIn: (path: string[]) => string;
+                          }) => boolean,
+                        ) => unknown;
+                      };
+                      set: (key: string, value: unknown) => unknown;
+                    },
+                    tag: string,
+                  ) => unknown,
+                ) => {
+                  filter: (
+                    predicate: (entry: { get: (key: string) => { size: number } }) => boolean,
+                  ) => unknown;
+                };
+              },
+              phrase: string,
+            ) => {
+              const query = phrase.toLowerCase();
+              return taggedOperations
+                .map((entry, tag) =>
+                  entry.set(
+                    'operations',
+                    entry.get('operations').filter((operation) =>
+                      [
+                        tag,
+                        operation.get('path'),
+                        operation.get('method'),
+                        operation.getIn(['operation', 'summary']),
+                        operation.getIn(['operation', 'operationId']),
+                      ].some((value) =>
+                        String(value ?? '')
+                          .toLowerCase()
+                          .includes(query),
+                      ),
+                    ),
+                  ),
+                )
+                .filter((entry) => entry.get('operations').size > 0);
+            },
           },
-          phrase: string,
-        ) =>
-          taggedOperations.filter((_value, tag) =>
-            tag.toLowerCase().includes(phrase.toLowerCase()),
-          ),
+          displayRequestDuration: true,
+          tryItOutEnabled: true,
+          requestInterceptor: swaggerRequestInterceptor,
+          responseInterceptor: swaggerResponseInterceptor,
+          syntaxHighlight: {
+            activate: true,
+            theme: 'monokai',
+          },
+          operationsSorter: swaggerOperationsSorter,
+          tagsSorter: swaggerTagsSorter,
+        },
       },
-      displayRequestDuration: true,
-      tryItOutEnabled: true,
-      requestInterceptor: swaggerRequestInterceptor,
-      responseInterceptor: swaggerResponseInterceptor,
-      syntaxHighlight: {
-        activate: true,
-        theme: 'monokai',
+    );
+  }
+  // Keep the original documentation URL as a stable entry point.
+  app
+    .getHttpAdapter()
+    .get(
+      `/${globalPrefix}/${SWAGGER_PATH}`.replace(/\/+/g, '/'),
+      (_request: Request, response: Response) => {
+        response.redirect(`/${globalPrefix}/${SWAGGER_PATH}/user`.replace(/\/+/g, '/'));
       },
-      operationsSorter: swaggerOperationsSorter,
-      tagsSorter: swaggerTagsSorter,
-    },
-  });
+    );
 };

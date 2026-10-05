@@ -122,10 +122,10 @@ describe('Admin HTTP API with MongoDB', () => {
     });
   });
 
-  describe('GET /api/admin', () => {
+  describe('GET /api/admins', () => {
     it('returns a paginated list of admins in name order', async () => {
       await request(app!.getHttpServer())
-        .get('/api/admin')
+        .get('/api/admins')
         .expect(200)
         .expect({
           data: [
@@ -145,7 +145,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('never leaks the password field', async () => {
       await request(app!.getHttpServer())
-        .get('/api/admin')
+        .get('/api/admins')
         .expect(200)
         .expect(({ text }: { text: string }) => {
           expect(text).not.toContain('password');
@@ -154,7 +154,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('filters by email (exact match)', async () => {
       await request(app!.getHttpServer())
-        .get('/api/admin')
+        .get('/api/admins')
         .query({ email: 'alice@example.com' })
         .expect(200)
         .expect({
@@ -174,7 +174,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('paginates in name order', async () => {
       await request(app!.getHttpServer())
-        .get('/api/admin')
+        .get('/api/admins')
         .query({ page: 2, limit: 1 })
         .expect(200)
         .expect({
@@ -195,14 +195,14 @@ describe('Admin HTTP API with MongoDB', () => {
     it.each([{ limit: 101 }, { limit: 0 }, { page: -1 }, { page: 1.5 }])(
       'rejects invalid pagination: %j',
       async (query) => {
-        await request(app!.getHttpServer()).get('/api/admin').query(query).expect(400);
+        await request(app!.getHttpServer()).get('/api/admins').query(query).expect(400);
       },
     );
   });
 
-  describe('GET /api/admin/:id', () => {
+  describe('GET /api/admins/:id', () => {
     it('returns an admin by id', async () => {
-      await request(app!.getHttpServer()).get(`/api/admin/${primaryId}`).expect(200).expect({
+      await request(app!.getHttpServer()).get(`/api/admins/${primaryId}`).expect(200).expect({
         id: primaryId,
         name: 'Alice Admin',
         email: 'alice@example.com',
@@ -212,7 +212,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('returns 404 for a missing admin', async () => {
       await request(app!.getHttpServer())
-        .get(`/api/admin/${missingId}`)
+        .get(`/api/admins/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
           expect(body).toMatchObject({ code: 'ADMIN_NOT_FOUND' });
@@ -220,7 +220,7 @@ describe('Admin HTTP API with MongoDB', () => {
     });
 
     it('returns 400 for an invalid id', async () => {
-      await request(app!.getHttpServer()).get('/api/admin/invalid').expect(400);
+      await request(app!.getHttpServer()).get('/api/admins/invalid').expect(400);
     });
 
     it('returns 404 for a soft-deleted admin', async () => {
@@ -229,7 +229,7 @@ describe('Admin HTTP API with MongoDB', () => {
         .updateOne({ _id: primaryId }, { $set: { isDeleted: true, deletedAt: new Date() } });
 
       await request(app!.getHttpServer())
-        .get(`/api/admin/${primaryId}`)
+        .get(`/api/admins/${primaryId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
           expect(body).toMatchObject({ code: 'ADMIN_NOT_FOUND' });
@@ -237,7 +237,7 @@ describe('Admin HTTP API with MongoDB', () => {
     });
   });
 
-  describe('POST /api/admin/login', () => {
+  describe('POST /api/auth/admin/login', () => {
     beforeEach(async () => {
       await connection!.model(Admin.name).create({
         _id: loginAdminId,
@@ -250,9 +250,9 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('returns access and refresh tokens for valid credentials', async () => {
       await request(app!.getHttpServer())
-        .post('/api/admin/login')
+        .post('/api/auth/admin/login')
         .send({ email: loginEmail, password: loginPassword })
-        .expect(201)
+        .expect(200)
         .expect(({ body }: { body: { accessToken?: unknown; refreshToken?: unknown } }) => {
           expect(typeof body.accessToken).toBe('string');
           expect(typeof body.refreshToken).toBe('string');
@@ -261,7 +261,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('rejects an invalid password with 401', async () => {
       await request(app!.getHttpServer())
-        .post('/api/admin/login')
+        .post('/api/auth/admin/login')
         .send({ email: loginEmail, password: 'WrongPassword1!' })
         .expect(401)
         .expect(({ body }: { body: unknown }) => {
@@ -271,7 +271,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('rejects an unknown email with 401', async () => {
       await request(app!.getHttpServer())
-        .post('/api/admin/login')
+        .post('/api/auth/admin/login')
         .send({ email: 'nobody@example.com', password: loginPassword })
         .expect(401)
         .expect(({ body }: { body: unknown }) => {
@@ -285,7 +285,7 @@ describe('Admin HTTP API with MongoDB', () => {
       { email: loginEmail },
       { email: loginEmail, password: loginPassword, extra: 'nope' },
     ])('rejects invalid login payloads: %j', async (payload) => {
-      await request(app!.getHttpServer()).post('/api/admin/login').send(payload).expect(400);
+      await request(app!.getHttpServer()).post('/api/auth/admin/login').send(payload).expect(400);
     });
   });
 });

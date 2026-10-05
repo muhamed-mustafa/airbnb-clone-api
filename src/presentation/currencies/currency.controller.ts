@@ -47,12 +47,7 @@ export class CurrencyController {
   @ApiFindAllCurrenciesDocs()
   @IsPublic()
   async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<CurrencyResponseDto>> {
-    const output = await this.currencyService.findAll(query);
-
-    return {
-      data: output.data.map((currency) => CurrencyMapper.toResponse(currency)),
-      meta: output.meta,
-    };
+    return await this.currencyService.findAll(query);
   }
 
   @Get(':id')

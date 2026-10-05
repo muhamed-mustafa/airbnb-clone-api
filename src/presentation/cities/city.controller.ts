@@ -47,12 +47,7 @@ export class CityController {
   @IsPublic()
   @ApiFindAllCitiesDocs()
   async findAll(@Query() query: FindAllCitiesDto): Promise<PaginatedResult<CityResponseDto>> {
-    const output = await this.cityService.findAll(query);
-
-    return {
-      data: output.data.map((city) => CityMapper.toResponse(city)),
-      meta: output.meta,
-    };
+    return await this.cityService.findAll(query);
   }
 
   @Get(':id')
