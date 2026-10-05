@@ -36,6 +36,7 @@ export const buildSwaggerDocument = (configService: ConfigService<EnvironmentVar
     )
     .addTag(SWAGGER_TAGS.AUTH, 'User authentication: registration, login, and token refresh.')
     .addTag(SWAGGER_TAGS.USERS, 'User account management.')
+    .addTag(SWAGGER_TAGS.ADMINS, 'Admin authentication and account management.')
     .addTag(SWAGGER_TAGS.COUNTRIES, 'Manage countries.')
     .addTag(SWAGGER_TAGS.CITIES, 'Manage cities.')
     .addTag(SWAGGER_TAGS.CURRENCIES, 'Manage currencies.')

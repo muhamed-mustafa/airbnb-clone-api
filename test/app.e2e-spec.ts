@@ -5,6 +5,7 @@ import { Mongoose } from 'mongoose';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app/app.module';
+import { InitializeAdminUseCase } from '../src/application/admin/use-cases/initialize-admin.usecase';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;
@@ -23,6 +24,9 @@ describe('App (e2e)', () => {
     })
       .overrideProvider(getConnectionToken())
       .useValue(connection)
+      // This routing smoke test must not seed through its disconnected database stub.
+      .overrideProvider(InitializeAdminUseCase)
+      .useValue({ execute: jest.fn().mockResolvedValue(undefined) })
       .compile();
 
     app = moduleFixture.createNestApplication();

@@ -15,4 +15,7 @@ export interface EnvironmentVariables {
   REFRESH_TOKEN_SECRET: string;
   ACCESS_TOKEN_EXPIRE_IN: string;
   REFRESH_TOKEN_EXPIRE_IN: string;
+  INITIAL_ADMIN_NAME: string;
+  INITIAL_ADMIN_EMAIL: string;
+  INITIAL_ADMIN_PASSWORD: string;
 }

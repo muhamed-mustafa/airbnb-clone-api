@@ -10,7 +10,7 @@ export const ApiUpsertAppSettingsDocs = () =>
     ApiExtension('x-docs-order', 20),
     ApiOperation({
       operationId: 'appSettingsUpsert',
-      summary: 'Upsert application settings',
+      summary: 'Update application settings',
       description:
         'Creates the singleton application settings document on first call, or updates the ' +
         'supplied fields thereafter. Only the provided fields are changed.',

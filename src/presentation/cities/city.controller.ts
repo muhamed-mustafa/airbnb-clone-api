@@ -1,3 +1,5 @@
+import { CityService } from '@application/cities/services/city.service';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import {
   Body,
   Controller,
@@ -11,8 +13,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CityService } from '@application/cities/services/city.service';
-import { PaginatedResult } from '@common/pagination/pagination.types';
+import { Roles } from '../../common/constants/roles.constant';
+import { IsPublic } from '../auth/decorators/is-public.decorator';
+import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiCreateCityDocs } from '../swagger/decorators/cities/api-create-city-docs.decorator';
 import { ApiDeleteCityDocs } from '../swagger/decorators/cities/api-delete-city-docs.decorator';
 import { ApiFindAllCitiesDocs } from '../swagger/decorators/cities/api-find-all-cities-docs.decorator';
@@ -32,6 +35,7 @@ export class CityController {
   constructor(private readonly cityService: CityService) {}
 
   @Post()
+  @AllowedRoles(Roles.ADMIN)
   @ApiCreateCityDocs()
   async create(@Body() body: CreateCityDto): Promise<CityResponseDto> {
     const input = CityMapper.toCreateCityInput(body);
@@ -40,17 +44,14 @@ export class CityController {
   }
 
   @Get()
+  @IsPublic()
   @ApiFindAllCitiesDocs()
   async findAll(@Query() query: FindAllCitiesDto): Promise<PaginatedResult<CityResponseDto>> {
-    const output = await this.cityService.findAll(query);
-
-    return {
-      data: output.data.map((city) => CityMapper.toResponse(city)),
-      meta: output.meta,
-    };
+    return await this.cityService.findAll(query);
   }
 
   @Get(':id')
+  @IsPublic()
   @ApiFindCityByIdDocs()
   async findById(@Param() params: CityIdDto): Promise<CityResponseDto> {
     const output = await this.cityService.findById(params.id);
@@ -58,6 +59,7 @@ export class CityController {
   }
 
   @Patch(':id')
+  @AllowedRoles(Roles.ADMIN)
   @ApiUpdateCityDocs()
   async update(@Param() params: CityIdDto, @Body() body: UpdateCityDto): Promise<CityResponseDto> {
     const input = CityMapper.toUpdateCityInput(body);
@@ -66,6 +68,7 @@ export class CityController {
   }
 
   @Delete(':id')
+  @AllowedRoles(Roles.ADMIN)
   @ApiDeleteCityDocs()
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param() params: CityIdDto): Promise<void> {

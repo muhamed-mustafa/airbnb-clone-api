@@ -12,4 +12,7 @@ export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object({
   REFRESH_TOKEN_SECRET: Joi.string().required(),
   ACCESS_TOKEN_EXPIRE_IN: Joi.string().default('15m'),
   REFRESH_TOKEN_EXPIRE_IN: Joi.string().default('30d'),
+  INITIAL_ADMIN_NAME: Joi.string().default('Super Admin'),
+  INITIAL_ADMIN_EMAIL: Joi.string().email().default('admin@example.com'),
+  INITIAL_ADMIN_PASSWORD: Joi.string().min(8).required(),
 });

@@ -14,6 +14,7 @@ export const SWAGGER_TAGS = {
   CURRENCIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Currencies`,
   UNIT_CATEGORIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Unit Categories`,
   APP_SETTINGS: `${SWAGGER_TAG_GROUPS.ADMIN} / App Settings`,
+  ADMINS: `${SWAGGER_TAG_GROUPS.ADMIN} / Admins`,
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [

@@ -25,6 +25,7 @@
     "test:currencies:integration": "jest --config ./test/jest-e2e.json --testRegex currencies\\.integration-spec\\.ts$ --runInBand",
     "test:unit-categories:integration": "jest --config ./test/jest-e2e.json --testRegex unit-categories\\.integration-spec\\.ts$ --runInBand",
     "test:app-settings:integration": "jest --config ./test/jest-e2e.json --testRegex app-settings\\.integration-spec\\.ts$ --runInBand",
+    "test:admin:integration": "jest --config ./test/jest-e2e.json --testRegex admin\\.integration-spec\\.ts$ --runInBand",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:down:rm": "docker-compose down --rmi all",

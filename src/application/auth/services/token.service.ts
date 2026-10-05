@@ -1,5 +1,8 @@
+import { JwtPayload } from '../../../common/interfaces/jwt-payload.interface';
+
 export interface TokenService {
-  verify(token: string): Promise<{ id: string; type: string }>;
-  generateAccessToken(userId: string): Promise<string>;
-  generateRefreshToken(userId: string): Promise<string>;
+  verifyAccessToken(token: string): Promise<JwtPayload>;
+  verifyRefreshToken(token: string): Promise<JwtPayload>;
+  generateAccessToken(payload: JwtPayload): Promise<string>;
+  generateRefreshToken(payload: JwtPayload): Promise<string>;
 }

@@ -8,6 +8,7 @@ import { ApiInternalErrorResponse } from '../api-internal-error-response.decorat
 
 export const ApiRegisterDocs = () =>
   applyDecorators(
+    ApiExtension('x-docs-audience', 'user'),
     ApiExtension('x-docs-order', 10),
     ApiOperation({
       operationId: 'authRegister',
