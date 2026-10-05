@@ -7,7 +7,7 @@ import { GlobalExceptionFilter } from '@presentation/filters/global-exception-fi
 import { HttpExceptionFilter } from '@presentation/filters/http-exception.filter';
 import { ValidationExceptionFilter } from '@presentation/filters/validation-exception.filter';
 import { RequestContextMiddleware } from '@presentation/middleware/request-context/request-context.middleware';
-import { TransformResponseInterceptorTsInterceptor } from '../common/interceptors/transform-response.interceptor';
+import { TransformResponseInterceptor } from '../common/interceptors/transform-response.interceptor';
 import { AdminModule } from './admin.module';
 import { AppSettingsModule } from './app-settings.module';
 import { AuthModule } from './auth.module';
@@ -51,7 +51,7 @@ import { UsersModule } from './users.module';
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: TransformResponseInterceptorTsInterceptor,
+      useClass: TransformResponseInterceptor,
     },
   ],
 })

@@ -73,6 +73,7 @@ export class CityController {
   }
 
   @Delete(':id')
+  @AllowedRoles(Roles.ADMIN)
   @ApiDeleteCityDocs()
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param() params: CityIdDto): Promise<void> {
