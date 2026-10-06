@@ -21,7 +21,8 @@ export class AdminController {
   @AllowedRoles(Roles.ADMIN)
   @ApiFindAllAdminsDocs()
   async findAll(@Query() query: FindAllDto): Promise<PaginatedResult<AdminResponseDto>> {
-    return await this.adminService.findAll(query);
+    const result = await this.adminService.findAll(query);
+    return { data: result.data.map((admin) => AdminMapper.toResponse(admin)), meta: result.meta };
   }
 
   @Get(':id')

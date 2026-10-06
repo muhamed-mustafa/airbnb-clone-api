@@ -6,6 +6,7 @@ import { toError } from '@common/utils/to-error';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { randomUUID } from 'node:crypto';
 import { JwtPayload } from '../../../common/interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -41,6 +42,7 @@ export class JwtTokenService implements TokenService {
       {
         secret: this.configService.getOrThrow<string>('REFRESH_TOKEN_SECRET'),
         expiresIn: this.configService.getOrThrow<number>('REFRESH_TOKEN_EXPIRE_IN'),
+        jwtid: randomUUID(),
       },
     );
   }
