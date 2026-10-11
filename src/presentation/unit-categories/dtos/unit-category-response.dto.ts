@@ -8,14 +8,14 @@ export class UnitCategoryResponseDto {
   id!: string;
 
   @ApiProperty({
-    description: 'Unit category name.',
-    example: 'weight',
+    description: 'Accommodation type name (for example, apartment or villa).',
+    example: 'villa',
   })
   name!: string;
 
   @ApiProperty({
-    description: 'Unit category icon identifier.',
-    example: 'weight-icon',
+    description: 'Opaque icon identifier for an accommodation type; not an upload or image URL.',
+    example: 'villa',
   })
   icon!: string;
 }

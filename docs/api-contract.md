@@ -77,3 +77,13 @@ resource update, and delete paths remain as listed above.
 `/api/docs/user`, `/api/docs/admin`, and `/api/docs/shared` group operations by
 audience. Each operation belongs to one audience; this does not alter runtime
 permissions. Navigation loads each OpenAPI document without a full page reload.
+
+## Accommodation types (`unit-categories`)
+
+`unit-categories` means accommodation types, such as Apartment, Villa and Chalet, not measurement categories. Existing route names and stored data are preserved.
+
+- `name`: required text, 3–50 characters, trimmed. Name search is a partial case-insensitive match (minimum 3 characters).
+- `icon`: optional opaque text identifier, maximum 100 characters. The API does not upload images, resolve icon names, or guarantee a URL. The admin displays the identifier as text, without rendering arbitrary HTML or fetching images.
+- Existing CRUD and role restrictions remain unchanged; delete is a soft delete.
+
+Data correction requires a separate reviewed migration: inventory existing category IDs and references, back up the database, map each measurement entry explicitly, and decide whether to rename or retire it. Do not automatically replace Area/Length/Volume/Weight or delete existing entries. Add Apartment/Villa/Chalet through the admin after checking for duplicates; translating names or defining an icon catalogue requires a separate contract.

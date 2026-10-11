@@ -6,8 +6,8 @@ import { trimString } from '../../utils/transformers.util';
 
 export class FindAllDto extends PaginationDto {
   @ApiPropertyOptional({
-    description: 'Partial unit category name.',
-    example: 'weight',
+    description: 'Partial accommodation type name.',
+    example: 'villa',
     minLength: 3,
     maxLength: 50,
   })

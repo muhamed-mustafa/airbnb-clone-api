@@ -28,8 +28,8 @@ export const ApiFindAllUnitCategoriesDocs = () =>
       name: 'name',
       required: false,
       type: String,
-      description: 'Partial unit category name.',
-      example: 'weight',
+      description: 'Partial accommodation type name.',
+      example: 'villa',
     }),
 
     ApiQuery({

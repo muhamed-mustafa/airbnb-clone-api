@@ -8,8 +8,8 @@ import { trimString } from '../../utils/transformers.util';
 
 export class CreateUnitCategoryDto {
   @ApiProperty({
-    description: 'Unit category name.',
-    example: 'Weight',
+    description: 'Accommodation type name (for example, apartment or villa).',
+    example: 'Villa',
     minLength: 3,
     maxLength: 50,
   })
@@ -18,8 +18,8 @@ export class CreateUnitCategoryDto {
   name!: string;
 
   @ApiPropertyOptional({
-    description: 'Unit category icon identifier.',
-    example: 'weight-icon',
+    description: 'Opaque icon identifier for an accommodation type; not an upload or image URL.',
+    example: 'villa',
     maxLength: 100,
   })
   @Transform(trimString)
