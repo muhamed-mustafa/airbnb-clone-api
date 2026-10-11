@@ -10,17 +10,18 @@ import { FindCountryByIdUseCase } from '@application/countries/use-cases/find-co
 import { UpdateCountryUseCase } from '@application/countries/use-cases/update-country.usecase';
 import { TRANSACTION_RUNNER } from '@common/transactions/transaction-runner.token';
 import { MongooseCityRepository } from '@infrastructure/cities/repositories/mongoose-city.repository';
-import { City, CitySchema } from '@infrastructure/cities/schemas/cities.schema';
+import { CitySchema } from '@infrastructure/cities/schemas/cities.schema';
 import { MongooseCountryRepository } from '@infrastructure/countries/repositories/mongoose-country.repository';
-import { Country, CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
+import { CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
 import { MongooseTransactionRunner } from '@infrastructure/database/mongoose-transaction-runner';
 import { CountryController } from '@presentation/countries/country.controller';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Country.name, schema: CountrySchema },
-      { name: City.name, schema: CitySchema },
+      { name: modelNames.COUNTRIES, schema: CountrySchema },
+      { name: modelNames.CITIES, schema: CitySchema },
     ]),
   ],
   controllers: [CountryController],

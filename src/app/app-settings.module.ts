@@ -5,14 +5,14 @@ import { AppSettingsService } from '@application/app-settings/services/app-setti
 import { FindAppSettingsUseCase } from '@application/app-settings/use-cases/find-app-settings.usecase';
 import { UpsertAppSettingsUseCase } from '@application/app-settings/use-cases/upsert-app-settings.usecase';
 import { MongooseAppSettingsRepository } from '@infrastructure/app-settings/repositories/mongoose-app-settings.repository';
-import {
-  AppSettings,
-  AppSettingsSchema,
-} from '@infrastructure/app-settings/schemas/app-settings.schema';
+import { AppSettingsSchema } from '@infrastructure/app-settings/schemas/app-settings.schema';
 import { AppSettingsController } from '@presentation/app-settings/app-settings.controller';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: AppSettings.name, schema: AppSettingsSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: modelNames.APP_SETTINGS, schema: AppSettingsSchema }]),
+  ],
   controllers: [AppSettingsController],
   providers: [
     AppSettingsService,

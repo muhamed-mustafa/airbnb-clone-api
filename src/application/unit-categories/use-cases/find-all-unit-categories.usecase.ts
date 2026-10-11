@@ -1,8 +1,8 @@
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
-import { createPaginationMeta } from '../../../common/pagination/pagination.utils';
+import { PaginatedResult } from '@common/pagination/pagination.types';
+import { createPaginationMeta } from '@common/pagination/pagination.utils';
 import { UnitCategoryEntity } from '../entities/unit-category.entity';
 import { UnitCategoryFilter } from '../repositories/unit-category-filter';
 import { UNIT_CATEGORY_REPOSITORY } from '../repositories/unit-category-repository.token';

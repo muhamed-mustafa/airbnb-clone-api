@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AdminEntity } from '../../../../application/admin/entities/admin.entity';
-import { CreateAdminInput } from '../../../../application/admin/inputs/create-admin.input';
-import { AdminFilter } from '../../../../application/admin/repositories/admin-filter';
-import { AdminRepository } from '../../../../application/admin/repositories/admin.repository';
+import { AdminEntity } from '@application/admin/entities/admin.entity';
+import { CreateAdminInput } from '@application/admin/inputs/create-admin.input';
+import { AdminFilter } from '@application/admin/repositories/admin-filter';
+import { AdminRepository } from '@application/admin/repositories/admin.repository';
 import { AdminMapper } from '../../mappers/admin.mapper';
 import { Admin } from '../admin.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseAdminRepository implements AdminRepository {
-  constructor(@InjectModel(Admin.name) private readonly adminModel: Model<Admin>) {}
+  constructor(@InjectModel(modelNames.ADMINS) private readonly adminModel: Model<Admin>) {}
 
   async create(data: CreateAdminInput): Promise<AdminEntity> {
     const admin = await this.adminModel.create(data);

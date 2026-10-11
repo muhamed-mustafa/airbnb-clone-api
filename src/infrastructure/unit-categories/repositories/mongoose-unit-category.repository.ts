@@ -11,11 +11,13 @@ import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { UnitCategoryMapper } from '../mappers/unit-category.mapper';
 import { UnitCategory } from '../schemas/unit-categories.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseUnitCategoryRepository implements UnitCategoryRepository {
   constructor(
-    @InjectModel(UnitCategory.name) private readonly unitCategoryModel: Model<UnitCategory>,
+    @InjectModel(modelNames.UNIT_CATEGORIES)
+    private readonly unitCategoryModel: Model<UnitCategory>,
   ) {}
 
   async existsByName(name: string): Promise<boolean> {

@@ -9,10 +9,11 @@ import { UserMapper } from '../mappers/user.mapper';
 import { User } from '../schemas/user.schema';
 import { UserFilter } from '@application/users/repositories/user-filter';
 import { UserRepository } from '@application/users/repositories/users.repository';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseUsersRepository implements UserRepository {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
+  constructor(@InjectModel(modelNames.USERS) private readonly userModel: Model<User>) {}
 
   async create(user: CreateUserInput): Promise<UserEntity> {
     const { name, email, phone, password } = user;

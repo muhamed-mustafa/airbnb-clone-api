@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import { UnitCategoryEntity } from '../entities/unit-category.entity';
 import { CreateUnitCategoryInput } from '../inputs/create-unit-category.input';
 import { UpdateUnitCategoryInput } from '../inputs/update-unit-category.input';

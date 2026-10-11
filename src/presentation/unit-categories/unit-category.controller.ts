@@ -11,9 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { UnitCategoryService } from '../../application/unit-categories/services/unit-category.service';
-import { Roles } from '../../common/constants/roles.constant';
-import { PaginatedResult } from '../../common/pagination/pagination.types';
+import { UnitCategoryService } from '@application/unit-categories/services/unit-category.service';
+import { Roles } from '@common/constants/roles.constant';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiCreateUnitCategoryDocs } from '../swagger/decorators/unit-categories/api-create-unit-category-docs.decorator';

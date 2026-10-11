@@ -7,11 +7,12 @@ import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import { TOKEN_SERVICE_TOKEN } from '../src/application/auth/services/token-service.token';
-import type { TokenService } from '../src/application/auth/services/token.service';
-import { Roles } from '../src/common/constants/roles.constant';
-import { Admin, AdminSchema } from '../src/infrastructure/admin/schemas/admin.schema';
+import { AppModule } from '@app/app.module';
+import { TOKEN_SERVICE_TOKEN } from '@application/auth/services/token-service.token';
+import type { TokenService } from '@application/auth/services/token.service';
+import { Roles } from '@common/constants/roles.constant';
+import { Admin, AdminSchema } from '@infrastructure/admin/schemas/admin.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
 describe('Admin HTTP API with MongoDB', () => {
@@ -52,7 +53,7 @@ describe('Admin HTTP API with MongoDB', () => {
       serverSelectionTimeoutMS: 5000,
     }).asPromise();
 
-    const model = connection.model(Admin.name, AdminSchema);
+    const model = connection.model(modelNames.ADMINS, AdminSchema);
     await model.init();
 
     loginPasswordHash = await argon2.hash(loginPassword);
@@ -84,7 +85,9 @@ describe('Admin HTTP API with MongoDB', () => {
       .generateAccessToken({ id: primaryId, role: Roles.ADMIN });
 
     // onModuleInit has now run during bootstrap and should have created the super admin.
-    const created = await connection.model<Admin>(Admin.name).findOne({ isSuperAdmin: true });
+    const created = await connection
+      .model<Admin>(modelNames.ADMINS)
+      .findOne({ isSuperAdmin: true });
 
     initialSuperAdmin = created
       ? { name: created.name, email: created.email, isSuperAdmin: created.isSuperAdmin }
@@ -92,7 +95,7 @@ describe('Admin HTTP API with MongoDB', () => {
   }, 30000);
 
   beforeEach(async () => {
-    const model = connection!.model(Admin.name);
+    const model = connection!.model(modelNames.ADMINS);
 
     await model.deleteMany({});
 
@@ -253,7 +256,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
     it('returns 404 for a soft-deleted admin', async () => {
       await connection!
-        .model(Admin.name)
+        .model(modelNames.ADMINS)
         .updateOne({ _id: primaryId }, { $set: { isDeleted: true, deletedAt: new Date() } });
 
       await asAdmin(`/api/admins/${primaryId}`)
@@ -266,7 +269,7 @@ describe('Admin HTTP API with MongoDB', () => {
 
   describe('POST /api/auth/admin/login', () => {
     beforeEach(async () => {
-      await connection!.model(Admin.name).create({
+      await connection!.model(modelNames.ADMINS).create({
         _id: loginAdminId,
         name: 'Login Admin',
         email: loginEmail,

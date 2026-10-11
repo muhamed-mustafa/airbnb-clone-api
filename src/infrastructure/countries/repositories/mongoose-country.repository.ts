@@ -13,10 +13,11 @@ import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { toClientSession } from '../../database/mongoose-transaction-runner';
 import { CountryMapper } from '../mappers/country.mapper';
 import { Country } from '../schemas/countries.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseCountryRepository implements CountryRepository {
-  constructor(@InjectModel(Country.name) private readonly countryModel: Model<Country>) {}
+  constructor(@InjectModel(modelNames.COUNTRIES) private readonly countryModel: Model<Country>) {}
 
   async existsByNameOrCode(name: string, code: string): Promise<boolean> {
     const exists = await this.countryModel

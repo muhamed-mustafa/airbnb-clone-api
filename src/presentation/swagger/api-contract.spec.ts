@@ -7,13 +7,13 @@ import { AuthController } from '../auth/auth.controller';
 import { AdminController } from '../admin/admin.controller';
 import { AdminAuthController } from '../admin/admin-auth.controller';
 import { AppSettingsController } from '../app-settings/app-settings.controller';
-import { AuthService } from '../../application/auth/services/auth.service';
-import { AdminService } from '../../application/admin/services/admin.service';
-import { AppSettingsService } from '../../application/app-settings/services/app-settings.service';
-import { TOKEN_SERVICE_TOKEN } from '../../application/auth/services/token-service.token';
+import { AuthService } from '@application/auth/services/auth.service';
+import { AdminService } from '@application/admin/services/admin.service';
+import { AppSettingsService } from '@application/app-settings/services/app-settings.service';
+import { TOKEN_SERVICE_TOKEN } from '@application/auth/services/token-service.token';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { TransformResponseInterceptor } from '../../common/interceptors/transform-response.interceptor';
+import { TransformResponseInterceptor } from '@common/interceptors/transform-response.interceptor';
 
 describe('HTTP route contract with actual authorization guards', () => {
   let app: INestApplication<App>;

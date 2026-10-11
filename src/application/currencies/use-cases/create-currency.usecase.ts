@@ -1,7 +1,7 @@
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { CurrencyEntity } from '../entities/currency.entity';
 import { CreateCurrencyInput } from '../inputs/create-currency.input';
 import { CURRENCY_REPOSITORY } from '../repositories/currency-repository.token';

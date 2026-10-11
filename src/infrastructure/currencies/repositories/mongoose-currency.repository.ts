@@ -11,10 +11,13 @@ import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
 import { getDuplicateKeyField } from '../../database/is-duplicate-key-error';
 import { CurrencyMapper } from '../mappers/currency.mapper';
 import { Currency } from '../schemas/currencies.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseCurrencyRepository implements CurrencyRepository {
-  constructor(@InjectModel(Currency.name) private readonly currencyModel: Model<Currency>) {}
+  constructor(
+    @InjectModel(modelNames.CURRENCIES) private readonly currencyModel: Model<Currency>,
+  ) {}
 
   async existsByNameOrCode(name: string, currencyCode: string): Promise<boolean> {
     const exists = await this.currencyModel

@@ -13,7 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Roles } from '../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiCreateCityDocs } from '../swagger/decorators/cities/api-create-city-docs.decorator';

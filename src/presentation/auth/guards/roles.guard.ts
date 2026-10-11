@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
-import { Roles } from '../../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { RequestWithUser } from '../interfaces/request-with-user';

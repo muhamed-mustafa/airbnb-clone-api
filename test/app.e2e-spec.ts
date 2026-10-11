@@ -4,8 +4,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Mongoose } from 'mongoose';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import { InitializeAdminUseCase } from '../src/application/admin/use-cases/initialize-admin.usecase';
+import { AppModule } from '@app/app.module';
+import { InitializeAdminUseCase } from '@application/admin/use-cases/initialize-admin.usecase';
 
 describe('App (e2e)', () => {
   let app: INestApplication<App>;

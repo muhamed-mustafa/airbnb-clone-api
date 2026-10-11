@@ -2,7 +2,7 @@ import { ApplicationError } from '@common/errors/application.error';
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtPayload } from '../../../common/interfaces/jwt-payload.interface';
+import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { REFRESH_TOKEN_REPOSITORY } from '../repositories/refresh-token-repository.token';
 import type { RefreshTokenRepository } from '../repositories/refresh-token.repository';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';

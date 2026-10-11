@@ -6,9 +6,10 @@ import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import { City, CitySchema } from '../src/infrastructure/cities/schemas/cities.schema';
-import { Country, CountrySchema } from '../src/infrastructure/countries/schemas/countries.schema';
+import { AppModule } from '@app/app.module';
+import { City, CitySchema } from '@infrastructure/cities/schemas/cities.schema';
+import { CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
 describe('Cities HTTP API with MongoDB', () => {
@@ -55,8 +56,8 @@ describe('Cities HTTP API with MongoDB', () => {
       serverSelectionTimeoutMS: 5000,
     }).asPromise();
 
-    await connection.model(Country.name, CountrySchema).init();
-    await connection.model(City.name, CitySchema).init();
+    await connection.model(modelNames.COUNTRIES, CountrySchema).init();
+    await connection.model(modelNames.CITIES, CitySchema).init();
 
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
@@ -82,8 +83,8 @@ describe('Cities HTTP API with MongoDB', () => {
   }, 30000);
 
   beforeEach(async () => {
-    const countryModel = connection!.model(Country.name);
-    const cityModel = connection!.model(City.name);
+    const countryModel = connection!.model(modelNames.COUNTRIES);
+    const cityModel = connection!.model(modelNames.CITIES);
 
     await Promise.all([countryModel.deleteMany({}), cityModel.deleteMany({})]);
 
@@ -414,7 +415,7 @@ describe('Cities HTTP API with MongoDB', () => {
     it('soft deletes, hides the city, and rejects subsequent reads/updates/deletes', async () => {
       await request(app!.getHttpServer()).delete(`/api/cities/${cairoId}`).expect(204).expect('');
 
-      const deleted = await connection!.model<City>(City.name).findById(cairoId);
+      const deleted = await connection!.model<City>(modelNames.CITIES).findById(cairoId);
 
       expect(deleted?.isDeleted).toBe(true);
       expect(deleted?.deletedAt).toBeInstanceOf(Date);

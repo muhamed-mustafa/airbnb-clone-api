@@ -7,7 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'node:crypto';
-import { JwtPayload } from '../../../common/interfaces/jwt-payload.interface';
+import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtTokenService implements TokenService {

@@ -8,10 +8,7 @@ import { RefreshTokenUseCase } from '@application/auth/use-cases/refresh-token.u
 import { RegisterUseCase } from '@application/auth/use-cases/register.usecase';
 import { EnvironmentVariables } from '@common/config/env.types';
 import { MongooseRefreshTokenRepository } from '@infrastructure/auth/repositories/mongoose-refresh-token.repository';
-import {
-  RefreshToken,
-  RefreshTokenSchema,
-} from '@infrastructure/auth/schemas/refresh-token.schema';
+import { RefreshTokenSchema } from '@infrastructure/auth/schemas/refresh-token.schema';
 import { Argon2SecretHashService } from '@infrastructure/auth/services/argon2-secret-hash.service';
 import { JwtTokenService } from '@infrastructure/auth/services/jwt-token-service';
 import { LoggingModule } from '@infrastructure/logging/logging.module';
@@ -21,13 +18,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from '@presentation/auth/auth.controller';
-import { JwtAuthGuard } from '../presentation/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../presentation/auth/guards/roles.guard';
+import { JwtAuthGuard } from '@presentation/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@presentation/auth/guards/roles.guard';
 import { UsersModule } from './users.module';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: RefreshToken.name, schema: RefreshTokenSchema }]),
+    MongooseModule.forFeature([{ name: modelNames.REFRESH_TOKENS, schema: RefreshTokenSchema }]),
     UsersModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService<EnvironmentVariables>) => ({

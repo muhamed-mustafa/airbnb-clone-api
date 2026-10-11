@@ -1,7 +1,7 @@
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { CreateCountryInput } from '../inputs/create-country.input';
 import { COUNTRY_REPOSITORY } from '../repositories/country-repository.token';
 import type { CountryRepository } from '../repositories/country.repository';

@@ -1,5 +1,5 @@
-import type { CreateCountryInput } from '../../../application/countries/inputs/create-country.input';
-import { CreateCountryOutput } from '../../../application/countries/outputs/create-country.output';
+import type { CreateCountryInput } from '@application/countries/inputs/create-country.input';
+import { CreateCountryOutput } from '@application/countries/outputs/create-country.output';
 import { CountryResponseDto } from '../dtos/country-response.dto';
 import { CreateCountryDto } from '../dtos/create-country.dto';
 

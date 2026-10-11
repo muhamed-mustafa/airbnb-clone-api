@@ -6,11 +6,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AppSettingsMapper } from '../mappers/app-settings.mapper';
 import { AppSettings } from '../schemas/app-settings.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseAppSettingsRepository implements AppSettingsRepository {
   constructor(
-    @InjectModel(AppSettings.name) private readonly appSettingsModel: Model<AppSettings>,
+    @InjectModel(modelNames.APP_SETTINGS) private readonly appSettingsModel: Model<AppSettings>,
   ) {}
 
   async findOne(): Promise<AppSettingsEntity | null> {

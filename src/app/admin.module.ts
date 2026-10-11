@@ -20,12 +20,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminAuthController } from '@presentation/admin/admin-auth.controller';
 import { AdminController } from '@presentation/admin/admin.controller';
 import { AuthModule } from './auth.module';
+import { UnitsModule } from './units.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
     LoggingModule,
     AuthModule,
+    UnitsModule,
   ],
   controllers: [AdminController, AdminAuthController],
   providers: [

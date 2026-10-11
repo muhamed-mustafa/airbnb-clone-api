@@ -6,11 +6,9 @@ import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import {
-  Currency,
-  CurrencySchema,
-} from '../src/infrastructure/currencies/schemas/currencies.schema';
+import { AppModule } from '@app/app.module';
+import { Currency, CurrencySchema } from '@infrastructure/currencies/schemas/currencies.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
 describe('Currencies HTTP API with MongoDB', () => {
@@ -52,7 +50,7 @@ describe('Currencies HTTP API with MongoDB', () => {
       serverSelectionTimeoutMS: 5000,
     }).asPromise();
 
-    const model = connection.model(Currency.name, CurrencySchema);
+    const model = connection.model(modelNames.CURRENCIES, CurrencySchema);
     await model.init();
 
     moduleFixture = await Test.createTestingModule({
@@ -79,7 +77,7 @@ describe('Currencies HTTP API with MongoDB', () => {
   }, 30000);
 
   beforeEach(async () => {
-    const model = connection!.model(Currency.name);
+    const model = connection!.model(modelNames.CURRENCIES);
 
     await model.deleteMany({});
 
@@ -311,7 +309,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .expect(204)
         .expect('');
 
-      const deleted = await connection!.model<Currency>(Currency.name).findById(primaryId);
+      const deleted = await connection!.model<Currency>(modelNames.CURRENCIES).findById(primaryId);
 
       expect(deleted?.isDeleted).toBe(true);
       expect(deleted?.deletedAt).toBeInstanceOf(Date);

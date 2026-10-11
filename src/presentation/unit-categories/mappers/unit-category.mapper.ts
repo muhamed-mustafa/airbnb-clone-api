@@ -1,5 +1,5 @@
-import type { UnitCategoryEntity } from '../../../application/unit-categories/entities/unit-category.entity';
-import type { CreateUnitCategoryInput } from '../../../application/unit-categories/inputs/create-unit-category.input';
+import type { UnitCategoryEntity } from '@application/unit-categories/entities/unit-category.entity';
+import type { CreateUnitCategoryInput } from '@application/unit-categories/inputs/create-unit-category.input';
 import { UnitCategoryResponseDto } from '../dtos/unit-category-response.dto';
 import { CreateUnitCategoryDto } from '../dtos/create-unit-category.dto';
 

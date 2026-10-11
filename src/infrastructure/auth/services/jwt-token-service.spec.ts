@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Logger } from '@common/logging/logger';
-import { Roles } from '../../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 import { JwtTokenService } from './jwt-token-service';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;

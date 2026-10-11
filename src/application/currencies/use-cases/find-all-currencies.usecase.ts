@@ -1,8 +1,8 @@
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
-import { createPaginationMeta } from '../../../common/pagination/pagination.utils';
+import { PaginatedResult } from '@common/pagination/pagination.types';
+import { createPaginationMeta } from '@common/pagination/pagination.utils';
 import { CurrencyEntity } from '../entities/currency.entity';
 import { CurrencyFilter } from '../repositories/currency-filter';
 import { CURRENCY_REPOSITORY } from '../repositories/currency-repository.token';

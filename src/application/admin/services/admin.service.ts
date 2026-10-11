@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import { AdminEntity } from '../entities/admin.entity';
 import { LoginInput } from '../inputs/login-admin.input';
 import { LoginOutput } from '../outputs/login.output';

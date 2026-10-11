@@ -1,7 +1,7 @@
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { UnitCategoryEntity } from '../entities/unit-category.entity';
 import { UNIT_CATEGORY_REPOSITORY } from '../repositories/unit-category-repository.token';
 import type { UnitCategoryRepository } from '../repositories/unit-category.repository';

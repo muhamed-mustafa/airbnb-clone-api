@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import { CurrencyEntity } from '../entities/currency.entity';
 import { CreateCurrencyInput } from '../inputs/create-currency.input';
 import { UpdateCurrencyInput } from '../inputs/update-currency.input';

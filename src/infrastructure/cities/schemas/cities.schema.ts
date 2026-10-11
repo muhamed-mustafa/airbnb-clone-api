@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { CASE_INSENSITIVE_COLLATION } from '../../database/collation';
-import { Country } from '../../countries/schemas/countries.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Schema({ timestamps: true })
 export class City {
   @Prop({ required: true, trim: true })
   name!: string;
 
-  @Prop({ type: Types.ObjectId, required: true, ref: Country.name })
+  @Prop({ type: Types.ObjectId, required: true, ref: modelNames.COUNTRIES })
   country!: Types.ObjectId;
 
   @Prop({ default: false })

@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { PaginationDto } from '../../../common/pagination/pagination.dto';
+import { PaginationDto } from '@common/pagination/pagination.dto';
 import { trimString } from '../../utils/transformers.util';
 
 export class FindAllDto extends PaginationDto {

@@ -6,13 +6,14 @@ import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import { CountriesModule } from '../src/app/countries.module';
-import { CITY_REPOSITORY } from '../src/application/cities/repositories/city-repository.token';
-import type { CityRepository } from '../src/application/cities/repositories/city.repository';
-import type { TransactionSession } from '../src/common/transactions/transaction-runner';
-import { City } from '../src/infrastructure/cities/schemas/cities.schema';
-import { Country, CountrySchema } from '../src/infrastructure/countries/schemas/countries.schema';
+import { AppModule } from '@app/app.module';
+import { CountriesModule } from '@app/countries.module';
+import { CITY_REPOSITORY } from '@application/cities/repositories/city-repository.token';
+import type { CityRepository } from '@application/cities/repositories/city.repository';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
+import { City } from '@infrastructure/cities/schemas/cities.schema';
+import { Country, CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
 describe('Countries HTTP API with MongoDB', () => {
@@ -38,7 +39,7 @@ describe('Countries HTTP API with MongoDB', () => {
       serverSelectionTimeoutMS: 5000,
     }).asPromise();
 
-    const model = connection.model(Country.name, CountrySchema);
+    const model = connection.model(modelNames.COUNTRIES, CountrySchema);
     await model.init();
 
     moduleFixture = await Test.createTestingModule({
@@ -65,7 +66,7 @@ describe('Countries HTTP API with MongoDB', () => {
   }, 30000);
 
   beforeEach(async () => {
-    const model = connection!.model(Country.name);
+    const model = connection!.model(modelNames.COUNTRIES);
 
     await model.deleteMany({});
 
@@ -277,7 +278,7 @@ describe('Countries HTTP API with MongoDB', () => {
       .expect(204)
       .expect('');
 
-    const deleted = await connection!.model<Country>(Country.name).findById(primaryId);
+    const deleted = await connection!.model<Country>(modelNames.COUNTRIES).findById(primaryId);
 
     expect(deleted?.isDeleted).toBe(true);
     expect(deleted?.deletedAt).toBeInstanceOf(Date);
@@ -357,7 +358,7 @@ describe('Countries HTTP API with MongoDB', () => {
     const countryWithoutCitiesId = '670d1234567890abcdef1237';
     const previouslyDeletedAt = new Date('2024-01-01T00:00:00.000Z');
 
-    const cityModel = () => connection!.model<City>(City.name);
+    const cityModel = () => connection!.model<City>(modelNames.CITIES);
 
     const expectCityNotFound = ({ body }: { body: unknown }) => {
       expect(body).toMatchObject({ code: 'CITY_NOT_FOUND' });
@@ -400,7 +401,7 @@ describe('Countries HTTP API with MongoDB', () => {
         .expect(204)
         .expect('');
 
-      const country = await connection!.model<Country>(Country.name).findById(primaryId);
+      const country = await connection!.model<Country>(modelNames.COUNTRIES).findById(primaryId);
 
       expect(country?.isDeleted).toBe(true);
       expect(country?.deletedAt).toBeInstanceOf(Date);
@@ -483,7 +484,7 @@ describe('Countries HTTP API with MongoDB', () => {
 
     it('deletes a country that has no cities without touching other cities', async () => {
       await connection!
-        .model(Country.name)
+        .model(modelNames.COUNTRIES)
         .create({ _id: countryWithoutCitiesId, name: 'Germany', code: 'DE' });
 
       await request(app!.getHttpServer())
@@ -547,7 +548,7 @@ describe('Countries HTTP API with MongoDB', () => {
       expect(cascadeSession).toBeDefined();
       expect(citiesDeletedBeforeFailure).toBe(2);
 
-      const country = await connection!.model<Country>(Country.name).findById(primaryId);
+      const country = await connection!.model<Country>(modelNames.COUNTRIES).findById(primaryId);
 
       expect(country?.isDeleted).toBe(false);
       expect(country?.deletedAt).toBeUndefined();

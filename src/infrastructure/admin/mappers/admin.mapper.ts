@@ -1,5 +1,5 @@
 import type { HydratedDocument } from 'mongoose';
-import { AdminEntity } from '../../../application/admin/entities/admin.entity';
+import { AdminEntity } from '@application/admin/entities/admin.entity';
 import { Admin } from '../schemas/admin.schema';
 
 export class AdminMapper {

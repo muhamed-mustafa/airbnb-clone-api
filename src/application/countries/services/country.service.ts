@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginatedResult } from '../../../common/pagination/pagination.types';
+import { PaginatedResult } from '@common/pagination/pagination.types';
 import { CountryEntity } from '../entities/country.entity';
 import { CreateCountryInput } from '../inputs/create-country.input';
 import { UpdateCountryInput } from '../inputs/update-country.input';

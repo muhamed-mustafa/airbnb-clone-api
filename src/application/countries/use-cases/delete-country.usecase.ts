@@ -5,7 +5,7 @@ import { CITY_REPOSITORY } from '@application/cities/repositories/city-repositor
 import type { CityRepository } from '@application/cities/repositories/city.repository';
 import type { TransactionRunner } from '@common/transactions/transaction-runner';
 import { TRANSACTION_RUNNER } from '@common/transactions/transaction-runner.token';
-import { ApplicationError } from '../../../common/errors/application.error';
+import { ApplicationError } from '@common/errors/application.error';
 import { COUNTRY_REPOSITORY } from '../repositories/country-repository.token';
 import type { CountryRepository } from '../repositories/country.repository';
 

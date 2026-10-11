@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import { RefreshTokenEntity } from '@application/auth/entities/refresh-token.entity';
 import { RefreshToken } from '../schemas/refresh-token.schema';
 import { RefreshTokenRepository } from '@application/auth/repositories/refresh-token.repository';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseRefreshTokenRepository implements RefreshTokenRepository {
   constructor(
-    @InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>,
+    @InjectModel(modelNames.REFRESH_TOKENS) private readonly refreshTokenModel: Model<RefreshToken>,
   ) {}
 
   async findByUserId(userId: string): Promise<RefreshTokenEntity | null> {

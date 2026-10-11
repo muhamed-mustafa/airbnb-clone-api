@@ -1,7 +1,7 @@
 import { AuthService } from '@application/auth/services/auth.service';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import type { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
+import type { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { ApiGetMeDocs } from '../swagger/decorators/auth/api-get-me-docs.decorator';
 import { ApiLoginDocs } from '../swagger/decorators/auth/api-login-docs.decorator';
 import { ApiRefreshTokenDocs } from '../swagger/decorators/auth/api-refresh-token-docs.decorator';
@@ -15,7 +15,7 @@ import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { AuthMapper } from './mappers/auth.mapper';
 import { AllowedRoles } from './decorators/roles.decorator';
-import { Roles } from '../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 
 @ApiTags(SWAGGER_TAGS.AUTH)
 @Controller('auth')

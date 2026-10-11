@@ -4,7 +4,7 @@ import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { parseAndValidatePhone } from '@common/utils/phone.util';
 import { Inject, Injectable } from '@nestjs/common';
-import { Roles } from '../../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 import { RegisterInput } from '../inputs/register.input';
 import { RegisterOutput } from '../outputs/register.output';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';

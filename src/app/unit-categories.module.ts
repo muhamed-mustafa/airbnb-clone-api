@@ -8,14 +8,14 @@ import { FindAllUnitCategoriesUseCase } from '@application/unit-categories/use-c
 import { FindUnitCategoryByIdUseCase } from '@application/unit-categories/use-cases/find-unit-category-by-id.usecase';
 import { UpdateUnitCategoryUseCase } from '@application/unit-categories/use-cases/update-unit-category.usecase';
 import { MongooseUnitCategoryRepository } from '@infrastructure/unit-categories/repositories/mongoose-unit-category.repository';
-import {
-  UnitCategory,
-  UnitCategorySchema,
-} from '@infrastructure/unit-categories/schemas/unit-categories.schema';
+import { UnitCategorySchema } from '@infrastructure/unit-categories/schemas/unit-categories.schema';
 import { UnitCategoryController } from '@presentation/unit-categories/unit-category.controller';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: UnitCategory.name, schema: UnitCategorySchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: modelNames.UNIT_CATEGORIES, schema: UnitCategorySchema }]),
+  ],
   controllers: [UnitCategoryController],
   providers: [
     UnitCategoryService,

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { AppSettingsService } from '../../application/app-settings/services/app-settings.service';
-import { Roles } from '../../common/constants/roles.constant';
+import { AppSettingsService } from '@application/app-settings/services/app-settings.service';
+import { Roles } from '@common/constants/roles.constant';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiFindAppSettingsDocs } from '../swagger/decorators/app-settings/api-find-app-settings-docs.decorator';
 import { ApiUpsertAppSettingsDocs } from '../swagger/decorators/app-settings/api-upsert-app-settings-docs.decorator';

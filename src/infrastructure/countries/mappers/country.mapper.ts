@@ -1,5 +1,5 @@
 import type { HydratedDocument } from 'mongoose';
-import type { CountryEntity } from '../../../application/countries/entities/country.entity';
+import type { CountryEntity } from '@application/countries/entities/country.entity';
 import type { Country } from '../schemas/countries.schema';
 
 export class CountryMapper {

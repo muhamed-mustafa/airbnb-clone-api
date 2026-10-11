@@ -8,7 +8,7 @@ import { LoginOutput } from '../outputs/login.output';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';
 import type { SecretHashService } from '../services/secret-hash.service';
 import { GenerateTokenUseCase } from './generate-token.usecase';
-import { Roles } from '../../../common/constants/roles.constant';
+import { Roles } from '@common/constants/roles.constant';
 
 @Injectable()
 export class LoginUseCase {

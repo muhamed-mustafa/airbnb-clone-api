@@ -1,5 +1,5 @@
-import type { CurrencyEntity } from '../../../application/currencies/entities/currency.entity';
-import type { CreateCurrencyInput } from '../../../application/currencies/inputs/create-currency.input';
+import type { CurrencyEntity } from '@application/currencies/entities/currency.entity';
+import type { CreateCurrencyInput } from '@application/currencies/inputs/create-currency.input';
 import { CurrencyResponseDto } from '../dtos/currency-response.dto';
 import { CreateCurrencyDto } from '../dtos/create-currency.dto';
 

@@ -8,12 +8,16 @@ import { FindAllCitiesUseCase } from '@application/cities/use-cases/find-all-cit
 import { FindCityByIdUseCase } from '@application/cities/use-cases/find-city-by-id.usecase';
 import { UpdateCityUseCase } from '@application/cities/use-cases/update-city.usecase';
 import { MongooseCityRepository } from '@infrastructure/cities/repositories/mongoose-city.repository';
-import { City, CitySchema } from '@infrastructure/cities/schemas/cities.schema';
+import { CitySchema } from '@infrastructure/cities/schemas/cities.schema';
 import { CityController } from '@presentation/cities/city.controller';
 import { CountriesModule } from './countries.module';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: City.name, schema: CitySchema }]), CountriesModule],
+  imports: [
+    MongooseModule.forFeature([{ name: modelNames.CITIES, schema: CitySchema }]),
+    CountriesModule,
+  ],
   controllers: [CityController],
   providers: [
     CityService,

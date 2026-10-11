@@ -8,11 +8,12 @@ import { FindAllCurrenciesUseCase } from '@application/currencies/use-cases/find
 import { FindCurrencyByIdUseCase } from '@application/currencies/use-cases/find-currency-by-id.usecase';
 import { UpdateCurrencyUseCase } from '@application/currencies/use-cases/update-currency.usecase';
 import { MongooseCurrencyRepository } from '@infrastructure/currencies/repositories/mongoose-currency.repository';
-import { Currency, CurrencySchema } from '@infrastructure/currencies/schemas/currencies.schema';
+import { CurrencySchema } from '@infrastructure/currencies/schemas/currencies.schema';
 import { CurrencyController } from '@presentation/currencies/currency.controller';
+import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Currency.name, schema: CurrencySchema }])],
+  imports: [MongooseModule.forFeature([{ name: modelNames.CURRENCIES, schema: CurrencySchema }])],
   controllers: [CurrencyController],
   providers: [
     CurrencyService,

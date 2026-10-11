@@ -6,11 +6,9 @@ import { I18nMiddleware, I18nValidationPipe } from 'nestjs-i18n';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app/app.module';
-import {
-  AppSettings,
-  AppSettingsSchema,
-} from '../src/infrastructure/app-settings/schemas/app-settings.schema';
+import { AppModule } from '@app/app.module';
+import { AppSettingsSchema } from '@infrastructure/app-settings/schemas/app-settings.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // Opt-in integration suite: always uses a newly generated database, never the URI's database.
 describe('App Settings HTTP API with MongoDB', () => {
@@ -20,7 +18,7 @@ describe('App Settings HTTP API with MongoDB', () => {
 
   const databaseName = `app_settings_test_${randomUUID().replaceAll('-', '')}`;
 
-  const countDocuments = () => connection!.model(AppSettings.name).countDocuments({});
+  const countDocuments = () => connection!.model(modelNames.APP_SETTINGS).countDocuments({});
 
   beforeAll(async () => {
     const uri = process.env.APP_SETTINGS_TEST_MONGO_URI;
@@ -34,7 +32,7 @@ describe('App Settings HTTP API with MongoDB', () => {
       serverSelectionTimeoutMS: 5000,
     }).asPromise();
 
-    connection.model(AppSettings.name, AppSettingsSchema);
+    connection.model(modelNames.APP_SETTINGS, AppSettingsSchema);
 
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
@@ -60,7 +58,7 @@ describe('App Settings HTTP API with MongoDB', () => {
   }, 30000);
 
   beforeEach(async () => {
-    await connection!.model(AppSettings.name).deleteMany({});
+    await connection!.model(modelNames.APP_SETTINGS).deleteMany({});
   });
 
   afterAll(async () => {
@@ -88,7 +86,7 @@ describe('App Settings HTTP API with MongoDB', () => {
     });
 
     it('returns the singleton settings when they exist', async () => {
-      await connection!.model(AppSettings.name).create({ vatRate: 14, minPrice: 500 });
+      await connection!.model(modelNames.APP_SETTINGS).create({ vatRate: 14, minPrice: 500 });
 
       await request(app!.getHttpServer())
         .get('/api/app-settings')

@@ -1,4 +1,4 @@
-import { JwtPayload } from '../../../common/interfaces/jwt-payload.interface';
+import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 
 export interface TokenService {
   verifyAccessToken(token: string): Promise<JwtPayload>;

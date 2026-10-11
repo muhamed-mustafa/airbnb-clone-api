@@ -13,6 +13,7 @@ import { isDuplicateKeyError } from '../../database/is-duplicate-key-error';
 import { toClientSession } from '../../database/mongoose-transaction-runner';
 import { CityMapper } from '../mappers/city.mapper';
 import { City } from '../schemas/cities.schema';
+import { modelNames } from '@common/constants/model-names.constant';
 
 // The { country, name } index is compound, so both keys identify a duplicate city.
 const isDuplicateCityError = (error: unknown): boolean =>
@@ -20,7 +21,7 @@ const isDuplicateCityError = (error: unknown): boolean =>
 
 @Injectable()
 export class MongooseCityRepository implements CityRepository {
-  constructor(@InjectModel(City.name) private readonly cityModel: Model<City>) {}
+  constructor(@InjectModel(modelNames.CITIES) private readonly cityModel: Model<City>) {}
 
   async existsByCountryAndName(country: string, name: string): Promise<boolean> {
     const exists = await this.cityModel
