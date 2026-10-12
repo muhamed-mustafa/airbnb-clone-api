@@ -1,7 +1,10 @@
 import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
 import { UnitService } from '@application/units/services/unit.service';
+import { CheckUnitAuthUseCase } from '@application/units/use-cases/check-unit-auth.usecase';
 import { CreateUnitUseCase } from '@application/units/use-cases/create-unit.usecase';
+import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
 import { UnitValidationUseCase } from '@application/units/use-cases/unit-validation.usecase';
+import { UpdateUnitUseCase } from '@application/units/use-cases/update-unit.usecase';
 import { modelNames } from '@common/constants/model-names.constant';
 import { MongooseUnitRepository } from '@infrastructure/units/repositories/mongoose-unit.repository';
 import { UnitSchema } from '@infrastructure/units/schemas/units.schema';
@@ -26,6 +29,9 @@ import { UnitCategoriesModule } from './unit-categories.module';
     UnitService,
     CreateUnitUseCase,
     UnitValidationUseCase,
+    FindOneUnitUseCase,
+    UpdateUnitUseCase,
+    CheckUnitAuthUseCase,
     {
       provide: UNIT_REPOSITORY,
       useClass: MongooseUnitRepository,

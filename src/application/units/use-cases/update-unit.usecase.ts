@@ -1,0 +1,29 @@
+import { UnitEntity } from '@application/units/entities/unit-entity';
+import { UpdateUnitInput } from '@application/units/inputs/update-unit.input';
+import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
+import type { UnitRepository } from '@application/units/repositories/unit.repository';
+import { CheckUnitAuthUseCase } from '@application/units/use-cases/check-unit-auth.usecase';
+import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
+import { UnitValidationUseCase } from '@application/units/use-cases/unit-validation.usecase';
+import { Inject, Injectable } from '@nestjs/common';
+
+@Injectable()
+export class UpdateUnitUseCase {
+  constructor(
+    @Inject(UNIT_REPOSITORY) private readonly unitRepository: UnitRepository,
+    private readonly findOneUnitUseCase: FindOneUnitUseCase,
+    private readonly unitValidationUseCase: UnitValidationUseCase,
+    private readonly unitAccessControlUseCase: CheckUnitAuthUseCase,
+  ) {}
+
+  async execute(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity | null> {
+    const unit = await this.findOneUnitUseCase.execute({ id });
+
+    await Promise.all([
+      this.unitAccessControlUseCase.execute(unit?.id as string, userId),
+      this.unitValidationUseCase.execute(data),
+    ]);
+
+    return await this.unitRepository.update(id, data);
+  }
+}

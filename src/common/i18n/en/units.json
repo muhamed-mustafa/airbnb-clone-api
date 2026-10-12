@@ -1,3 +1,5 @@
 {
-  "UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE": "The cost per day is below the minimum allowed price of {{minPrice}}."
+  "UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE": "The cost per day is below the minimum allowed price of {{minPrice}}.",
+  "UNIT_NOT_FOUND": "The requested unit was not found.",
+  "UNIT_ACCESS_DENIED": "You do not have permission to access this unit."
 }

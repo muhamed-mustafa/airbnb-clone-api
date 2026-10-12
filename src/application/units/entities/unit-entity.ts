@@ -1,5 +1,6 @@
 export interface UnitEntity {
   id: string;
+  user: string;
   title: string;
   description: string;
   address: string;
@@ -14,4 +15,5 @@ export interface UnitEntity {
   hasInternetService: boolean;
   hasKitchen: boolean;
   hasPrivateGarage: boolean;
+  availability: boolean;
 }

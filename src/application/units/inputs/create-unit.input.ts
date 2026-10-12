@@ -14,4 +14,5 @@ export interface CreateUnitInput {
   hasInternetService: boolean;
   hasKitchen: boolean;
   hasPrivateGarage: boolean;
+  availability: boolean;
 }

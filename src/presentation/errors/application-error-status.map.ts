@@ -16,6 +16,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   APP_SETTINGS_NOT_FOUND: HttpStatus.NOT_FOUND,
   ADMIN_NOT_FOUND: HttpStatus.NOT_FOUND,
   UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE: HttpStatus.BAD_REQUEST,
+  UNIT_NOT_FOUND: HttpStatus.NOT_FOUND,
+  UNIT_ACCESS_DENIED: HttpStatus.FORBIDDEN,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -33,4 +35,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   APP_SETTINGS_NOT_FOUND: 'app-settings.APP_SETTINGS_NOT_FOUND',
   ADMIN_NOT_FOUND: 'admins.ADMIN_NOT_FOUND',
   UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE: 'units.UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE',
+  UNIT_NOT_FOUND: 'units.UNIT_NOT_FOUND',
+  UNIT_ACCESS_DENIED: 'units.UNIT_ACCESS_DENIED',
 };

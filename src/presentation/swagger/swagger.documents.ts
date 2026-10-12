@@ -75,7 +75,7 @@ export const buildAudienceDocument = (
 
   document.info.title = `${audience[0].toUpperCase()}${audience.slice(1)} API`;
   document.info.description = {
-    user: 'User registration and sign-in. Shared APIs contain reference data, current identity, and token refresh.',
+    user: 'User registration, sign-in and accommodation creation, retrieval and updates. Shared APIs contain reference data, current identity, and token refresh.',
     admin:
       'Admin sign-in and resource management. Shared APIs contain reference data, current identity, and token refresh.',
     shared:

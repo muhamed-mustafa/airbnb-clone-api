@@ -9,6 +9,7 @@ export const SWAGGER_TAG_GROUPS = {
 export const SWAGGER_TAGS = {
   AUTH: 'Authentication',
   USERS: 'Users',
+  UNITS: 'Units',
   COUNTRIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Countries`,
   CITIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Cities`,
   CURRENCIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Currencies`,

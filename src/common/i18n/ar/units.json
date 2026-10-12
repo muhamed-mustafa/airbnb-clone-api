@@ -1,3 +1,5 @@
 {
-  "UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE": "سعر الإقامة لليوم الواحد أقل من الحد الأدنى المسموح به، وهو {{minPrice}}."
+  "UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE": "سعر الإقامة لليوم الواحد أقل من الحد الأدنى المسموح به، وهو {{minPrice}}.",
+  "UNIT_NOT_FOUND": "الوحدة المطلوبة غير موجودة.",
+  "UNIT_ACCESS_DENIED": "ليس لديك إذن للوصول إلى هذه الوحدة."
 }
