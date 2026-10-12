@@ -15,6 +15,7 @@ export type ApplicationErrorCode = keyof Pick<
   | 'UNIT_CATEGORY_NOT_FOUND'
   | 'APP_SETTINGS_NOT_FOUND'
   | 'ADMIN_NOT_FOUND'
+  | 'UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE'
 >;
 
 export class ApplicationError extends Error {
