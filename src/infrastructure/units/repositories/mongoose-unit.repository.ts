@@ -23,7 +23,12 @@ export class MongooseUnitRepository implements UnitRepository {
   }
 
   async findOne(query: Partial<UnitEntity>): Promise<UnitEntity | null> {
-    const unit = await this.unitModel.findOne(query);
+    const { id, ...filters } = query;
+    const unit = await this.unitModel.findOne({
+      ...filters,
+      ...(id !== undefined ? { _id: id } : {}),
+      isDeleted: false,
+    });
     return unit ? UnitMapper.toEntity(unit) : null;
   }
 
@@ -45,6 +50,7 @@ export class MongooseUnitRepository implements UnitRepository {
       roomsCount,
       availability,
       user,
+      isActive,
     } = filter;
 
     const searchTerm = title?.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -88,6 +94,7 @@ export class MongooseUnitRepository implements UnitRepository {
       ...(roomsCount !== undefined ? { roomsCount } : {}),
       ...(availability !== undefined ? { availability } : {}),
       ...(user !== undefined ? { user } : {}),
+      ...(isActive !== undefined ? { isActive } : {}),
     };
 
     const [units, total] = await Promise.all([
@@ -109,13 +116,34 @@ export class MongooseUnitRepository implements UnitRepository {
 
   async update(id: string, data: UpdateUnitInput): Promise<UnitEntity | null> {
     const unit = await this.unitModel
-      .findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        { $set: data },
-        { new: true, returnDocument: 'after' },
-      )
+      .findOneAndUpdate({ _id: id, isDeleted: false }, { $set: data }, { returnDocument: 'after' })
       .exec();
 
     return unit ? UnitMapper.toEntity(unit) : null;
+  }
+  async activate(id: string): Promise<UnitEntity | null> {
+    return this.setActive(id, true);
+  }
+  async deactivate(id: string): Promise<UnitEntity | null> {
+    return this.setActive(id, false);
+  }
+  private async setActive(id: string, isActive: boolean): Promise<UnitEntity | null> {
+    const unit = await this.unitModel
+      .findOneAndUpdate(
+        { _id: id, isDeleted: false },
+        { $set: { isActive } },
+        { returnDocument: 'after' },
+      )
+      .exec();
+    return unit ? UnitMapper.toEntity(unit) : null;
+  }
+  async delete(id: string): Promise<boolean> {
+    const result = await this.unitModel
+      .updateOne(
+        { _id: id, isDeleted: false },
+        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
+      )
+      .exec();
+    return result.modifiedCount > 0;
   }
 }

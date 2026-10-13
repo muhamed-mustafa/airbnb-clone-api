@@ -16,4 +16,5 @@ export interface UnitEntity {
   hasKitchen: boolean;
   hasPrivateGarage: boolean;
   availability: boolean;
+  isActive: boolean;
 }

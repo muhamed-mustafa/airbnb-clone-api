@@ -18,7 +18,7 @@ export const ApiFindAllUnitsDocs = () =>
       operationId: 'unitsFindAll',
       summary: 'List accommodation listings',
       description:
-        'Public paginated list of non-deleted units. Title searches title and description as literal case-insensitive substrings. Price bounds are inclusive; capacity and facility filters use exact matches. Sorted by daily cost ascending, then MongoDB ObjectId. Availability and isActive are not implicitly filtered.',
+        'Public paginated list of active, non-deleted units. Title searches title and description as literal case-insensitive substrings. Price bounds are inclusive; capacity and facility filters use exact matches. Sorted by daily cost ascending, then MongoDB ObjectId. Inactive units are excluded; availability is not implicitly filtered.',
     }),
     ApiQuery({
       name: 'page',

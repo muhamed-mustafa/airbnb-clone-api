@@ -7,5 +7,8 @@ export interface UnitRepository {
   create(unit: CreateUnitInput): Promise<UnitEntity>;
   findOne(query: Partial<UnitEntity>): Promise<UnitEntity | null>;
   update(id: string, unit: UpdateUnitInput): Promise<UnitEntity | null>;
+  activate(id: string): Promise<UnitEntity | null>;
+  deactivate(id: string): Promise<UnitEntity | null>;
+  delete(id: string): Promise<boolean>;
   find(filter: UnitFilter): Promise<{ items: UnitEntity[]; total: number }>;
 }

@@ -3,6 +3,7 @@ export type UnitFilter = Partial<
   Pick<
     UnitEntity,
     | 'user'
+    | 'isActive'
     | 'title'
     | 'unitCategory'
     | 'country'

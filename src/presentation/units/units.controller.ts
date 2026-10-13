@@ -1,8 +1,24 @@
+import { ApiFindMyUnitsDocs } from '@presentation/swagger/decorators/units/api-find-my-units-docs.decorator';
+import { UnitIdDto } from './dtos/unit-id.dto';
+import { ApiActivateUnitDocs } from '@presentation/swagger/decorators/units/api-activate-unit-docs.decorator';
+import { ApiDeactivateUnitDocs } from '@presentation/swagger/decorators/units/api-deactivate-unit-docs.decorator';
+import { ApiDeleteUnitDocs } from '@presentation/swagger/decorators/units/api-delete-unit-docs.decorator';
 import { UnitService } from '@application/units/services/unit.service';
 import { Roles } from '@common/constants/roles.constant';
 import type { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { PaginatedResult } from '@common/pagination/pagination.types';
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@presentation/auth/decorators/current-user.decorator';
 import { IsPublic } from '@presentation/auth/decorators/is-public.decorator';
@@ -39,12 +55,13 @@ export class UnitsController {
   @IsPublic()
   @ApiFindAllUnitsDocs()
   async findAll(@Query() query: FindAllUnitsDto): Promise<PaginatedResult<UnitResponseDto>> {
-    const result = await this.unitService.findAll(query);
+    const result = await this.unitService.findAll({ ...query, isActive: true });
     return { ...result, data: result.data.map((unit) => UnitMapper.toResponse(unit)) };
   }
 
   @AllowedRoles(Roles.USER)
   @Get('me')
+  @ApiFindMyUnitsDocs()
   async findMyUnits(
     @CurrentUser() user: JwtPayload,
     @Query() query: FindAllUnitsDto,
@@ -56,18 +73,47 @@ export class UnitsController {
   @Get(':id')
   @IsPublic()
   @ApiFindOneUnitDocs()
-  async findOne(@Param('id') id: string): Promise<UnitResponseDto | null> {
-    return this.unitService.findOne({ id });
+  async findOne(@Param() { id }: UnitIdDto): Promise<UnitResponseDto | null> {
+    const unit = await this.unitService.findOne({ id, isActive: true });
+    return unit ? UnitMapper.toResponse(unit) : null;
   }
 
   @AllowedRoles(Roles.USER)
   @Patch(':id')
   @ApiUpdateUnitDocs()
   async update(
-    @Param('id') id: string,
+    @Param() { id }: UnitIdDto,
     @Body() data: UpdateUnitDto,
     @CurrentUser() user: JwtPayload,
   ) {
     return this.unitService.update(id, data, user.id);
+  }
+
+  @AllowedRoles(Roles.USER)
+  @Patch(':id/activate')
+  @ApiActivateUnitDocs()
+  async activate(
+    @Param() { id }: UnitIdDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<UnitResponseDto> {
+    return UnitMapper.toResponse(await this.unitService.activate(id, user.id));
+  }
+
+  @AllowedRoles(Roles.USER)
+  @Patch(':id/deactivate')
+  @ApiDeactivateUnitDocs()
+  async deactivate(
+    @Param() { id }: UnitIdDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<UnitResponseDto> {
+    return UnitMapper.toResponse(await this.unitService.deactivate(id, user.id));
+  }
+
+  @AllowedRoles(Roles.USER)
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiDeleteUnitDocs()
+  async delete(@Param() { id }: UnitIdDto, @CurrentUser() user: JwtPayload): Promise<void> {
+    await this.unitService.delete(id, user.id);
   }
 }

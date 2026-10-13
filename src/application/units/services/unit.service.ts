@@ -1,3 +1,7 @@
+import { UpdateUnitInput } from '@application/units/inputs/update-unit.input';
+import { ActivateUnitUseCase } from '@application/units/use-cases/activate-unit.usecase';
+import { DeactivateUnitUseCase } from '@application/units/use-cases/deactivate-unit.usecase';
+import { DeleteUnitUseCase } from '@application/units/use-cases/delete-unit.usecase';
 import { UnitEntity } from '@application/units/entities/unit-entity';
 import { CreateUnitInput } from '@application/units/inputs/create-unit.input';
 import { UnitFilter } from '@application/units/repositories/unit-filter';
@@ -17,6 +21,9 @@ export class UnitService {
     private readonly findMyUnitsUseCase: FindAllMyUnitsUseCase,
     private readonly findOneUnitUseCase: FindOneUnitUseCase,
     private readonly updateUnitUseCase: UpdateUnitUseCase,
+    private readonly activateUnitUseCase: ActivateUnitUseCase,
+    private readonly deactivateUnitUseCase: DeactivateUnitUseCase,
+    private readonly deleteUnitUseCase: DeleteUnitUseCase,
   ) {}
 
   async create(data: CreateUnitInput): Promise<UnitEntity> {
@@ -35,7 +42,18 @@ export class UnitService {
     return await this.findOneUnitUseCase.execute(query);
   }
 
-  async update(id: string, data: Partial<UnitEntity>, userId: string): Promise<UnitEntity | null> {
+  async update(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity | null> {
     return await this.updateUnitUseCase.execute(id, data, userId);
+  }
+  async activate(id: string, userId: string): Promise<UnitEntity> {
+    return this.activateUnitUseCase.execute(id, userId);
+  }
+
+  async deactivate(id: string, userId: string): Promise<UnitEntity> {
+    return this.deactivateUnitUseCase.execute(id, userId);
+  }
+
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteUnitUseCase.execute(id, userId);
   }
 }

@@ -43,6 +43,7 @@ export class UnitMapper {
       hasKitchen: unit.hasKitchen,
       hasPrivateGarage: unit.hasPrivateGarage,
       availability: unit.availability,
+      isActive: unit.isActive,
       user: unit.user,
     };
   }

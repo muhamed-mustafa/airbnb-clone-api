@@ -1,3 +1,6 @@
+import { ActivateUnitUseCase } from '@application/units/use-cases/activate-unit.usecase';
+import { DeactivateUnitUseCase } from '@application/units/use-cases/deactivate-unit.usecase';
+import { DeleteUnitUseCase } from '@application/units/use-cases/delete-unit.usecase';
 import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
 import { UnitService } from '@application/units/services/unit.service';
 import { CheckUnitAuthUseCase } from '@application/units/use-cases/check-unit-auth.usecase';
@@ -33,6 +36,9 @@ import { UnitCategoriesModule } from './unit-categories.module';
     UnitValidationUseCase,
     FindOneUnitUseCase,
     UpdateUnitUseCase,
+    ActivateUnitUseCase,
+    DeactivateUnitUseCase,
+    DeleteUnitUseCase,
     CheckUnitAuthUseCase,
     FindAllUnitsUseCase,
     FindAllMyUnitsUseCase,

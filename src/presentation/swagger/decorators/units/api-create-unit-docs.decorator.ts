@@ -21,7 +21,7 @@ export const ApiCreateUnitDocs = () =>
       operationId: 'unitsCreate',
       summary: 'Create an accommodation listing',
       description:
-        'Creates a unit owned by the authenticated user. The owner is taken from the access token; do not send a user field. All body fields are required. Country, city, accommodation type and application settings must exist. Daily cost must meet the configured minimum. Photos are string references, not multipart uploads.',
+        'Creates a unit owned by the authenticated user. The owner is taken from the access token; the required user body field is validated but cannot override that owner. All body fields are required. Country, city, accommodation type and application settings must exist. Daily cost must meet the configured minimum. Photos are string references, not multipart uploads.',
     }),
     ApiConsumes('application/json'),
     ApiBody({ type: CreateUnitDto }),

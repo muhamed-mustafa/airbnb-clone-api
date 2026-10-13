@@ -86,4 +86,10 @@ export class UnitResponseDto {
 
   @ApiProperty({ description: 'Whether the accommodation is available.', example: true })
   availability!: boolean;
+  @ApiProperty({
+    description:
+      'Whether this listing is active and visible to public browsing. Independent of availability.',
+    example: true,
+  })
+  isActive!: boolean;
 }
