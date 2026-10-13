@@ -1,16 +1,21 @@
-import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
-import type { UnitRepository } from '@application/units/repositories/unit.repository';
+import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
 import { ApplicationError } from '@common/errors/application.error';
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CheckUnitAuthUseCase {
-  constructor(@Inject(UNIT_REPOSITORY) private readonly unitRepository: UnitRepository) {}
+  constructor(
+    @Inject(LOGGER) private readonly logger: Logger,
+    private readonly findOneUnitUseCase: FindOneUnitUseCase,
+  ) {}
 
   async execute(unitId: string, userId: string): Promise<void> {
-    const unit = await this.unitRepository.findOne({ id: unitId });
+    const unit = await this.findOneUnitUseCase.execute({ id: unitId });
 
     if (unit?.user !== userId) {
+      this.logger.warn('Unit access denied', { unitId, userId });
       throw new ApplicationError('UNIT_ACCESS_DENIED');
     }
   }

@@ -1,3 +1,5 @@
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserInput } from '../inputs/create-user.input';
@@ -10,12 +12,19 @@ export class UsersService {
   constructor(
     @Inject(USER_REPOSITORY_TOKEN)
     private readonly userRepository: UserRepository,
+    @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
   async create(data: CreateUserInput): Promise<UserEntity> {
-    return await this.userRepository.create(data);
+    const user = await this.userRepository.create(data);
+    this.logger.info('User created', { userId: user.id });
+    return user;
   }
-  findOne(filter: UserFilter): Promise<UserEntity | null> {
-    return this.userRepository.findOne(filter);
+  async findOne(filter: UserFilter): Promise<UserEntity | null> {
+    const user = await this.userRepository.findOne(filter);
+    this.logger.debug(user ? 'User retrieved' : 'User not found', {
+      ...(user && { userId: user.id }),
+    });
+    return user;
   }
 }

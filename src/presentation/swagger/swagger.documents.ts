@@ -75,11 +75,11 @@ export const buildAudienceDocument = (
 
   document.info.title = `${audience[0].toUpperCase()}${audience.slice(1)} API`;
   document.info.description = {
-    user: 'User registration, sign-in and accommodation creation, retrieval and updates. Shared APIs contain reference data, current identity, and token refresh.',
+    user: 'User registration, sign-in and accommodation creation and updates. Shared APIs contain reference data, current identity, and token refresh.',
     admin:
       'Admin sign-in and resource management. Shared APIs contain reference data, current identity, and token refresh.',
     shared:
-      'Reference data and operations used by both applications. Public endpoints need no access token. Token refresh requires a valid refresh token in the request body.',
+      'Public accommodation browsing, reference data and operations used by both applications. Public endpoints need no access token. Token refresh requires a valid refresh token in the request body.',
   }[audience];
   document.tags = [...usedTags].map((name) => ({ name }));
   // Keep only the schemas referenced by this audience, including nested DTOs.

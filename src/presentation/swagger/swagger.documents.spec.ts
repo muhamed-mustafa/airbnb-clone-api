@@ -129,7 +129,7 @@ describe('Swagger audience documents from actual controllers', () => {
       security: [{ 'access-token': [] }],
     });
     expect(buildAudienceDocument(source, 'admin').paths['/api/units']).toBeUndefined();
-    expect(buildAudienceDocument(source, 'shared').paths['/api/units']).toBeUndefined();
+    expect(buildAudienceDocument(source, 'shared').paths['/api/units']?.post).toBeUndefined();
     const input = user.components?.schemas?.CreateUnitDto;
     expect(input).toMatchObject({
       required: [
@@ -179,13 +179,14 @@ describe('Swagger audience documents from actual controllers', () => {
       expect.arrayContaining(['201', '400', '401', '403', '404', '500']),
     );
   });
-  it('documents retrieval and partial updates only for the user audience', () => {
+  it('documents public retrieval separately from user-only partial updates', () => {
     const user = buildAudienceDocument(source, 'user');
     const path = user.paths['/api/units/{id}'];
-    expect(path?.get).toMatchObject({
+    const read = buildAudienceDocument(source, 'shared').paths['/api/units/{id}']?.get;
+    expect(read).toMatchObject({
       operationId: 'unitsFindOne',
       tags: ['Units'],
-      security: [{ 'access-token': [] }],
+      security: [],
       parameters: [{ name: 'id', in: 'path', required: true }],
     });
     expect(path?.patch).toMatchObject({
@@ -195,8 +196,9 @@ describe('Swagger audience documents from actual controllers', () => {
         content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateUnitDto' } } },
       },
     });
-    for (const audience of ['admin', 'shared'] as const)
-      expect(buildAudienceDocument(source, audience).paths['/api/units/{id}']).toBeUndefined();
+    expect(buildAudienceDocument(source, 'admin').paths['/api/units/{id}']).toBeUndefined();
+    expect(path?.get).toBeUndefined();
+    expect(buildAudienceDocument(source, 'shared').paths['/api/units/{id}']?.patch).toBeUndefined();
     const update = user.components?.schemas?.UpdateUnitDto;
     expect(update && 'required' in update ? (update.required ?? []) : []).toEqual([]);
     expect(update).toMatchObject({
@@ -210,7 +212,7 @@ describe('Swagger audience documents from actual controllers', () => {
     expect(user.components?.schemas?.UnitResponseDto).toMatchObject({
       properties: { user: { type: 'string' }, availability: { type: 'boolean' } },
     });
-    for (const operation of [path?.get, path?.patch])
+    for (const operation of [read, path?.patch])
       expect(operation?.responses['200']).toMatchObject({
         content: {
           'application/json': {
@@ -226,5 +228,51 @@ describe('Swagger audience documents from actual controllers', () => {
     expect(Object.keys(path.patch!.responses)).toEqual(
       expect.arrayContaining(['200', '400', '401', '403', '404', '500']),
     );
+  });
+  it('documents public unit filters and pagination without double-wrapping the response', () => {
+    const shared = buildAudienceDocument(source, 'shared');
+    const operation = shared.paths['/api/units']?.get;
+    expect(operation).toMatchObject({ operationId: 'unitsFindAll', security: [], tags: ['Units'] });
+    expect(operation?.responses['401']).toBeUndefined();
+    expect(operation?.responses['403']).toBeUndefined();
+    const parameters = operation?.parameters ?? [];
+    const names = parameters.flatMap((parameter) => ('name' in parameter ? [parameter.name] : []));
+    expect(names.sort()).toEqual(
+      [
+        'page',
+        'limit',
+        'title',
+        'unitCategory',
+        'country',
+        'city',
+        'minPrice',
+        'maxPrice',
+        'adultsCount',
+        'kidsCount',
+        'hasInternetService',
+        'hasKitchen',
+        'hasPrivateGarage',
+      ].sort(),
+    );
+    expect(parameters.find((p) => 'name' in p && p.name === 'title')).toMatchObject({
+      required: false,
+      schema: { minLength: 3, maxLength: 50 },
+    });
+    expect(parameters.find((p) => 'name' in p && p.name === 'hasKitchen')).toMatchObject({
+      required: false,
+      schema: { type: 'boolean' },
+    });
+    expect(operation?.responses['200']).toMatchObject({
+      content: {
+        'application/json': {
+          schema: {
+            properties: {
+              data: { type: 'array', items: { $ref: '#/components/schemas/UnitResponseDto' } },
+              meta: { type: 'object' },
+            },
+          },
+        },
+      },
+    });
   });
 });

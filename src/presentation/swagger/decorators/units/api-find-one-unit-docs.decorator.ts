@@ -11,7 +11,7 @@ export const ApiFindOneUnitDocs = () =>
       operationId: 'unitsFindOne',
       summary: 'Get an accommodation listing',
       description:
-        'Returns a unit by its MongoDB ObjectId. Requires a user access token. Reading does not perform an ownership check.',
+        'Returns a unit by its MongoDB ObjectId. Public endpoint; no access token or ownership check is required.',
     }),
     ApiUnitIdParam(),
     ApiOkResponse({ description: 'Unit found.', type: UnitResponseDto }),

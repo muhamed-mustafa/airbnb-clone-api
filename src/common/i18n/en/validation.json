@@ -7,5 +7,10 @@
   "maxLength": "This field must not exceed {constraints.0} characters",
   "password": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
   "isMongoId": "Please provide a valid Mongo ID",
-  "atLeastOneField": "At least one field must be provided"
+  "atLeastOneField": "At least one field must be provided",
+  "isNumber": "Must be a number.",
+  "min": "Value must be at least {{constraints.0}}.",
+  "isInt": "Must be an integer.",
+  "isBoolean": "Must be a boolean.",
+  "isValidPriceRange": "Minimum price must be less than or equal to maximum price."
 }

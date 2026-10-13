@@ -12,6 +12,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateUnitDto {
   @ApiProperty({
@@ -66,11 +67,19 @@ export class CreateUnitDto {
   costPerDay!: number;
 
   @ApiProperty({
+    description: 'Owner user MongoDB ObjectId, assigned from the access token on creation.',
+    example: '670d1234567890abcdef1238',
+    pattern: '^[a-fA-F0-9]{24}$',
+  })
+  @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
+  user!: string;
+
+  @ApiProperty({
     description: 'Existing country MongoDB ObjectId.',
     example: '670d1234567890abcdef1234',
     pattern: '^[a-fA-F0-9]{24}$',
   })
-  @IsMongoId()
+  @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
   country!: string;
 
   @ApiProperty({
@@ -78,7 +87,7 @@ export class CreateUnitDto {
     example: '670d1234567890abcdef1235',
     pattern: '^[a-fA-F0-9]{24}$',
   })
-  @IsMongoId()
+  @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
   city!: string;
 
   @ApiProperty({
@@ -86,7 +95,7 @@ export class CreateUnitDto {
     example: '670d1234567890abcdef1236',
     pattern: '^[a-fA-F0-9]{24}$',
   })
-  @IsMongoId()
+  @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
   unitCategory!: string;
 
   @ApiProperty({ description: 'Number of rooms.', type: 'integer', minimum: 1, example: 2 })
