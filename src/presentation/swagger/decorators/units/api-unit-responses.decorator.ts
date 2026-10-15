@@ -29,7 +29,10 @@ export const ApiUnitValidationResponse = () =>
                 ...applicationErrorSchema,
                 properties: {
                   ...applicationErrorSchema.properties,
-                  code: { type: 'string', enum: ['UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE'] },
+                  code: {
+                    type: 'string',
+                    enum: ['UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE', 'CITY_COUNTRY_MISMATCH'],
+                  },
                 },
               },
             ],
