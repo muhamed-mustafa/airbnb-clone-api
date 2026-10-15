@@ -14,7 +14,7 @@ export class Unit {
   @Prop({ required: true, trim: true })
   address!: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ type: [String], required: true, trim: true })
   photos!: string[];
 
   @Prop({ required: true })

@@ -5,6 +5,7 @@ import type { UnitRepository } from '@application/units/repositories/unit.reposi
 import { CheckUnitAuthUseCase } from '@application/units/use-cases/check-unit-auth.usecase';
 import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
 import { UnitValidationUseCase } from '@application/units/use-cases/unit-validation.usecase';
+import { ApplicationError } from '@common/errors/application.error';
 import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
@@ -19,17 +20,21 @@ export class UpdateUnitUseCase {
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
-  async execute(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity | null> {
+  async execute(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
     const unit = await this.findOneUnitUseCase.execute({ id });
 
     await this.unitAccessControlUseCase.execute(unit?.id, userId);
 
-    await this.unitValidationUseCase.execute(data);
+    await this.unitValidationUseCase.execute(data, unit.country);
 
     const updated = await this.unitRepository.update(id, data);
 
-    if (updated) this.logger.info('Unit updated', { unitId: id, userId });
-    else this.logger.warn('Unit no longer available for update', { unitId: id });
+    if (!updated) {
+      this.logger.warn('Unit no longer available for update', { unitId: id });
+      throw new ApplicationError('UNIT_NOT_FOUND');
+    }
+
+    this.logger.info('Unit updated', { unitId: id, userId });
 
     return updated;
   }

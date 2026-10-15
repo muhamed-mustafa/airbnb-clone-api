@@ -66,13 +66,13 @@ export class CreateUnitDto {
   @Min(1)
   costPerDay!: number;
 
-  @ApiProperty({
-    description: 'Owner user MongoDB ObjectId, assigned from the access token on creation.',
-    example: '670d1234567890abcdef1238',
-    pattern: '^[a-fA-F0-9]{24}$',
-  })
-  @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
-  user!: string;
+  // @ApiProperty({
+  //   description: 'Owner user MongoDB ObjectId, assigned from the access token on creation.',
+  //   example: '670d1234567890abcdef1238',
+  //   pattern: '^[a-fA-F0-9]{24}$',
+  // })
+  // @IsMongoId({ message: i18nValidationMessage('validation.isMongoId') })
+  // user!: string;
 
   @ApiProperty({
     description: 'Existing country MongoDB ObjectId.',

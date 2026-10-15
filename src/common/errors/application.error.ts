@@ -18,6 +18,7 @@ export type ApplicationErrorCode = keyof Pick<
   | 'UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE'
   | 'UNIT_NOT_FOUND'
   | 'UNIT_ACCESS_DENIED'
+  | 'CITY_COUNTRY_MISMATCH'
 >;
 
 export class ApplicationError extends Error {

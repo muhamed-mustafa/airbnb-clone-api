@@ -86,7 +86,9 @@ export class UnitsController {
     @Body() data: UpdateUnitDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.unitService.update(id, data, user.id);
+    const input = UnitMapper.toUpdateUnitInput(data);
+    const output = await this.unitService.update(id, input, user.id);
+    return UnitMapper.toResponse(output);
   }
 
   @AllowedRoles(Roles.USER)

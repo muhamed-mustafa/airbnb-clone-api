@@ -18,6 +18,7 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE: HttpStatus.BAD_REQUEST,
   UNIT_NOT_FOUND: HttpStatus.NOT_FOUND,
   UNIT_ACCESS_DENIED: HttpStatus.FORBIDDEN,
+  CITY_COUNTRY_MISMATCH: HttpStatus.BAD_REQUEST,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -37,4 +38,5 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE: 'units.UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE',
   UNIT_NOT_FOUND: 'units.UNIT_NOT_FOUND',
   UNIT_ACCESS_DENIED: 'units.UNIT_ACCESS_DENIED',
+  CITY_COUNTRY_MISMATCH: 'cities.CITY_COUNTRY_MISMATCH',
 };

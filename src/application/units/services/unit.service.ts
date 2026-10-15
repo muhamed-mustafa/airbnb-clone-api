@@ -42,7 +42,7 @@ export class UnitService {
     return await this.findOneUnitUseCase.execute(query);
   }
 
-  async update(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity | null> {
+  async update(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
     return await this.updateUnitUseCase.execute(id, data, userId);
   }
   async activate(id: string, userId: string): Promise<UnitEntity> {

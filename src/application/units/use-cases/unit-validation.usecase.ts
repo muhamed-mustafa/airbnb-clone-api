@@ -1,5 +1,3 @@
-import type { Logger } from '@common/logging/logger';
-import { LOGGER } from '@common/logging/logger.token';
 import { AppSettingsService } from '@application/app-settings/services/app-settings.service';
 import { CityService } from '@application/cities/services/city.service';
 import { CountryService } from '@application/countries/services/country.service';
@@ -7,6 +5,8 @@ import { UnitCategoryService } from '@application/unit-categories/services/unit-
 import { CreateUnitInput } from '@application/units/inputs/create-unit.input';
 import { UpdateUnitInput } from '@application/units/inputs/update-unit.input';
 import { ApplicationError } from '@common/errors/application.error';
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class UnitValidationUseCase {
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
-  async execute(data: CreateUnitInput | UpdateUnitInput): Promise<void> {
+  async execute(data: CreateUnitInput | UpdateUnitInput, currentCountry?: string): Promise<void> {
     const checks: Promise<void>[] = [];
 
     if (data.costPerDay !== undefined) {
@@ -70,9 +70,16 @@ export class UnitValidationUseCase {
         (async () => {
           const city = await this.citiesService.findById(data.city!);
 
-          if (!city) {
-            this.logger.warn('Unit validation rejected', { code: 'CITY_NOT_FOUND' });
-            throw new ApplicationError('CITY_NOT_FOUND');
+          const countryId = data.country ?? currentCountry;
+
+          if (countryId && city.country !== countryId) {
+            this.logger.warn('Unit validation rejected', {
+              code: 'CITY_COUNTRY_MISMATCH',
+              cityId: data.city,
+              countryId,
+            });
+
+            throw new ApplicationError('CITY_COUNTRY_MISMATCH');
           }
         })(),
       );

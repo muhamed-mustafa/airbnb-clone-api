@@ -116,7 +116,11 @@ export class MongooseUnitRepository implements UnitRepository {
 
   async update(id: string, data: UpdateUnitInput): Promise<UnitEntity | null> {
     const unit = await this.unitModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, { $set: data }, { returnDocument: 'after' })
+      .findOneAndUpdate(
+        { _id: id, isDeleted: false },
+        { $set: data },
+        { returnDocument: 'after', runValidators: true },
+      )
       .exec();
 
     return unit ? UnitMapper.toEntity(unit) : null;
