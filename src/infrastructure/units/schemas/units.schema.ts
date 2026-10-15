@@ -1,6 +1,5 @@
 import { modelNames } from '@common/constants/model-names.constant';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Min } from 'class-validator';
 import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -17,8 +16,7 @@ export class Unit {
   @Prop({ type: [String], required: true, trim: true })
   photos!: string[];
 
-  @Prop({ required: true })
-  @Min(1)
+  @Prop({ required: true, min: 1 })
   costPerDay!: number;
 
   @Prop({ type: Types.ObjectId, required: true, ref: modelNames.COUNTRIES })
@@ -33,13 +31,13 @@ export class Unit {
   @Prop({ type: Types.ObjectId, required: true, ref: modelNames.USERS })
   user!: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 1 })
   roomsCount!: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 1 })
   adultsCount!: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 1 })
   kidsCount!: number;
 
   @Prop({ required: true, default: false })
