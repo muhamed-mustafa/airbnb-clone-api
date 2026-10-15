@@ -19,7 +19,7 @@ export const ApiUnitValidationResponse = () =>
     ApiExtraModels(ValidationErrorsResponseDto),
     ApiBadRequestResponse({
       description:
-        'Request field types, bounds or ObjectId formats are invalid, unknown fields are present, or the daily cost is below the configured minPrice.',
+        'Request field types, bounds or ObjectId formats are invalid, unknown fields are present, the daily cost is below the configured minPrice, or the selected city does not belong to the selected country.',
       content: {
         'application/json': {
           schema: {
