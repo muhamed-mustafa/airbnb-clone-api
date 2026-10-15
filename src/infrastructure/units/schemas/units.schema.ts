@@ -37,7 +37,7 @@ export class Unit {
   @Prop({ required: true, min: 1 })
   adultsCount!: number;
 
-  @Prop({ required: true, min: 1 })
+  @Prop({ required: true, min: 0 })
   kidsCount!: number;
 
   @Prop({ required: true, default: false })
