@@ -38,7 +38,7 @@ export class UnitService {
     return await this.findMyUnitsUseCase.execute(userId, query);
   }
 
-  async findOne(query: Partial<UnitEntity>): Promise<UnitEntity | null> {
+  async findOne(query: Partial<UnitEntity>): Promise<UnitEntity> {
     return await this.findOneUnitUseCase.execute(query);
   }
 

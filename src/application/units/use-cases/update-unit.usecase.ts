@@ -25,7 +25,7 @@ export class UpdateUnitUseCase {
 
     await this.unitAccessControlUseCase.execute(unit?.id, userId);
 
-    await this.unitValidationUseCase.execute(data, unit.country);
+    await this.unitValidationUseCase.execute(data, unit.country, unit.city);
 
     const updated = await this.unitRepository.update(id, data);
 

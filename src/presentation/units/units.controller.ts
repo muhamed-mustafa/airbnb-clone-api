@@ -1,8 +1,3 @@
-import { ApiFindMyUnitsDocs } from '@presentation/swagger/decorators/units/api-find-my-units-docs.decorator';
-import { UnitIdDto } from './dtos/unit-id.dto';
-import { ApiActivateUnitDocs } from '@presentation/swagger/decorators/units/api-activate-unit-docs.decorator';
-import { ApiDeactivateUnitDocs } from '@presentation/swagger/decorators/units/api-deactivate-unit-docs.decorator';
-import { ApiDeleteUnitDocs } from '@presentation/swagger/decorators/units/api-delete-unit-docs.decorator';
 import { UnitService } from '@application/units/services/unit.service';
 import { Roles } from '@common/constants/roles.constant';
 import type { JwtPayload } from '@common/interfaces/jwt-payload.interface';
@@ -23,8 +18,12 @@ import { ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@presentation/auth/decorators/current-user.decorator';
 import { IsPublic } from '@presentation/auth/decorators/is-public.decorator';
 import { AllowedRoles } from '@presentation/auth/decorators/roles.decorator';
+import { ApiActivateUnitDocs } from '@presentation/swagger/decorators/units/api-activate-unit-docs.decorator';
 import { ApiCreateUnitDocs } from '@presentation/swagger/decorators/units/api-create-unit-docs.decorator';
+import { ApiDeactivateUnitDocs } from '@presentation/swagger/decorators/units/api-deactivate-unit-docs.decorator';
+import { ApiDeleteUnitDocs } from '@presentation/swagger/decorators/units/api-delete-unit-docs.decorator';
 import { ApiFindAllUnitsDocs } from '@presentation/swagger/decorators/units/api-find-all-units-docs.decorator';
+import { ApiFindMyUnitsDocs } from '@presentation/swagger/decorators/units/api-find-my-units-docs.decorator';
 import { ApiFindOneUnitDocs } from '@presentation/swagger/decorators/units/api-find-one-unit-docs.decorator';
 import { ApiUpdateUnitDocs } from '@presentation/swagger/decorators/units/api-update-unit-docs.decorator';
 import { SWAGGER_TAGS } from '@presentation/swagger/swagger.constants';
@@ -33,6 +32,7 @@ import { FindAllUnitsDto } from '@presentation/units/dtos/find-all-units.dto';
 import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
 import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
 import { UnitMapper } from '@presentation/units/mappers/unit.mapper';
+import { UnitIdDto } from './dtos/unit-id.dto';
 
 @ApiTags(SWAGGER_TAGS.UNITS)
 @Controller('units')
@@ -73,9 +73,9 @@ export class UnitsController {
   @Get(':id')
   @IsPublic()
   @ApiFindOneUnitDocs()
-  async findOne(@Param() { id }: UnitIdDto): Promise<UnitResponseDto | null> {
+  async findOne(@Param() { id }: UnitIdDto): Promise<UnitResponseDto> {
     const unit = await this.unitService.findOne({ id, isActive: true });
-    return unit ? UnitMapper.toResponse(unit) : null;
+    return UnitMapper.toResponse(unit);
   }
 
   @AllowedRoles(Roles.USER)

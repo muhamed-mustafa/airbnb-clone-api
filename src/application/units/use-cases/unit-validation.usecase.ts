@@ -19,7 +19,11 @@ export class UnitValidationUseCase {
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
-  async execute(data: CreateUnitInput | UpdateUnitInput, currentCountry?: string): Promise<void> {
+  async execute(
+    data: CreateUnitInput | UpdateUnitInput,
+    currentCountry?: string,
+    currentCity?: string,
+  ): Promise<void> {
     const checks: Promise<void>[] = [];
 
     if (data.costPerDay !== undefined) {
@@ -65,14 +69,20 @@ export class UnitValidationUseCase {
       );
     }
 
-    if (data.city !== undefined) {
+    if (data.city !== undefined || data.country !== undefined) {
       checks.push(
         (async () => {
-          const city = await this.citiesService.findById(data.city!);
+          const cityId = data.city ?? currentCity;
 
           const countryId = data.country ?? currentCountry;
 
-          if (countryId && city.country !== countryId) {
+          if (!cityId || !countryId) {
+            return;
+          }
+
+          const city = await this.citiesService.findById(cityId);
+
+          if (city.country !== countryId) {
             this.logger.warn('Unit validation rejected', {
               code: 'CITY_COUNTRY_MISMATCH',
               cityId: data.city,
