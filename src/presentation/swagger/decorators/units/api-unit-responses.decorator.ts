@@ -54,6 +54,14 @@ export const ApiUnitValidationResponse = () =>
                 message: 'The cost per day is below the minimum allowed price of {{minPrice}}.',
               },
             },
+
+            cityCountryMismatch: {
+              summary: 'City does not belong to the selected country',
+              value: {
+                code: 'CITY_COUNTRY_MISMATCH',
+                message: 'The selected city does not belong to the selected country.',
+              },
+            },
           },
         },
       },
