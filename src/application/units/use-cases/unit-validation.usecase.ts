@@ -85,7 +85,7 @@ export class UnitValidationUseCase {
           if (city.country !== countryId) {
             this.logger.warn('Unit validation rejected', {
               code: 'CITY_COUNTRY_MISMATCH',
-              cityId: data.city,
+              cityId,
               countryId,
             });
 

@@ -23,7 +23,7 @@ export class UpdateUnitUseCase {
   async execute(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
     const unit = await this.findOneUnitUseCase.execute({ id });
 
-    await this.unitAccessControlUseCase.execute(unit?.id, userId);
+    this.unitAccessControlUseCase.assertOwner(unit, userId);
 
     await this.unitValidationUseCase.execute(data, unit.country, unit.city);
 

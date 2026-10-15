@@ -1,5 +1,6 @@
 import { UnitEntity } from '@application/units/entities/unit-entity';
 import { CreateUnitInput } from '@application/units/inputs/create-unit.input';
+import { UpdateUnitInput } from '@application/units/inputs/update-unit.input';
 import { CreateUnitDto } from '@presentation/units/dtos/create-unit.dto';
 import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
 import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
@@ -25,7 +26,7 @@ export class UnitMapper {
     };
   }
 
-  static toUpdateUnitInput(unit: UpdateUnitDto): UpdateUnitDto {
+  static toUpdateUnitInput(unit: UpdateUnitDto): UpdateUnitInput {
     return {
       title: unit.title,
       description: unit.description,

@@ -1,3 +1,4 @@
+import { UnitEntity } from '@application/units/entities/unit-entity';
 import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
 import { ApplicationError } from '@common/errors/application.error';
 import type { Logger } from '@common/logging/logger';
@@ -14,8 +15,16 @@ export class CheckUnitAuthUseCase {
   async execute(unitId: string, userId: string): Promise<void> {
     const unit = await this.findOneUnitUseCase.execute({ id: unitId });
 
-    if (unit?.user !== userId) {
-      this.logger.warn('Unit access denied', { unitId, userId });
+    this.assertOwner(unit, userId);
+  }
+
+  assertOwner(unit: UnitEntity, userId: string): void {
+    if (unit.user !== userId) {
+      this.logger.warn('Unit access denied', {
+        unitId: unit.id,
+        userId,
+      });
+
       throw new ApplicationError('UNIT_ACCESS_DENIED');
     }
   }

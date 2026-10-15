@@ -80,6 +80,30 @@ export class FindAllUnitsDto extends PaginationDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: i18nValidationMessage('validation.isInt') })
+  @Min(1, { message: i18nValidationMessage('validation.min') })
+  @ApiPropertyOptional({
+    description: 'Exact number of rooms.',
+    type: 'integer',
+    minimum: 1,
+    example: 2,
+  })
+  roomsCount?: number;
+
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
+  @IsBoolean({ message: i18nValidationMessage('validation.isBoolean') })
+  @ApiPropertyOptional({
+    description: 'Exact accommodation availability; true or false.',
+    type: Boolean,
+    example: true,
+  })
+  availability?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: i18nValidationMessage('validation.isInt') })
   @ApiPropertyOptional({
     description: 'Exact adult capacity (not a minimum).',
     type: 'integer',
