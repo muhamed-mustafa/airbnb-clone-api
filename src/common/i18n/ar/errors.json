@@ -4,5 +4,7 @@
   "UNAUTHORIZED": "غير مصرح",
   "FORBIDDEN": "ممنوع",
   "NOT_FOUND": "غير موجود",
-  "CONFLICT": "تعارض"
+  "CONFLICT": "تعارض",
+  "FILE_UPLOAD_FAILED": "فشل رفع الصورة.",
+  "FILE_DELETE_FAILED": "فشل حذف الصورة."
 }

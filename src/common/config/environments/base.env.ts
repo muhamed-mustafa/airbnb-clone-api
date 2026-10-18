@@ -12,4 +12,6 @@ export const baseEnv = (): EnvironmentVariables => ({
   INITIAL_ADMIN_NAME: process.env.INITIAL_ADMIN_NAME as string,
   INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL as string,
   INITIAL_ADMIN_PASSWORD: process.env.INITIAL_ADMIN_PASSWORD as string,
+  FILE_STORAGE_PROVIDER: process.env
+    .FILE_STORAGE_PROVIDER as EnvironmentVariables['FILE_STORAGE_PROVIDER'],
 });

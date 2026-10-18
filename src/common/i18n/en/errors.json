@@ -4,5 +4,7 @@
   "UNAUTHORIZED": "Unauthorized",
   "FORBIDDEN": "Forbidden",
   "NOT_FOUND": "Not found",
-  "CONFLICT": "Conflict"
+  "CONFLICT": "Conflict",
+  "FILE_UPLOAD_FAILED": "Failed to upload the image.",
+  "FILE_DELETE_FAILED": "Failed to delete the image."
 }
