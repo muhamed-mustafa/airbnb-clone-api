@@ -1,9 +1,11 @@
 import type { FileStorage } from '@application/files/interfaces/file-storage.interface';
 import { FILE_STORAGE } from '@application/files/tokens/file-storage.token';
+import { UploadFileUseCase } from '@application/files/use-cases/upload-file.usecase';
 import type { FileStorageProvider } from '@common/config/env.types';
 import { CloudinaryFileStorageAdapter } from '@infrastructure/files/storage/cloudinary-file-storage.adapter';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FilesController } from '@presentation/files/files.controller';
 
 @Module({
   providers: [
@@ -22,7 +24,9 @@ import { ConfigService } from '@nestjs/config';
         }
       },
     },
+    UploadFileUseCase,
   ],
   exports: [FILE_STORAGE],
+  controllers: [FilesController],
 })
 export class FilesModule {}

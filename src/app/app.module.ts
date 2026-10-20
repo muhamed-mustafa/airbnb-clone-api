@@ -17,6 +17,7 @@ import { CountriesModule } from './countries.module';
 import { CurrenciesModule } from './currencies.module';
 import { UnitCategoriesModule } from './unit-categories.module';
 import { UsersModule } from './users.module';
+import { FilesModule } from '@app/files.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UsersModule } from './users.module';
     UnitCategoriesModule,
     AppSettingsModule,
     AdminModule,
+    FilesModule,
   ],
   providers: [
     {
