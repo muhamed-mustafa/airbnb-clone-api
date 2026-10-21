@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { AllowedRoles } from '@presentation/auth/decorators/roles.decorator';
 import { SWAGGER_TAGS } from '@presentation/swagger/swagger.constants';
+import { ApiUploadImageDocs } from '@presentation/swagger/decorators/files/api-upload-image-docs.decorator';
 import type {} from 'multer';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -25,10 +26,12 @@ export class FilesController {
 
   @AllowedRoles(Roles.USER)
   @Post('images')
+  @ApiUploadImageDocs()
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
-        fileSize: MAX_IMAGE_SIZE,
+        // Multer rejects at the threshold; allow exactly MAX_IMAGE_SIZE bytes.
+        fileSize: MAX_IMAGE_SIZE + 1,
         files: 1,
       },
     }),
@@ -38,7 +41,8 @@ export class FilesController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({
-            maxSize: MAX_IMAGE_SIZE,
+            // Nest's validator uses size < maxSize, so the maximum stays inclusive.
+            maxSize: MAX_IMAGE_SIZE + 1,
           }),
           new FileTypeValidator({
             fileType: /^image\/(jpeg|png|webp)$/,
