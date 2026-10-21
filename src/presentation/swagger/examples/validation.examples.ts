@@ -1,7 +1,7 @@
 // Captured from the current DTO validators; keep examples aligned with runtime errors.
 export const LOGIN_VALIDATION_EXAMPLES = {
   email: {
-    summary: 'email ? required field',
+    summary: 'email: required field',
     value: {
       errors: [
         {
@@ -18,7 +18,7 @@ export const LOGIN_VALIDATION_EXAMPLES = {
     },
   },
   password: {
-    summary: 'password ? required field',
+    summary: 'password: required field',
     value: {
       errors: [
         {
@@ -30,7 +30,7 @@ export const LOGIN_VALIDATION_EXAMPLES = {
     },
   },
   invalidEmail: {
-    summary: 'email ? invalid format',
+    summary: 'email: invalid format',
     value: {
       errors: [
         {
@@ -56,125 +56,123 @@ export const LOGIN_VALIDATION_EXAMPLES = {
 };
 export const REGISTER_VALIDATION_EXAMPLES = {
   name: {
-    summary: 'name ? required field',
+    summary: 'name: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'name',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'name',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
         {
           code: 'minLength',
           field: 'name',
-          message: 'validation.minLength|{"constraints":[2]}',
+          message: 'This field must be at least 2 characters',
         },
         {
           code: 'maxLength',
           field: 'name',
-          message: 'validation.maxLength|{"constraints":[50]}',
+          message: 'This field must not exceed 50 characters',
         },
       ],
     },
   },
   email: {
-    summary: 'email ? required field',
+    summary: 'email: required field',
     value: {
       errors: [
         {
           code: 'isEmail',
           field: 'email',
-          message:
-            'validation.isEmail|{"constraints":[{"allow_display_name":false,"allow_underscores":false,"require_display_name":false,"allow_utf8_local_part":true,"require_tld":true,"blacklisted_chars":"","ignore_max_length":false,"host_blacklist":[],"host_whitelist":[]}]}',
+          message: 'Please provide a valid email address',
         },
         {
           code: 'isNotEmpty',
           field: 'email',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'email',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
       ],
     },
   },
   countryCode: {
-    summary: 'countryCode ? required field',
+    summary: 'countryCode: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'countryCode',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'countryCode',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
       ],
     },
   },
   phone: {
-    summary: 'phone ? required field',
+    summary: 'phone: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'phone',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'phone',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
       ],
     },
   },
   password: {
-    summary: 'password ? required field',
+    summary: 'password: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'password',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'password',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
         {
           code: 'minLength',
           field: 'password',
-          message: 'validation.minLength|{"constraints":[8]}',
+          message: 'This field must be at least 8 characters',
         },
         {
           code: 'maxLength',
           field: 'password',
-          message: 'validation.maxLength|{"constraints":[128]}',
+          message: 'This field must not exceed 128 characters',
         },
       ],
     },
   },
   invalidEmail: {
-    summary: 'email ? invalid format',
+    summary: 'email: invalid format',
     value: {
       errors: [
         {
           code: 'isEmail',
           field: 'email',
-          message:
-            'validation.isEmail|{"value":"invalid-email","constraints":[{"allow_display_name":false,"allow_underscores":false,"require_display_name":false,"allow_utf8_local_part":true,"require_tld":true,"blacklisted_chars":"","ignore_max_length":false,"host_blacklist":[],"host_whitelist":[]}]}',
+          message: 'Please provide a valid email address',
         },
       ],
     },
@@ -194,7 +192,7 @@ export const REGISTER_VALIDATION_EXAMPLES = {
 };
 export const REFRESH_TOKEN_VALIDATION_EXAMPLES = {
   token: {
-    summary: 'token ? required field',
+    summary: 'token: required field',
     value: {
       errors: [
         {
@@ -225,108 +223,106 @@ export const REFRESH_TOKEN_VALIDATION_EXAMPLES = {
 };
 export const CREATE_USER_VALIDATION_EXAMPLES = {
   name: {
-    summary: 'name ? required field',
+    summary: 'name: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'name',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'name',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
         {
           code: 'minLength',
           field: 'name',
-          message: 'validation.minLength|{"constraints":[2]}',
+          message: 'This field must be at least 2 characters',
         },
         {
           code: 'maxLength',
           field: 'name',
-          message: 'validation.maxLength|{"constraints":[50]}',
+          message: 'This field must not exceed 50 characters',
         },
       ],
     },
   },
   email: {
-    summary: 'email ? required field',
+    summary: 'email: required field',
     value: {
       errors: [
         {
           code: 'isEmail',
           field: 'email',
-          message:
-            'validation.isEmail|{"constraints":[{"allow_display_name":false,"allow_underscores":false,"require_display_name":false,"allow_utf8_local_part":true,"require_tld":true,"blacklisted_chars":"","ignore_max_length":false,"host_blacklist":[],"host_whitelist":[]}]}',
+          message: 'Please provide a valid email address',
         },
         {
           code: 'isNotEmpty',
           field: 'email',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'email',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
       ],
     },
   },
   phone: {
-    summary: 'phone ? required field',
+    summary: 'phone: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'phone',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'phone',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
       ],
     },
   },
   password: {
-    summary: 'password ? required field',
+    summary: 'password: required field',
     value: {
       errors: [
         {
           code: 'isNotEmpty',
           field: 'password',
-          message: 'validation.isNotEmpty|{}',
+          message: 'This field is required',
         },
         {
           code: 'isString',
           field: 'password',
-          message: 'validation.isString|{}',
+          message: 'This field must be a string',
         },
         {
           code: 'minLength',
           field: 'password',
-          message: 'validation.minLength|{"constraints":[8]}',
+          message: 'This field must be at least 8 characters',
         },
         {
           code: 'maxLength',
           field: 'password',
-          message: 'validation.maxLength|{"constraints":[128]}',
+          message: 'This field must not exceed 128 characters',
         },
       ],
     },
   },
   invalidEmail: {
-    summary: 'email ? invalid format',
+    summary: 'email: invalid format',
     value: {
       errors: [
         {
           code: 'isEmail',
           field: 'email',
-          message:
-            'validation.isEmail|{"value":"invalid-email","constraints":[{"allow_display_name":false,"allow_underscores":false,"require_display_name":false,"allow_utf8_local_part":true,"require_tld":true,"blacklisted_chars":"","ignore_max_length":false,"host_blacklist":[],"host_whitelist":[]}]}',
+          message: 'Please provide a valid email address',
         },
       ],
     },

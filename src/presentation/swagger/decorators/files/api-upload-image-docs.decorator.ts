@@ -53,11 +53,29 @@ export const ApiUploadImageDocs = () =>
       description:
         'The file is missing, has unsupported or invalid image contents, or the multipart field/count is invalid.',
       type: HttpErrorsResponseDto,
+      examples: {
+        missingFile: {
+          summary: 'Missing file',
+          value: { errors: [{ code: 'errors.BAD_REQUEST', message: 'Bad request' }] },
+        },
+        invalidImage: {
+          summary: 'Unsupported type or invalid image contents',
+          value: { errors: [{ code: 'errors.BAD_REQUEST', message: 'Bad request' }] },
+        },
+        invalidMultipart: {
+          summary: 'Unexpected file field or multiple files',
+          value: { errors: [{ code: 'errors.BAD_REQUEST', message: 'Bad request' }] },
+        },
+      },
     }),
     ApiResponse({
       status: 413,
-      description: 'The multipart file exceeds 5 MB (5,242,880 bytes).',
+      description:
+        'The multipart file exceeds 5 MB (5,242,880 bytes). The current HTTP exception filter uses its generic error code for status 413.',
       type: HttpErrorsResponseDto,
+      example: {
+        errors: [{ code: 'errors.INTERNAL_SERVER_ERROR', message: 'Internal server error' }],
+      },
     }),
     ApiInternalErrorResponse(),
   );

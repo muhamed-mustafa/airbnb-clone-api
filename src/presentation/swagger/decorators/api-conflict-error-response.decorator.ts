@@ -12,7 +12,7 @@ export const ApiConflictErrorResponse = () =>
           schema: { $ref: getSchemaPath(HttpErrorsResponseDto) },
           examples: {
             email: {
-              summary: 'email ? already exists',
+              summary: 'email: already exists',
               value: {
                 errors: [
                   {
@@ -24,7 +24,7 @@ export const ApiConflictErrorResponse = () =>
               },
             },
             phone: {
-              summary: 'phone ? already exists',
+              summary: 'phone: already exists',
               value: {
                 errors: [
                   {

@@ -2,20 +2,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class HttpErrorItemDto {
   @ApiProperty({
-    description: 'Application error code.',
-    example: 'auth.USER_ALREADY_EXISTS',
+    description: 'HTTP-layer error code. The exact code depends on the operation and status.',
+    example: 'errors.BAD_REQUEST',
   })
   code!: string;
 
   @ApiProperty({
     description: 'Localized error message.',
-    example: 'User already exists',
+    example: 'Bad request',
   })
   message!: string;
 
   @ApiPropertyOptional({
     description: 'Request field related to the error, when applicable.',
-    example: 'email',
   })
   field?: string;
 }

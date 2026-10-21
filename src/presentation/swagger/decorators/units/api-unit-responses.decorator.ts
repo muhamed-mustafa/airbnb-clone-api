@@ -62,7 +62,7 @@ export const ApiUnitValidationResponse = () =>
               summary: 'City does not belong to the selected country',
               value: {
                 code: 'CITY_COUNTRY_MISMATCH',
-                message: 'The selected city does not belong to the selected country.',
+                message: 'City not found in this country.',
               },
             },
           },

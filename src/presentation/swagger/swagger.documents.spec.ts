@@ -12,6 +12,7 @@ import { CurrencyController } from '../currencies/currency.controller';
 import { UnitCategoryController } from '../unit-categories/unit-category.controller';
 import { UnitsController } from '../units/units.controller';
 import { UsersController } from '../users/users.controller';
+import { FilesController } from '../files/files.controller';
 import { buildAudienceDocument, DOCS_AUDIENCES } from './swagger.documents';
 
 describe('Swagger audience documents from actual controllers', () => {
@@ -29,6 +30,7 @@ describe('Swagger audience documents from actual controllers', () => {
       AppSettingsController,
       UsersController,
       UnitsController,
+      FilesController,
     ];
     const dependencies = new Set<new (...args: never[]) => unknown>();
     for (const controller of controllers) {
@@ -94,7 +96,7 @@ describe('Swagger audience documents from actual controllers', () => {
     expect(shared.paths['/api/auth/refresh-token']?.post).toBeDefined();
     expect(admin.paths['/api/app-settings']?.get).toBeDefined();
     expect(shared.paths['/api/app-settings']).toBeUndefined();
-    expect(user.tags).toEqual([{ name: 'Authentication' }, { name: 'Units' }]);
+    expect(user.tags).toEqual([{ name: 'Authentication' }, { name: 'Units' }, { name: 'Files' }]);
     expect(admin.tags?.some((tag) => tag.name.startsWith('Admin /'))).toBe(false);
   });
 
@@ -119,6 +121,104 @@ describe('Swagger audience documents from actual controllers', () => {
         },
       },
     });
+  });
+  it('documents file-specific errors without leaking registration examples into uploads', () => {
+    const user = buildAudienceDocument(source, 'user');
+    const upload = user.paths['/api/files/images']?.post;
+    expect(upload?.requestBody).toMatchObject({
+      required: true,
+      content: {
+        'multipart/form-data': {
+          schema: {
+            required: ['file'],
+            properties: { file: { type: 'string', format: 'binary' } },
+          },
+        },
+      },
+    });
+    expect(upload?.responses['400']).toMatchObject({
+      content: {
+        'application/json': {
+          examples: {
+            missingFile: {
+              value: { errors: [{ code: 'errors.BAD_REQUEST', message: 'Bad request' }] },
+            },
+            invalidImage: {
+              value: { errors: [{ code: 'errors.BAD_REQUEST', message: 'Bad request' }] },
+            },
+          },
+        },
+      },
+    });
+    expect(upload?.responses['413']).toMatchObject({
+      content: {
+        'application/json': {
+          example: {
+            errors: [{ code: 'errors.INTERNAL_SERVER_ERROR', message: 'Internal server error' }],
+          },
+        },
+      },
+    });
+    expect(JSON.stringify(upload)).not.toContain('USER_ALREADY_EXISTS');
+    expect(JSON.stringify(upload)).not.toContain('"field":"email"');
+    expect(upload?.responses['201']).toMatchObject({
+      content: {
+        'application/json': {
+          schema: {
+            properties: { data: { required: ['key', 'url'] } },
+          },
+        },
+      },
+    });
+  });
+  it('documents both authorization error shapes and preserves unit ownership errors', () => {
+    for (const audience of DOCS_AUDIENCES) {
+      const document = buildAudienceDocument(source, audience);
+      for (const item of Object.values(document.paths)) {
+        for (const operation of [item.get, item.post, item.patch, item.delete]) {
+          if (!operation?.security?.length) continue;
+          expect(operation.responses['401']).toMatchObject({
+            content: {
+              'application/json': {
+                schema: { oneOf: expect.any(Array) as unknown },
+                examples: {
+                  missingAuthorization: { value: { errors: [{ code: 'errors.UNAUTHORIZED' }] } },
+                  invalidToken: { value: { code: 'INVALID_TOKEN' } },
+                },
+              },
+            },
+          });
+          expect(operation.responses['403']).toMatchObject({
+            content: {
+              'application/json': {
+                schema: expect.any(Object) as unknown,
+                examples: { roleNotAllowed: { value: { errors: [{ code: 'errors.FORBIDDEN' }] } } },
+              },
+            },
+          });
+        }
+      }
+    }
+    const update = buildAudienceDocument(source, 'user').paths['/api/units/{id}']?.patch;
+    expect(update?.responses['403']).toMatchObject({
+      content: {
+        'application/json': {
+          schema: { oneOf: expect.any(Array) as unknown },
+          examples: { notOwner: { value: { code: 'UNIT_ACCESS_DENIED' } } },
+        },
+      },
+    });
+  });
+  it('keeps localized examples readable and all component references resolvable', () => {
+    for (const audience of DOCS_AUDIENCES) {
+      const document = buildAudienceDocument(source, audience);
+      const json = JSON.stringify(document);
+      expect(json).not.toMatch(/validation\.\w+\|/);
+      expect(json).not.toContain('errors.internal_server_error');
+      for (const match of json.matchAll(/"\$ref":"#\/components\/schemas\/([^" ]+)"/g)) {
+        expect(document.components?.schemas?.[match[1]]).toBeDefined();
+      }
+    }
   });
   it('documents units only for users with complete JSON request and wrapped response schemas', () => {
     const user = buildAudienceDocument(source, 'user');
@@ -247,6 +347,8 @@ describe('Swagger audience documents from actual controllers', () => {
         'city',
         'minPrice',
         'maxPrice',
+        'roomsCount',
+        'availability',
         'adultsCount',
         'kidsCount',
         'hasInternetService',
@@ -259,6 +361,14 @@ describe('Swagger audience documents from actual controllers', () => {
       schema: { minLength: 3, maxLength: 50 },
     });
     expect(parameters.find((p) => 'name' in p && p.name === 'hasKitchen')).toMatchObject({
+      required: false,
+      schema: { type: 'boolean' },
+    });
+    expect(parameters.find((p) => 'name' in p && p.name === 'roomsCount')).toMatchObject({
+      required: false,
+      schema: { type: 'integer', minimum: 1 },
+    });
+    expect(parameters.find((p) => 'name' in p && p.name === 'availability')).toMatchObject({
       required: false,
       schema: { type: 'boolean' },
     });

@@ -1,4 +1,4 @@
-import type { OpenAPIObject, OperationObject, PathItemObject } from '@nestjs/swagger';
+import type { OpenAPIObject, OperationObject, PathItemObject, SchemaObject } from '@nestjs/swagger';
 
 export const DOCS_AUDIENCES = ['user', 'admin', 'shared'] as const;
 export type DocsAudience = (typeof DOCS_AUDIENCES)[number];
@@ -9,6 +9,80 @@ type DocsOperation = OperationObject & {
   'x-docs-public'?: boolean;
   'x-docs-roles'?: string[];
   'x-docs-access'?: string;
+};
+
+const httpErrorsSchema: SchemaObject = {
+  type: 'object',
+  required: ['errors'],
+  properties: {
+    errors: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['code', 'message'],
+        properties: { code: { type: 'string' }, message: { type: 'string' } },
+      },
+    },
+  },
+};
+
+// Guards use HTTP errors for missing authorization/roles and application errors for invalid JWTs.
+const documentAuthorizationResponses = (operation: DocsOperation): void => {
+  const unauthorized = operation.responses['401'];
+  if (unauthorized && !('$ref' in unauthorized)) {
+    unauthorized.content ??= {};
+    unauthorized.content['application/json'] ??= {
+      schema: {
+        oneOf: [
+          httpErrorsSchema,
+          {
+            type: 'object',
+            required: ['code', 'message'],
+            properties: {
+              code: { type: 'string', enum: ['INVALID_TOKEN'] },
+              message: { type: 'string' },
+            },
+          },
+        ],
+      },
+      examples: {
+        missingAuthorization: {
+          summary: 'Missing or malformed Bearer authorization',
+          value: { errors: [{ code: 'errors.UNAUTHORIZED', message: 'Unauthorized' }] },
+        },
+        invalidToken: {
+          summary: 'Invalid or expired access token',
+          value: { code: 'INVALID_TOKEN', message: 'Invalid token' },
+        },
+      },
+    };
+  }
+  const forbidden = operation.responses['403'];
+  if (forbidden && !('$ref' in forbidden)) {
+    forbidden.content ??= {};
+    const json = (forbidden.content['application/json'] ??= {});
+    const hasOwnershipError = !!json.examples?.notOwner;
+    json.schema ??= hasOwnershipError
+      ? {
+          oneOf: [
+            httpErrorsSchema,
+            {
+              type: 'object',
+              required: ['code', 'message'],
+              properties: {
+                code: { type: 'string', enum: ['UNIT_ACCESS_DENIED'] },
+                message: { type: 'string' },
+              },
+            },
+          ],
+        }
+      : httpErrorsSchema;
+    json.examples ??= {};
+    json.examples.roleNotAllowed ??= {
+      summary: 'Authenticated role is not allowed',
+      value: { errors: [{ code: 'errors.FORBIDDEN', message: 'Forbidden' }] },
+    };
+  }
 };
 
 export const buildAudienceDocument = (
@@ -44,6 +118,7 @@ export const buildAudienceDocument = (
       operation.tags = (operation.tags ?? ['General']).map((tag) => tag.replace(/^Admin \/ /, ''));
       operation.tags.forEach((tag) => usedTags.add(tag));
       if (isPublic) operation.security = [];
+      else documentAuthorizationResponses(operation);
       // Match the global response interceptor without double-wrapping paginated lists.
       for (const [status, response] of Object.entries(operation.responses)) {
         if (!response || !/^2\d\d$/.test(status) || '$ref' in response) continue;

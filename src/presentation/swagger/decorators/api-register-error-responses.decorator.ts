@@ -21,7 +21,7 @@ export const ApiRegisterBadRequestResponses = () =>
           examples: {
             ...REGISTER_VALIDATION_EXAMPLES,
             invalidPhone: {
-              summary: 'phone ? invalid for country code',
+              summary: 'phone: invalid for country code',
               value: { code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' },
             },
           },

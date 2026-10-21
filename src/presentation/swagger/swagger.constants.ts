@@ -16,7 +16,7 @@ export const SWAGGER_TAGS = {
   UNIT_CATEGORIES: `${SWAGGER_TAG_GROUPS.ADMIN} / Unit Categories`,
   APP_SETTINGS: `${SWAGGER_TAG_GROUPS.ADMIN} / App Settings`,
   ADMINS: `${SWAGGER_TAG_GROUPS.ADMIN} / Admins`,
-  FILES: `${SWAGGER_TAG_GROUPS.ADMIN} / Files`,
+  FILES: 'Files',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [

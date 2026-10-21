@@ -50,7 +50,7 @@ export const ApiUnitCategoryConflictResponse = () =>
             summary: 'Duplicate detected before creation',
             value: {
               code: 'UNIT_CATEGORY_ALREADY_EXISTS',
-              message: 'Unit category already exists.',
+              message: 'A unit category with this name already exists.',
             },
           },
           duplicateName: {
@@ -60,7 +60,7 @@ export const ApiUnitCategoryConflictResponse = () =>
                 {
                   code: 'unit-categories.UNIT_CATEGORY_ALREADY_EXISTS',
                   field: 'name',
-                  message: 'Unit category already exists.',
+                  message: 'A unit category with this name already exists.',
                 },
               ],
             },

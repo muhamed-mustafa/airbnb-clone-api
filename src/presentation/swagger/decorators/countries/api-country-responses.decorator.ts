@@ -48,7 +48,10 @@ export const ApiCountryConflictResponse = () =>
         examples: {
           existingCountry: {
             summary: 'Duplicate detected before creation',
-            value: { code: 'COUNTRY_ALREADY_EXISTS', message: 'Country already exists.' },
+            value: {
+              code: 'COUNTRY_ALREADY_EXISTS',
+              message: 'A country with this name already exists.',
+            },
           },
           duplicateName: {
             summary: 'Database name conflict',
@@ -57,7 +60,7 @@ export const ApiCountryConflictResponse = () =>
                 {
                   code: 'countries.COUNTRY_ALREADY_EXISTS',
                   field: 'name',
-                  message: 'Country already exists.',
+                  message: 'A country with this name already exists.',
                 },
               ],
             },
@@ -69,7 +72,7 @@ export const ApiCountryConflictResponse = () =>
                 {
                   code: 'countries.COUNTRY_ALREADY_EXISTS',
                   field: 'code',
-                  message: 'Country already exists.',
+                  message: 'A country with this name already exists.',
                 },
               ],
             },

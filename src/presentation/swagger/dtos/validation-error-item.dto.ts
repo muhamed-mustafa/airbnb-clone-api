@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ValidationErrorItemDto {
   @ApiProperty({
-    description: 'Validation error code (i18n message key).',
-    example: 'validation.isEmail',
+    description: 'Validator constraint code, such as isEmail, isMongoId, or whitelistValidation.',
+    example: 'isEmail',
   })
   code!: string;
 
@@ -15,7 +15,7 @@ export class ValidationErrorItemDto {
 
   @ApiProperty({
     description: 'Localized validation error message.',
-    example: 'email must be a valid email address',
+    example: 'Please provide a valid email address',
   })
   message!: string;
 }

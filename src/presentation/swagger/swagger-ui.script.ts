@@ -104,7 +104,10 @@ export const buildSwaggerUiCustomJs = (
     }
 
     if (!token) {
-      ui.authActions.logout?.([portalConfig.authSchemeName]);
+      const authorized = ui.getState?.().get?.('auth')?.get?.('authorized');
+      if (authorized?.get?.(portalConfig.authSchemeName)) {
+        ui.authActions.logout?.([portalConfig.authSchemeName]);
+      }
       return;
     }
 

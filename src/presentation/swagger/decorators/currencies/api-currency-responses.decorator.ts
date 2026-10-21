@@ -48,7 +48,10 @@ export const ApiCurrencyConflictResponse = () =>
         examples: {
           existingCurrency: {
             summary: 'Duplicate detected before creation',
-            value: { code: 'CURRENCY_ALREADY_EXISTS', message: 'Currency already exists.' },
+            value: {
+              code: 'CURRENCY_ALREADY_EXISTS',
+              message: 'A currency with this name or code already exists.',
+            },
           },
           duplicateName: {
             summary: 'Database name conflict',
@@ -57,7 +60,7 @@ export const ApiCurrencyConflictResponse = () =>
                 {
                   code: 'currencies.CURRENCY_ALREADY_EXISTS',
                   field: 'name',
-                  message: 'Currency already exists.',
+                  message: 'A currency with this name or code already exists.',
                 },
               ],
             },
@@ -69,7 +72,7 @@ export const ApiCurrencyConflictResponse = () =>
                 {
                   code: 'currencies.CURRENCY_ALREADY_EXISTS',
                   field: 'currencyCode',
-                  message: 'Currency already exists.',
+                  message: 'A currency with this name or code already exists.',
                 },
               ],
             },
