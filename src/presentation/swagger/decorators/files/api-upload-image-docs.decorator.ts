@@ -38,13 +38,19 @@ export const ApiUploadImageDocs = () =>
       description: 'Image stored successfully. The response is wrapped in data by the API.',
       schema: {
         type: 'object',
-        required: ['key', 'url'],
+        required: ['data'],
         properties: {
-          key: { type: 'string', example: 'airbnb/units/image-id' },
-          url: {
-            type: 'string',
-            format: 'uri',
-            example: 'https://res.cloudinary.com/demo/image/upload/image-id.jpg',
+          data: {
+            type: 'object',
+            required: ['key', 'url'],
+            properties: {
+              key: { type: 'string', example: 'airbnb/units/image-id' },
+              url: {
+                type: 'string',
+                format: 'uri',
+                example: 'https://res.cloudinary.com/demo/image/upload/image-id.jpg',
+              },
+            },
           },
         },
       },
@@ -70,11 +76,10 @@ export const ApiUploadImageDocs = () =>
     }),
     ApiResponse({
       status: 413,
-      description:
-        'The multipart file exceeds 5 MB (5,242,880 bytes). The current HTTP exception filter uses its generic error code for status 413.',
+      description: 'The multipart file exceeds 5 MiB (5,242,880 bytes).',
       type: HttpErrorsResponseDto,
       example: {
-        errors: [{ code: 'errors.INTERNAL_SERVER_ERROR', message: 'Internal server error' }],
+        errors: [{ code: 'errors.PAYLOAD_TOO_LARGE', message: 'Payload too large' }],
       },
     }),
     ApiInternalErrorResponse(),

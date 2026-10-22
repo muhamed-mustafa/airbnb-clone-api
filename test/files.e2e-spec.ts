@@ -13,6 +13,10 @@ import { RolesGuard } from '@presentation/auth/guards/roles.guard';
 import { GlobalExceptionFilter } from '@presentation/filters/global-exception-filter';
 import { HttpExceptionFilter } from '@presentation/filters/http-exception.filter';
 import { buildAudienceDocument } from '@presentation/swagger/swagger.documents';
+import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
+import { join } from 'node:path';
+import englishErrors from '../src/common/i18n/en/errors.json';
+import arabicErrors from '../src/common/i18n/ar/errors.json';
 
 // Small image signatures exercise the real Nest magic-number validator, not a MIME mock.
 const images = [
@@ -44,7 +48,14 @@ describe('Files upload (e2e)', () => {
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      imports: [FilesModule],
+      imports: [
+        FilesModule,
+        I18nModule.forRoot({
+          fallbackLanguage: 'en',
+          loaderOptions: { path: join(__dirname, '../src/common/i18n/'), watch: false },
+          resolvers: [AcceptLanguageResolver],
+        }),
+      ],
       providers: [
         JwtAuthGuard,
         RolesGuard,
@@ -100,7 +111,7 @@ describe('Files upload (e2e)', () => {
   it('rejects missing files', async () => {
     await post()
       .expect(400)
-      .expect({ errors: [{ code: 'errors.BAD_REQUEST', message: 'errors.BAD_REQUEST' }] });
+      .expect({ errors: [{ code: 'errors.BAD_REQUEST', message: englishErrors.BAD_REQUEST }] });
     expect(upload).not.toHaveBeenCalled();
   });
   it.each([
@@ -111,17 +122,24 @@ describe('Files upload (e2e)', () => {
     await post().attach('file', buffer, { filename: name, contentType: mime }).expect(400);
     expect(upload).not.toHaveBeenCalled();
   });
-  it('rejects an image one byte above 5 MB with the existing 413 error envelope', async () => {
-    const buffer = Buffer.alloc(5 * 1024 * 1024 + 1);
-    images[1].buffer.copy(buffer);
-    await post()
-      .attach('file', buffer, 'image.png')
-      .expect(413)
-      .expect({
-        errors: [{ code: 'errors.INTERNAL_SERVER_ERROR', message: 'errors.INTERNAL_SERVER_ERROR' }],
-      });
-    expect(upload).not.toHaveBeenCalled();
-  });
+  it.each([
+    { language: 'en', message: englishErrors.PAYLOAD_TOO_LARGE },
+    { language: 'ar', message: arabicErrors.PAYLOAD_TOO_LARGE },
+  ])(
+    'rejects one byte above 5 MiB with a localized 413 in $language',
+    async ({ language, message }) => {
+      const buffer = Buffer.alloc(5 * 1024 * 1024 + 1);
+      images[1].buffer.copy(buffer);
+      await post()
+        .set('Accept-Language', language)
+        .attach('file', buffer, 'image.png')
+        .expect(413)
+        .expect({
+          errors: [{ code: 'errors.PAYLOAD_TOO_LARGE', message }],
+        });
+      expect(upload).not.toHaveBeenCalled();
+    },
+  );
   it.each([5 * 1024 * 1024 - 1, 5 * 1024 * 1024])('accepts an image of %i bytes', async (size) => {
     const buffer = Buffer.alloc(size);
     images[1].buffer.copy(buffer);
@@ -152,18 +170,71 @@ describe('Files upload (e2e)', () => {
     await req.attach('file', images[1].buffer, 'image.png').expect(status);
     expect(upload).not.toHaveBeenCalled();
   });
-  it('returns a sanitized 500 when storage fails', async () => {
-    upload.mockRejectedValue(new FileStorageError('FILE_UPLOAD_FAILED'));
+  it.each([
+    { language: 'en', message: englishErrors.INTERNAL_SERVER_ERROR },
+    { language: 'ar', message: arabicErrors.INTERNAL_SERVER_ERROR },
+  ])(
+    'logs FileStorageError and returns only a generic 500 in $language',
+    async ({ language, message }) => {
+      const error = new FileStorageError('FILE_UPLOAD_FAILED: private provider diagnostic');
+      upload.mockRejectedValue(error);
+      await post()
+        .set('Accept-Language', language)
+        .attach('file', images[1].buffer, 'image.png')
+        .expect(500)
+        .expect({ errors: [{ message }] });
+      expect(logger.error).toHaveBeenCalledWith(error, 'Unhandled exception');
+    },
+  );
+  it('keeps unexpected errors generic and out of the success envelope', async () => {
+    const error = new Error('private stack and credential placeholder: do not expose');
+    upload.mockRejectedValue(error);
     await post()
       .attach('file', images[1].buffer, 'image.png')
       .expect(500)
-      .expect({ errors: [{ message: 'Internal server error' }] });
-    expect(logger.error).toHaveBeenCalled();
+      .expect({ errors: [{ message: englishErrors.INTERNAL_SERVER_ERROR }] });
+    expect(logger.error).toHaveBeenCalledWith(error, 'Unhandled exception');
   });
   it('documents the multipart input, responses and user audience', () => {
     const source = SwaggerModule.createDocument(app, new DocumentBuilder().build());
+    const success = {
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['data'],
+            properties: {
+              data: {
+                type: 'object',
+                required: ['key', 'url'],
+                properties: {
+                  key: { type: 'string' },
+                  url: { type: 'string', format: 'uri' },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+    expect(source.paths['/api/files/images']?.post?.responses['201']).toMatchObject(success);
     const user = buildAudienceDocument(source, 'user');
     const operation = user.paths['/api/files/images']?.post;
+    expect(operation?.responses['201']).toEqual(
+      source.paths['/api/files/images']?.post?.responses['201'],
+    );
+    expect(operation?.responses['201']).toMatchObject(success);
+    expect(operation?.responses['413']).toMatchObject({
+      content: {
+        'application/json': {
+          example: {
+            errors: [
+              { code: 'errors.PAYLOAD_TOO_LARGE', message: englishErrors.PAYLOAD_TOO_LARGE },
+            ],
+          },
+        },
+      },
+    });
     expect(operation).toMatchObject({
       security: [{ 'access-token': [] }],
       'x-docs-roles': ['user'],

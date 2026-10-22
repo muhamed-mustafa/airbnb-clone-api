@@ -1,4 +1,5 @@
 {
+  "PAYLOAD_TOO_LARGE": "حجم البيانات يتجاوز الحد المسموح",
   "INTERNAL_SERVER_ERROR": "حدث خطأ داخلي في الخادم",
   "BAD_REQUEST": "طلب غير صالح",
   "UNAUTHORIZED": "غير مصرح",

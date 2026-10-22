@@ -154,7 +154,7 @@ describe('Swagger audience documents from actual controllers', () => {
       content: {
         'application/json': {
           example: {
-            errors: [{ code: 'errors.INTERNAL_SERVER_ERROR', message: 'Internal server error' }],
+            errors: [{ code: 'errors.PAYLOAD_TOO_LARGE', message: 'Payload too large' }],
           },
         },
       },

@@ -5,6 +5,7 @@
   "FORBIDDEN": "Forbidden",
   "NOT_FOUND": "Not found",
   "CONFLICT": "Conflict",
+  "PAYLOAD_TOO_LARGE": "Payload too large",
   "FILE_UPLOAD_FAILED": "Failed to upload the image.",
   "FILE_DELETE_FAILED": "Failed to delete the image."
 }

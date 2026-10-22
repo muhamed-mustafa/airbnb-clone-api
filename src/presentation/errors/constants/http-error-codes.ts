@@ -6,4 +6,5 @@ export const HTTP_ERROR_CODES: Partial<Record<number, string | undefined>> = {
   [HttpStatus.FORBIDDEN]: 'errors.FORBIDDEN',
   [HttpStatus.NOT_FOUND]: 'errors.NOT_FOUND',
   [HttpStatus.CONFLICT]: 'errors.CONFLICT',
+  [HttpStatus.PAYLOAD_TOO_LARGE]: 'errors.PAYLOAD_TOO_LARGE',
 } as const;
