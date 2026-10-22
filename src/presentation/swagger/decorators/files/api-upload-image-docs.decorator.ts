@@ -16,7 +16,7 @@ export const ApiUploadImageDocs = () =>
       operationId: 'filesUploadImage',
       summary: 'Upload an image',
       description:
-        'Requires an authenticated user with the USER role. Upload one JPEG, PNG or WebP image under the file field. The maximum size is 5 MB (5,242,880 bytes), inclusive. File contents are checked. Use the returned URL in the photos field when creating or updating a unit through the units API.',
+        'Requires an authenticated user with the USER role. Upload one JPEG, PNG or WebP image under the file field. The maximum size is 5 MiB (5,242,880 bytes), inclusive. File contents are checked. Use the returned URL in the photos field when creating or updating a unit through the units API.',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody({
@@ -29,7 +29,7 @@ export const ApiUploadImageDocs = () =>
             type: 'string',
             format: 'binary',
             description:
-              'JPEG (image/jpeg), PNG (image/png), or WebP (image/webp), up to 5 MB inclusive.',
+              'JPEG (image/jpeg), PNG (image/png), or WebP (image/webp), up to 5 MiB (5,242,880 bytes) inclusive.',
           },
         },
       },
