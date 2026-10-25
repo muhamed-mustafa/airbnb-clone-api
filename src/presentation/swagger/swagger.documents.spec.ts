@@ -1,5 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
-import type { OpenAPIObject } from '@nestjs/swagger';
+import type { OpenAPIObject, SchemaObject, ReferenceObject } from '@nestjs/swagger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Test } from '@nestjs/testing';
 import { AdminAuthController } from '../admin/admin-auth.controller';
@@ -49,6 +49,56 @@ describe('Swagger audience documents from actual controllers', () => {
   });
   afterAll(async () => {
     await app.close();
+  });
+
+  it('documents every error response with required codes inside the errors array', () => {
+    const assertSchema = (schema: SchemaObject | ReferenceObject): void => {
+      if ('$ref' in schema) {
+        const name = schema.$ref.split('/').pop()!;
+        assertSchema(source.components!.schemas![name]);
+        return;
+      }
+      const branches = schema.anyOf ?? schema.oneOf ?? schema.allOf;
+      if (branches) {
+        branches.forEach(assertSchema);
+        return;
+      }
+      expect(schema.required).toContain('errors');
+      const errors = schema.properties?.errors;
+      expect(errors).toBeDefined();
+      if (!errors || '$ref' in errors) throw new Error('Expected errors array');
+      expect(errors.type).toBe('array');
+      let item = errors.items!;
+      if ('$ref' in item) item = source.components!.schemas![item.$ref.split('/').pop()!];
+      if ('$ref' in item) throw new Error('Expected error item schema');
+      expect(item.required).toEqual(expect.arrayContaining(['code', 'message']));
+    };
+    for (const audience of DOCS_AUDIENCES) {
+      const document = buildAudienceDocument(source, audience);
+      for (const path of Object.values(document.paths)) {
+        for (const method of ['get', 'post', 'put', 'patch', 'delete'] as const) {
+          for (const [status, response] of Object.entries(path[method]?.responses ?? {})) {
+            if (Number(status) < 400 || !response || '$ref' in response) continue;
+            const json = response.content?.['application/json'];
+            expect(json?.schema).toBeDefined();
+            assertSchema(json!.schema!);
+            const examples = [
+              json?.example as unknown,
+              ...Object.values(json?.examples ?? {}).map((example): unknown =>
+                '$ref' in example ? undefined : example.value,
+              ),
+            ].filter(Boolean) as { errors: { code: string; message: string }[] }[];
+            for (const example of examples) {
+              expect(example.errors).toEqual(expect.any(Array));
+              for (const error of example.errors) {
+                expect(error.code).toEqual(expect.any(String));
+                expect(error.message).toEqual(expect.any(String));
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
   it('places each operation in exactly one audience and retains response schemas', () => {
@@ -180,10 +230,10 @@ describe('Swagger audience documents from actual controllers', () => {
           expect(operation.responses['401']).toMatchObject({
             content: {
               'application/json': {
-                schema: { oneOf: expect.any(Array) as unknown },
+                schema: { anyOf: expect.any(Array) as unknown },
                 examples: {
                   missingAuthorization: { value: { errors: [{ code: 'errors.UNAUTHORIZED' }] } },
-                  invalidToken: { value: { code: 'INVALID_TOKEN' } },
+                  invalidToken: { value: { errors: [{ code: 'INVALID_TOKEN' }] } },
                 },
               },
             },
@@ -203,8 +253,8 @@ describe('Swagger audience documents from actual controllers', () => {
     expect(update?.responses['403']).toMatchObject({
       content: {
         'application/json': {
-          schema: { oneOf: expect.any(Array) as unknown },
-          examples: { notOwner: { value: { code: 'UNIT_ACCESS_DENIED' } } },
+          schema: { anyOf: expect.any(Array) as unknown },
+          examples: { notOwner: { value: { errors: [{ code: 'UNIT_ACCESS_DENIED' }] } } },
         },
       },
     });
@@ -322,7 +372,9 @@ describe('Swagger audience documents from actual controllers', () => {
       });
     expect(path?.patch?.responses['403']).toMatchObject({
       content: {
-        'application/json': { examples: { notOwner: { value: { code: 'UNIT_ACCESS_DENIED' } } } },
+        'application/json': {
+          examples: { notOwner: { value: { errors: [{ code: 'UNIT_ACCESS_DENIED' }] } } },
+        },
       },
     });
     expect(Object.keys(path.patch!.responses)).toEqual(

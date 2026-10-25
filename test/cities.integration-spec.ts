@@ -142,7 +142,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .send({ name: 'CAIRO', country: egyptId })
         .expect(409)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'CITY_ALREADY_EXISTS' });
+          expect(body).toMatchObject({ errors: [{ code: 'CITY_ALREADY_EXISTS' }] });
         });
     });
 
@@ -177,7 +177,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .send({ name: 'Giza', country })
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'COUNTRY_NOT_FOUND' }] });
         });
     });
 
@@ -319,7 +319,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .get(`/api/cities/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'CITY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'CITY_NOT_FOUND' }] });
         });
 
       await request(app!.getHttpServer()).get('/api/cities/invalid').expect(400);
@@ -350,7 +350,7 @@ describe('Cities HTTP API with MongoDB', () => {
           .send({ country })
           .expect(404)
           .expect(({ body }: { body: unknown }) => {
-            expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+            expect(body).toMatchObject({ errors: [{ code: 'COUNTRY_NOT_FOUND' }] });
           });
       }
 
@@ -406,7 +406,7 @@ describe('Cities HTTP API with MongoDB', () => {
         .send({ name: 'Nowhere' })
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'CITY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'CITY_NOT_FOUND' }] });
         });
     });
   });

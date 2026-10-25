@@ -1,10 +1,11 @@
+import type { ErrorsResponseInterface } from '../../errors/error-response.interface';
 import { ApiProperty } from '@nestjs/swagger';
 import { HttpErrorItemDto } from './http-error-item.dto';
 
-export class HttpErrorsResponseDto {
+export class HttpErrorsResponseDto implements ErrorsResponseInterface {
   @ApiProperty({
     type: [HttpErrorItemDto],
-    description: 'List of HTTP-layer errors.',
+    description: 'List of API errors.',
   })
   errors!: HttpErrorItemDto[];
 }

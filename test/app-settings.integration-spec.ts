@@ -81,7 +81,7 @@ describe('App Settings HTTP API with MongoDB', () => {
         .get('/api/app-settings')
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'APP_SETTINGS_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'APP_SETTINGS_NOT_FOUND' }] });
         });
     });
 

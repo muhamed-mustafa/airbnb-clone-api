@@ -1,12 +1,10 @@
+import type { ErrorsResponseInterface } from '../errors/error-response.interface';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nContext } from 'nestjs-i18n';
 import { HTTP_ERROR_CODES } from '../errors/constants/http-error-codes';
 
-interface HttpErrorResponse {
-  code: string;
-  field?: string;
-}
+type HttpErrorResponse = Pick<ErrorsResponseInterface['errors'][number], 'code' | 'field'>;
 
 const isHttpErrorResponse = (value: unknown): value is HttpErrorResponse => {
   return (
@@ -33,7 +31,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         };
 
     const i18n = I18nContext.current(host);
-    const message = i18n?.t(error.code) ?? error.code;
+    const message = i18n?.t<string, string>(error.code) ?? error.code;
 
     response.status(status).json({
       errors: [
@@ -43,6 +41,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ...(error.field && { field: error.field }),
         },
       ],
-    });
+    } satisfies ErrorsResponseInterface);
   }
 }

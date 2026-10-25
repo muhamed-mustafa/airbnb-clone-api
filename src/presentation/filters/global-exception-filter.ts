@@ -1,3 +1,4 @@
+import type { ErrorsResponseInterface } from '../errors/error-response.interface';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Inject } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nContext } from 'nestjs-i18n';
@@ -21,7 +22,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const message = i18n?.t('errors.INTERNAL_SERVER_ERROR') ?? 'Internal server error';
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      errors: [{ message }],
-    });
+      errors: [{ code: 'INTERNAL_SERVER_ERROR', message }],
+    } satisfies ErrorsResponseInterface);
   }
 }

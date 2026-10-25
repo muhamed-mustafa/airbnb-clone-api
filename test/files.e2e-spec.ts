@@ -182,7 +182,7 @@ describe('Files upload (e2e)', () => {
         .set('Accept-Language', language)
         .attach('file', images[1].buffer, 'image.png')
         .expect(500)
-        .expect({ errors: [{ message }] });
+        .expect({ errors: [{ code: 'INTERNAL_SERVER_ERROR', message }] });
       expect(logger.error).toHaveBeenCalledWith(error, 'Unhandled exception');
     },
   );
@@ -192,7 +192,9 @@ describe('Files upload (e2e)', () => {
     await post()
       .attach('file', images[1].buffer, 'image.png')
       .expect(500)
-      .expect({ errors: [{ message: englishErrors.INTERNAL_SERVER_ERROR }] });
+      .expect({
+        errors: [{ code: 'INTERNAL_SERVER_ERROR', message: englishErrors.INTERNAL_SERVER_ERROR }],
+      });
     expect(logger.error).toHaveBeenCalledWith(error, 'Unhandled exception');
   });
   it('documents the multipart input, responses and user audience', () => {

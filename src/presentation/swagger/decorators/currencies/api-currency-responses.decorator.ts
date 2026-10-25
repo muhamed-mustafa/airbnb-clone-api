@@ -1,19 +1,14 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiConflictResponse, ApiNotFoundResponse, ApiParam } from '@nestjs/swagger';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
-
-const applicationErrorSchema = {
-  type: 'object' as const,
-  required: ['code', 'message'],
-  properties: { code: { type: 'string' as const }, message: { type: 'string' as const } },
-};
+import { errorsResponseSchema } from '../../error-response.schema';
 
 export const ApiCurrencyNotFoundResponse = () =>
   ApiNotFoundResponse({
     description: 'The currency does not exist or has been soft deleted.',
     schema: {
-      ...applicationErrorSchema,
-      example: { code: 'CURRENCY_NOT_FOUND', message: 'Currency not found.' },
+      ...errorsResponseSchema(),
+      example: { errors: [{ code: 'CURRENCY_NOT_FOUND', message: 'Currency not found.' }] },
     },
   });
 
@@ -23,8 +18,8 @@ export const ApiCurrencyConflictResponse = () =>
     content: {
       'application/json': {
         schema: {
-          oneOf: [
-            applicationErrorSchema,
+          anyOf: [
+            errorsResponseSchema(),
             {
               type: 'object',
               required: ['errors'],
@@ -49,8 +44,12 @@ export const ApiCurrencyConflictResponse = () =>
           existingCurrency: {
             summary: 'Duplicate detected before creation',
             value: {
-              code: 'CURRENCY_ALREADY_EXISTS',
-              message: 'A currency with this name or code already exists.',
+              errors: [
+                {
+                  code: 'CURRENCY_ALREADY_EXISTS',
+                  message: 'A currency with this name or code already exists.',
+                },
+              ],
             },
           },
           duplicateName: {

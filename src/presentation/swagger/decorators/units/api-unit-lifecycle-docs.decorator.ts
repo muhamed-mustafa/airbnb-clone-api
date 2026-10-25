@@ -42,8 +42,12 @@ export const ApiUnitLifecycleDocs = (action: 'activate' | 'deactivate' | 'delete
           examples: {
             notOwner: {
               value: {
-                code: 'UNIT_ACCESS_DENIED',
-                message: 'You do not have permission to access this unit.',
+                errors: [
+                  {
+                    code: 'UNIT_ACCESS_DENIED',
+                    message: 'You do not have permission to access this unit.',
+                  },
+                ],
               },
             },
           },

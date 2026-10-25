@@ -1,19 +1,14 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiConflictResponse, ApiNotFoundResponse, ApiParam } from '@nestjs/swagger';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
-
-const applicationErrorSchema = {
-  type: 'object' as const,
-  required: ['code', 'message'],
-  properties: { code: { type: 'string' as const }, message: { type: 'string' as const } },
-};
+import { errorsResponseSchema } from '../../error-response.schema';
 
 export const ApiCountryNotFoundResponse = () =>
   ApiNotFoundResponse({
     description: 'The country does not exist or has been soft deleted.',
     schema: {
-      ...applicationErrorSchema,
-      example: { code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' },
+      ...errorsResponseSchema(),
+      example: { errors: [{ code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' }] },
     },
   });
 
@@ -23,8 +18,8 @@ export const ApiCountryConflictResponse = () =>
     content: {
       'application/json': {
         schema: {
-          oneOf: [
-            applicationErrorSchema,
+          anyOf: [
+            errorsResponseSchema(),
             {
               type: 'object',
               required: ['errors'],
@@ -49,8 +44,12 @@ export const ApiCountryConflictResponse = () =>
           existingCountry: {
             summary: 'Duplicate detected before creation',
             value: {
-              code: 'COUNTRY_ALREADY_EXISTS',
-              message: 'A country with this name already exists.',
+              errors: [
+                {
+                  code: 'COUNTRY_ALREADY_EXISTS',
+                  message: 'A country with this name already exists.',
+                },
+              ],
             },
           },
           duplicateName: {

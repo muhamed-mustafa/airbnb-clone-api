@@ -1,8 +1,9 @@
+import type { ErrorResponseInterface } from '../../errors/error-response.interface';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class HttpErrorItemDto {
+export class HttpErrorItemDto implements ErrorResponseInterface {
   @ApiProperty({
-    description: 'HTTP-layer error code. The exact code depends on the operation and status.',
+    description: 'Error code. The exact code depends on the operation and status.',
     example: 'errors.BAD_REQUEST',
   })
   code!: string;

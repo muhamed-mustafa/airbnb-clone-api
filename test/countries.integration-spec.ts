@@ -361,7 +361,7 @@ describe('Countries HTTP API with MongoDB', () => {
     const cityModel = () => connection!.model<City>(modelNames.CITIES);
 
     const expectCityNotFound = ({ body }: { body: unknown }) => {
-      expect(body).toMatchObject({ code: 'CITY_NOT_FOUND' });
+      expect(body).toMatchObject({ errors: [{ code: 'CITY_NOT_FOUND' }] });
     };
 
     const pageOf = (data: unknown[]) => ({
@@ -478,7 +478,7 @@ describe('Countries HTTP API with MongoDB', () => {
         .send({ name: 'New Cairo', country: primaryId })
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'COUNTRY_NOT_FOUND' }] });
         });
     });
 
@@ -503,7 +503,7 @@ describe('Countries HTTP API with MongoDB', () => {
         .delete(`/api/countries/${primaryId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'COUNTRY_NOT_FOUND' }] });
         });
 
       expect((await cityModel().findById(cairoId))?.deletedAt).toEqual(cairoDeletedAt);
@@ -514,7 +514,7 @@ describe('Countries HTTP API with MongoDB', () => {
         .delete(`/api/countries/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'COUNTRY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'COUNTRY_NOT_FOUND' }] });
         });
 
       expect(await cityModel().countDocuments({ isDeleted: false })).toBe(3);

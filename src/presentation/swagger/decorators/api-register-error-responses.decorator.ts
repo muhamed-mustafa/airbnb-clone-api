@@ -13,7 +13,7 @@ export const ApiRegisterBadRequestResponses = () =>
       content: {
         'application/json': {
           schema: {
-            oneOf: [
+            anyOf: [
               { $ref: getSchemaPath(ValidationErrorsResponseDto) },
               { $ref: getSchemaPath(ApplicationErrorResponseDto) },
             ],
@@ -22,7 +22,9 @@ export const ApiRegisterBadRequestResponses = () =>
             ...REGISTER_VALIDATION_EXAMPLES,
             invalidPhone: {
               summary: 'phone: invalid for country code',
-              value: { code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' },
+              value: {
+                errors: [{ code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' }],
+              },
             },
           },
         },

@@ -1,3 +1,4 @@
+import type { ErrorsResponseInterface } from '../errors/error-response.interface';
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nService } from 'nestjs-i18n';
@@ -19,11 +20,10 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
 
     const messageKey = applicationErrorMessageMap[exception.code];
 
-    const message = this.i18nService.translate(messageKey);
+    const message = this.i18nService.translate<string, string>(messageKey);
 
     response.status(status).json({
-      code: exception.code,
-      message,
-    });
+      errors: [{ code: exception.code, message }],
+    } satisfies ErrorsResponseInterface);
   }
 }

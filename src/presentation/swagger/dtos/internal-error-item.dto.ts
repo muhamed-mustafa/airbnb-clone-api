@@ -1,9 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { HttpErrorItemDto } from './http-error-item.dto';
 
-export class InternalErrorItemDto {
-  @ApiProperty({
-    description: 'Generic internal server error message.',
-    example: 'Internal server error',
-  })
-  message!: string;
-}
+export class InternalErrorItemDto extends HttpErrorItemDto {}

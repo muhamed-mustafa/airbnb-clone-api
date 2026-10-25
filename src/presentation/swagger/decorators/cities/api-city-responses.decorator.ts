@@ -1,28 +1,23 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiConflictResponse, ApiNotFoundResponse, ApiParam } from '@nestjs/swagger';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
-
-const applicationErrorSchema = {
-  type: 'object' as const,
-  required: ['code', 'message'],
-  properties: { code: { type: 'string' as const }, message: { type: 'string' as const } },
-};
+import { errorsResponseSchema } from '../../error-response.schema';
 
 const notFoundExamples = {
   city: {
     summary: 'City not found',
-    value: { code: 'CITY_NOT_FOUND', message: 'City not found.' },
+    value: { errors: [{ code: 'CITY_NOT_FOUND', message: 'City not found.' }] },
   },
   country: {
     summary: 'Referenced country not found',
-    value: { code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' },
+    value: { errors: [{ code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' }] },
   },
 };
 
 const notFoundResponse = (description: string, examples: Partial<typeof notFoundExamples>) =>
   ApiNotFoundResponse({
     description,
-    content: { 'application/json': { schema: applicationErrorSchema, examples } },
+    content: { 'application/json': { schema: errorsResponseSchema(), examples } },
   });
 
 export const ApiCityNotFoundResponse = () =>
@@ -47,8 +42,8 @@ export const ApiCityConflictResponse = () =>
     content: {
       'application/json': {
         schema: {
-          oneOf: [
-            applicationErrorSchema,
+          anyOf: [
+            errorsResponseSchema(),
             {
               type: 'object',
               required: ['errors'],
@@ -73,8 +68,12 @@ export const ApiCityConflictResponse = () =>
           existingCity: {
             summary: 'Duplicate detected before creation',
             value: {
-              code: 'CITY_ALREADY_EXISTS',
-              message: 'A city with this name already exists in this country.',
+              errors: [
+                {
+                  code: 'CITY_ALREADY_EXISTS',
+                  message: 'A city with this name already exists in this country.',
+                },
+              ],
             },
           },
           duplicateCity: {

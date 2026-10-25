@@ -1,16 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { HttpErrorsResponseDto } from './http-errors-response.dto';
 
-export class ApplicationErrorResponseDto {
-  @ApiProperty({
-    description: 'Application error code.',
-    example: 'INVALID_CREDENTIALS',
-    enum: ['INVALID_CREDENTIALS', 'INVALID_TOKEN', 'INVALID_PHONE_NUMBER'],
-  })
-  code!: string;
-
-  @ApiProperty({
-    description: 'Localized error message.',
-    example: 'Invalid credentials',
-  })
-  message!: string;
-}
+export class ApplicationErrorResponseDto extends HttpErrorsResponseDto {}

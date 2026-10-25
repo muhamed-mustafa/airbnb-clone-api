@@ -13,7 +13,9 @@ export const ApiInternalErrorResponse = () =>
           examples: {
             unexpected: {
               summary: 'Unexpected server error',
-              value: { errors: [{ message: 'Internal server error' }] },
+              value: {
+                errors: [{ code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' }],
+              },
             },
           },
         },

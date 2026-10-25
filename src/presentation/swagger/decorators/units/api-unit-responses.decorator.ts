@@ -8,11 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidationErrorsResponseDto } from '../../dtos/validation-errors-response.dto';
 
-const applicationErrorSchema = {
-  type: 'object' as const,
-  required: ['code', 'message'],
-  properties: { code: { type: 'string' as const }, message: { type: 'string' as const } },
-};
+import { errorItemSchema, errorsResponseSchema } from '../../error-response.schema';
 
 export const ApiUnitValidationResponse = () =>
   applyDecorators(
@@ -23,18 +19,18 @@ export const ApiUnitValidationResponse = () =>
       content: {
         'application/json': {
           schema: {
-            oneOf: [
+            anyOf: [
               { $ref: getSchemaPath(ValidationErrorsResponseDto) },
-              {
-                ...applicationErrorSchema,
+              errorsResponseSchema({
+                ...errorItemSchema,
                 properties: {
-                  ...applicationErrorSchema.properties,
+                  ...errorItemSchema.properties,
                   code: {
                     type: 'string',
                     enum: ['UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE', 'CITY_COUNTRY_MISMATCH'],
                   },
                 },
-              },
+              }),
             ],
           },
           examples: {
@@ -53,16 +49,24 @@ export const ApiUnitValidationResponse = () =>
             minimumPrice: {
               summary: 'Daily cost below configured minimum',
               value: {
-                code: 'UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE',
-                message: 'The cost per day is below the minimum allowed price of {{minPrice}}.',
+                errors: [
+                  {
+                    code: 'UNIT_COST_PER_DAY_TOO_LOW_MIN_PRICE',
+                    message: 'The cost per day is below the minimum allowed price of {{minPrice}}.',
+                  },
+                ],
               },
             },
 
             cityCountryMismatch: {
               summary: 'City does not belong to the selected country',
               value: {
-                code: 'CITY_COUNTRY_MISMATCH',
-                message: 'City not found in this country.',
+                errors: [
+                  {
+                    code: 'CITY_COUNTRY_MISMATCH',
+                    message: 'City not found in this country.',
+                  },
+                ],
               },
             },
           },
@@ -74,20 +78,22 @@ export const ApiUnitReferenceNotFoundResponse = () =>
   ApiNotFoundResponse({
     description: 'Country, city, accommodation type or application settings could not be found.',
     schema: {
-      ...applicationErrorSchema,
-      properties: {
-        ...applicationErrorSchema.properties,
-        code: {
-          type: 'string',
-          enum: [
-            'COUNTRY_NOT_FOUND',
-            'CITY_NOT_FOUND',
-            'UNIT_CATEGORY_NOT_FOUND',
-            'APP_SETTINGS_NOT_FOUND',
-          ],
+      ...errorsResponseSchema({
+        ...errorItemSchema,
+        properties: {
+          ...errorItemSchema.properties,
+          code: {
+            type: 'string',
+            enum: [
+              'COUNTRY_NOT_FOUND',
+              'CITY_NOT_FOUND',
+              'UNIT_CATEGORY_NOT_FOUND',
+              'APP_SETTINGS_NOT_FOUND',
+            ],
+          },
         },
-      },
-      example: { code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' },
+      }),
+      example: { errors: [{ code: 'COUNTRY_NOT_FOUND', message: 'Country not found.' }] },
     },
   });
 export const ApiUnitNotFoundResponse = (includeReferences = false) =>
@@ -96,23 +102,27 @@ export const ApiUnitNotFoundResponse = (includeReferences = false) =>
       ? 'The unit or a supplied country, city, accommodation type or required application settings does not exist.'
       : 'The unit does not exist.',
     schema: {
-      ...applicationErrorSchema,
-      properties: {
-        ...applicationErrorSchema.properties,
-        code: {
-          type: 'string',
-          enum: includeReferences
-            ? [
-                'UNIT_NOT_FOUND',
-                'COUNTRY_NOT_FOUND',
-                'CITY_NOT_FOUND',
-                'UNIT_CATEGORY_NOT_FOUND',
-                'APP_SETTINGS_NOT_FOUND',
-              ]
-            : ['UNIT_NOT_FOUND'],
+      ...errorsResponseSchema({
+        ...errorItemSchema,
+        properties: {
+          ...errorItemSchema.properties,
+          code: {
+            type: 'string',
+            enum: includeReferences
+              ? [
+                  'UNIT_NOT_FOUND',
+                  'COUNTRY_NOT_FOUND',
+                  'CITY_NOT_FOUND',
+                  'UNIT_CATEGORY_NOT_FOUND',
+                  'APP_SETTINGS_NOT_FOUND',
+                ]
+              : ['UNIT_NOT_FOUND'],
+          },
         },
+      }),
+      example: {
+        errors: [{ code: 'UNIT_NOT_FOUND', message: 'The requested unit was not found.' }],
       },
-      example: { code: 'UNIT_NOT_FOUND', message: 'The requested unit was not found.' },
     },
   });
 export const ApiUnitIdParam = () =>

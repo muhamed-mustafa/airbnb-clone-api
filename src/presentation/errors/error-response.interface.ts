@@ -3,3 +3,7 @@ export interface ErrorResponseInterface {
   message: string;
   field?: string;
 }
+
+export interface ErrorsResponseInterface {
+  errors: ErrorResponseInterface[];
+}

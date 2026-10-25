@@ -335,7 +335,7 @@ describe('Currencies HTTP API with MongoDB', () => {
         .delete(`/api/currencies/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'CURRENCY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'CURRENCY_NOT_FOUND' }] });
         });
     });
 

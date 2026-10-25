@@ -1,4 +1,5 @@
-import type { OpenAPIObject, OperationObject, PathItemObject, SchemaObject } from '@nestjs/swagger';
+import { errorsResponseSchema } from './error-response.schema';
+import type { OpenAPIObject, OperationObject, PathItemObject } from '@nestjs/swagger';
 
 export const DOCS_AUDIENCES = ['user', 'admin', 'shared'] as const;
 export type DocsAudience = (typeof DOCS_AUDIENCES)[number];
@@ -11,20 +12,7 @@ type DocsOperation = OperationObject & {
   'x-docs-access'?: string;
 };
 
-const httpErrorsSchema: SchemaObject = {
-  type: 'object',
-  required: ['errors'],
-  properties: {
-    errors: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['code', 'message'],
-        properties: { code: { type: 'string' }, message: { type: 'string' } },
-      },
-    },
-  },
-};
+const httpErrorsSchema = errorsResponseSchema();
 
 // Guards use HTTP errors for missing authorization/roles and application errors for invalid JWTs.
 const documentAuthorizationResponses = (operation: DocsOperation): void => {
@@ -33,16 +21,16 @@ const documentAuthorizationResponses = (operation: DocsOperation): void => {
     unauthorized.content ??= {};
     unauthorized.content['application/json'] ??= {
       schema: {
-        oneOf: [
+        anyOf: [
           httpErrorsSchema,
-          {
+          errorsResponseSchema({
             type: 'object',
             required: ['code', 'message'],
             properties: {
               code: { type: 'string', enum: ['INVALID_TOKEN'] },
               message: { type: 'string' },
             },
-          },
+          }),
         ],
       },
       examples: {
@@ -52,7 +40,7 @@ const documentAuthorizationResponses = (operation: DocsOperation): void => {
         },
         invalidToken: {
           summary: 'Invalid or expired access token',
-          value: { code: 'INVALID_TOKEN', message: 'Invalid token' },
+          value: { errors: [{ code: 'INVALID_TOKEN', message: 'Invalid token' }] },
         },
       },
     };
@@ -64,16 +52,16 @@ const documentAuthorizationResponses = (operation: DocsOperation): void => {
     const hasOwnershipError = !!json.examples?.notOwner;
     json.schema ??= hasOwnershipError
       ? {
-          oneOf: [
+          anyOf: [
             httpErrorsSchema,
-            {
+            errorsResponseSchema({
               type: 'object',
               required: ['code', 'message'],
               properties: {
                 code: { type: 'string', enum: ['UNIT_ACCESS_DENIED'] },
                 message: { type: 'string' },
               },
-            },
+            }),
           ],
         }
       : httpErrorsSchema;

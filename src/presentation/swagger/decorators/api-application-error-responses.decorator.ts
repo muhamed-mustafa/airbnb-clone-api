@@ -18,11 +18,11 @@ export const ApiInvalidCredentialsResponse = () =>
           examples: {
             email: {
               summary: 'Incorrect email',
-              value: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' },
+              value: { errors: [{ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' }] },
             },
             password: {
               summary: 'Incorrect password',
-              value: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' },
+              value: { errors: [{ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' }] },
             },
           },
         },
@@ -41,11 +41,11 @@ export const ApiInvalidTokenResponse = () =>
           examples: {
             invalid: {
               summary: 'Invalid token',
-              value: { code: 'INVALID_TOKEN', message: 'Invalid token' },
+              value: { errors: [{ code: 'INVALID_TOKEN', message: 'Invalid token' }] },
             },
             expired: {
               summary: 'Expired token',
-              value: { code: 'INVALID_TOKEN', message: 'Invalid token' },
+              value: { errors: [{ code: 'INVALID_TOKEN', message: 'Invalid token' }] },
             },
           },
         },
@@ -64,7 +64,9 @@ export const ApiInvalidPhoneNumberResponse = () =>
           examples: {
             invalidPhone: {
               summary: 'Invalid phone number',
-              value: { code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' },
+              value: {
+                errors: [{ code: 'INVALID_PHONE_NUMBER', message: 'Invalid phone number' }],
+              },
             },
           },
         },

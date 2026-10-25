@@ -1,19 +1,16 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiConflictResponse, ApiNotFoundResponse, ApiParam } from '@nestjs/swagger';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
-
-const applicationErrorSchema = {
-  type: 'object' as const,
-  required: ['code', 'message'],
-  properties: { code: { type: 'string' as const }, message: { type: 'string' as const } },
-};
+import { errorsResponseSchema } from '../../error-response.schema';
 
 export const ApiUnitCategoryNotFoundResponse = () =>
   ApiNotFoundResponse({
     description: 'The unit category does not exist or has been soft deleted.',
     schema: {
-      ...applicationErrorSchema,
-      example: { code: 'UNIT_CATEGORY_NOT_FOUND', message: 'Unit category not found.' },
+      ...errorsResponseSchema(),
+      example: {
+        errors: [{ code: 'UNIT_CATEGORY_NOT_FOUND', message: 'Unit category not found.' }],
+      },
     },
   });
 
@@ -23,8 +20,8 @@ export const ApiUnitCategoryConflictResponse = () =>
     content: {
       'application/json': {
         schema: {
-          oneOf: [
-            applicationErrorSchema,
+          anyOf: [
+            errorsResponseSchema(),
             {
               type: 'object',
               required: ['errors'],
@@ -49,8 +46,12 @@ export const ApiUnitCategoryConflictResponse = () =>
           existingUnitCategory: {
             summary: 'Duplicate detected before creation',
             value: {
-              code: 'UNIT_CATEGORY_ALREADY_EXISTS',
-              message: 'A unit category with this name already exists.',
+              errors: [
+                {
+                  code: 'UNIT_CATEGORY_ALREADY_EXISTS',
+                  message: 'A unit category with this name already exists.',
+                },
+              ],
             },
           },
           duplicateName: {

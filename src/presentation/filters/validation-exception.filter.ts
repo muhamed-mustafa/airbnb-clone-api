@@ -1,3 +1,4 @@
+import type { ErrorsResponseInterface } from '../errors/error-response.interface';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nValidationException } from 'nestjs-i18n';
@@ -13,6 +14,6 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 
     response.status(HttpStatus.BAD_REQUEST).json({
       errors: formattedErrors,
-    });
+    } satisfies ErrorsResponseInterface);
   }
 }

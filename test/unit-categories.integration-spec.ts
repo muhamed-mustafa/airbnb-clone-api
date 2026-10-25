@@ -319,7 +319,7 @@ describe('Unit Categories HTTP API with MongoDB', () => {
         .delete(`/api/unit-categories/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'UNIT_CATEGORY_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'UNIT_CATEGORY_NOT_FOUND' }] });
         });
     });
 

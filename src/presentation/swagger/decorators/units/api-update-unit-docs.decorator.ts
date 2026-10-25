@@ -52,8 +52,12 @@ export const ApiUpdateUnitDocs = () =>
             notOwner: {
               summary: 'Unit belongs to another user',
               value: {
-                code: 'UNIT_ACCESS_DENIED',
-                message: 'You do not have permission to access this unit.',
+                errors: [
+                  {
+                    code: 'UNIT_ACCESS_DENIED',
+                    message: 'You do not have permission to access this unit.',
+                  },
+                ],
               },
             },
           },

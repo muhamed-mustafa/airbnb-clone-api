@@ -246,7 +246,7 @@ describe('Admin HTTP API with MongoDB', () => {
       await asAdmin(`/api/admins/${missingId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'ADMIN_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'ADMIN_NOT_FOUND' }] });
         });
     });
 
@@ -262,7 +262,7 @@ describe('Admin HTTP API with MongoDB', () => {
       await asAdmin(`/api/admins/${primaryId}`)
         .expect(404)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'ADMIN_NOT_FOUND' });
+          expect(body).toMatchObject({ errors: [{ code: 'ADMIN_NOT_FOUND' }] });
         });
     });
   });
@@ -297,7 +297,7 @@ describe('Admin HTTP API with MongoDB', () => {
         .send({ email: loginEmail, password: 'WrongPassword1!' })
         .expect(401)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'INVALID_CREDENTIALS' });
+          expect(body).toMatchObject({ errors: [{ code: 'INVALID_CREDENTIALS' }] });
         });
     });
 
@@ -307,7 +307,7 @@ describe('Admin HTTP API with MongoDB', () => {
         .send({ email: 'nobody@example.com', password: loginPassword })
         .expect(401)
         .expect(({ body }: { body: unknown }) => {
-          expect(body).toMatchObject({ code: 'INVALID_CREDENTIALS' });
+          expect(body).toMatchObject({ errors: [{ code: 'INVALID_CREDENTIALS' }] });
         });
     });
 
