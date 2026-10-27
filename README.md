@@ -59,6 +59,8 @@ $ pnpm run test:cov
 
 ## Development Standards
 
+For Cloudinary and private S3/CloudFront configuration, see [File storage](docs/file-storage.md).
+
 This project follows documented Git, commit, and code-quality conventions.
 
 See:

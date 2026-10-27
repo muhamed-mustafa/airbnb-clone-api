@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import { type EnvironmentVariables, FILE_STORAGE_PROVIDERS, NODE_ENVIRONMENTS } from './env.types';
 
-export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object({
+export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object<EnvironmentVariables>({
   PORT: Joi.number().port().default(3000),
   NODE_ENV: Joi.string()
     .valid(...NODE_ENVIRONMENTS)
@@ -49,21 +49,24 @@ export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object({
     otherwise: Joi.string().allow('').optional(),
   }),
 
-  AWS_ACCESS_KEY_ID: Joi.when('FILE_STORAGE_PROVIDER', {
+  AWS_S3_BASE_URL: Joi.when('FILE_STORAGE_PROVIDER', {
     is: 's3',
-    then: Joi.string().optional().when('AWS_SECRET_ACCESS_KEY', {
-      is: Joi.exist(),
-      then: Joi.required(),
-    }),
-    otherwise: Joi.optional(),
+    then: Joi.string()
+      .uri({ scheme: ['https'] })
+      .custom((value: string, helpers) => {
+        const url = new URL(value);
+        if (url.username || url.password || url.search || url.hash)
+          return helpers.error('any.invalid');
+        return value;
+      })
+      .required(),
+    otherwise: Joi.string().allow('').optional(),
   }),
-
-  AWS_SECRET_ACCESS_KEY: Joi.when('FILE_STORAGE_PROVIDER', {
-    is: 's3',
-    then: Joi.string().optional().when('AWS_ACCESS_KEY_ID', {
-      is: Joi.exist(),
-      then: Joi.required(),
-    }),
-    otherwise: Joi.optional(),
-  }),
-});
+  AWS_S3_KEY_PREFIX: Joi.string()
+    .empty('')
+    .pattern(/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/)
+    .default('airbnb/units'),
+  AWS_ACCESS_KEY_ID: Joi.string().empty('').optional(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().empty('').optional(),
+  AWS_SESSION_TOKEN: Joi.string().empty('').optional(),
+}).and('AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY');

@@ -14,4 +14,14 @@ export const baseEnv = (): EnvironmentVariables => ({
   INITIAL_ADMIN_PASSWORD: process.env.INITIAL_ADMIN_PASSWORD as string,
   FILE_STORAGE_PROVIDER: process.env
     .FILE_STORAGE_PROVIDER as EnvironmentVariables['FILE_STORAGE_PROVIDER'],
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  AWS_REGION: process.env.AWS_REGION,
+  AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+  AWS_S3_KEY_PREFIX: process.env.AWS_S3_KEY_PREFIX || 'airbnb/units',
+  AWS_S3_BASE_URL: process.env.AWS_S3_BASE_URL,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
 });

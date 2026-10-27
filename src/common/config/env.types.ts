@@ -31,6 +31,9 @@ export interface EnvironmentVariables {
 
   AWS_REGION?: string;
   AWS_S3_BUCKET?: string;
+  AWS_S3_KEY_PREFIX?: string;
+  AWS_S3_BASE_URL?: string;
+  AWS_SESSION_TOKEN?: string;
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
 }
