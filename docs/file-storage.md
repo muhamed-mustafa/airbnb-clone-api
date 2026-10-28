@@ -2,10 +2,57 @@
 
 Uploads continue to use `POST /api/files/images`: the API validates one JPEG,
 PNG or WebP image (maximum 5 MiB) and uploads its buffer. Direct browser uploads
-and multiple-image uploads are not implemented. The response remains `{ key, url }`
+are not implemented. The response remains `{ key, url }`
 inside the API's `data` envelope. Save the delivery URL in a unit's `photos` field.
 Keep the storage key if calling storage deletion; never pass the URL as a key.
 Switching providers does not migrate existing files or keys.
+
+## Trusted upload records
+
+Successful single and batch uploads now persist an internal MongoDB upload record
+with the configured provider, exact adapter-returned key and URL, authenticated
+uploader ID, and creation time. Requests/responses and Unit `photos: string[]`
+remain unchanged. Client-supplied ownership, provider and key fields are not used.
+Existing external/legacy URLs remain unmanaged; this phase does not validate
+photo ownership on Units or delete replaced/removed Unit photos.
+
+Metadata persistence failure triggers best-effort deletion through the same
+upload adapter and rethrows the persistence error, even if deletion fails.
+Batch failure also rolls back earlier successful objects and removes their
+metadata after successful storage deletion. Failed cleanup is logged safely.
+Storage and MongoDB do not form an atomic transaction: process interruption or
+an ambiguous database acknowledgement can leave stale records or orphaned files.
+
+The exported internal `FILE_STORAGE_RESOLVER.get(provider)` resolves and caches
+adapters lazily by recorded provider. `FILE_STORAGE` still selects only the
+configured provider for new uploads. Historical deletion must resolve the recorded
+provider explicitly; unavailable credentials/configuration throw without falling
+back to another provider. Historical provider configuration must remain available.
+This phase assumes each provider keeps the same bucket/account: changing storage
+locations needs a recorded location identifier before automated deletion is safe.
+There is no lookup/deletion endpoint, backfill, automatic Unit cleanup or retry job.
+
+## Batch uploads
+
+`POST /api/files/images/batch` requires the same authenticated USER role as the
+single-image endpoint. Send 1–5 images as repeated multipart `files` fields.
+Each image must be JPEG, PNG or WebP, up to 5 MiB (5,242,880 bytes), inclusive.
+All files are validated before any storage upload. Invalid files or file counts
+return 400; files over the size limit return 413.
+
+The API uploads sequentially and returns 201 with `{ data: [{ key, url }, ...] }`
+in input order. If an upload fails, it attempts to delete every file successfully
+uploaded earlier in that request and returns the original error through the
+existing generic 500 handler. Cleanup continues even if deletion fails.
+Rollback is best-effort, not an atomic storage transaction: deletion failures,
+process interruption, or an upload that succeeds remotely but loses its response
+can leave orphaned files. No background reconciliation is implemented.
+
+The request buffers up to 25 MiB of file content (plus multipart overhead);
+concurrent requests consume additional memory. This endpoint does not create or
+update units. Both storage providers use the same unchanged interface; tests mock
+storage and require no AWS credentials. The existing single-image endpoint and
+its response remain unchanged.
 
 ## Cloudinary (default)
 
