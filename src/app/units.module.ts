@@ -19,8 +19,8 @@ import { UnitsController } from '@presentation/units/units.controller';
 import { AppSettingsModule } from './app-settings.module';
 import { CitiesModule } from './cities.module';
 import { CountriesModule } from './countries.module';
+import { TransactionsModule } from './transactions.module';
 import { UnitCategoriesModule } from './unit-categories.module';
-
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: modelNames.UNITS, schema: UnitSchema }]),
@@ -28,6 +28,7 @@ import { UnitCategoriesModule } from './unit-categories.module';
     UnitCategoriesModule,
     CountriesModule,
     CitiesModule,
+    TransactionsModule,
   ],
   controllers: [UnitsController],
   providers: [

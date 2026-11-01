@@ -4,12 +4,13 @@ import { UpdateUnitInput } from '@application/units/inputs/update-unit.input';
 import { UnitFilter } from '@application/units/repositories/unit-filter';
 import type { UnitRepository } from '@application/units/repositories/unit.repository';
 import { modelNames } from '@common/constants/model-names.constant';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
+import { toClientSession } from '@infrastructure/database/mongoose-transaction-runner';
 import { UnitMapper } from '@infrastructure/units/mappers/unit.mapper';
+import { Unit } from '@infrastructure/units/schemas/units.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, type QueryFilter } from 'mongoose';
-import { Unit } from '../schemas/units.schema';
-
 @Injectable()
 export class MongooseUnitRepository implements UnitRepository {
   constructor(
@@ -17,8 +18,9 @@ export class MongooseUnitRepository implements UnitRepository {
     private readonly unitModel: Model<Unit>,
   ) {}
 
-  async create(data: CreateUnitInput): Promise<UnitEntity> {
-    const unit = await this.unitModel.create(data);
+  async create(data: CreateUnitInput, session?: TransactionSession): Promise<UnitEntity> {
+    const clientSession = toClientSession(session);
+    const [unit] = await this.unitModel.create([data], { session: clientSession });
     return UnitMapper.toEntity(unit);
   }
 
@@ -114,12 +116,18 @@ export class MongooseUnitRepository implements UnitRepository {
     };
   }
 
-  async update(id: string, data: UpdateUnitInput): Promise<UnitEntity | null> {
+  async update(
+    id: string,
+    data: UpdateUnitInput,
+    session?: TransactionSession,
+  ): Promise<UnitEntity | null> {
+    const clientSession = toClientSession(session);
+
     const unit = await this.unitModel
       .findOneAndUpdate(
         { _id: id, isDeleted: false },
         { $set: data },
-        { returnDocument: 'after', runValidators: true },
+        { returnDocument: 'after', runValidators: true, session: clientSession },
       )
       .exec();
 

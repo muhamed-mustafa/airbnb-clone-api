@@ -1,5 +1,4 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TransactionsModule } from '@app/transactions.module';
 import { CITY_REPOSITORY } from '@application/cities/repositories/city-repository.token';
 import { COUNTRY_REPOSITORY } from '@application/countries/repositories/country-repository.token';
 import { CountryService } from '@application/countries/services/country.service';
@@ -8,14 +7,14 @@ import { DeleteCountryUseCase } from '@application/countries/use-cases/delete-co
 import { FindAllCountriesUseCase } from '@application/countries/use-cases/find-all-countries.usecase';
 import { FindCountryByIdUseCase } from '@application/countries/use-cases/find-country-by-id.usecase';
 import { UpdateCountryUseCase } from '@application/countries/use-cases/update-country.usecase';
-import { TRANSACTION_RUNNER } from '@common/transactions/transaction-runner.token';
+import { modelNames } from '@common/constants/model-names.constant';
 import { MongooseCityRepository } from '@infrastructure/cities/repositories/mongoose-city.repository';
 import { CitySchema } from '@infrastructure/cities/schemas/cities.schema';
 import { MongooseCountryRepository } from '@infrastructure/countries/repositories/mongoose-country.repository';
 import { CountrySchema } from '@infrastructure/countries/schemas/countries.schema';
-import { MongooseTransactionRunner } from '@infrastructure/database/mongoose-transaction-runner';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { CountryController } from '@presentation/countries/country.controller';
-import { modelNames } from '@common/constants/model-names.constant';
 
 @Module({
   imports: [
@@ -23,6 +22,7 @@ import { modelNames } from '@common/constants/model-names.constant';
       { name: modelNames.COUNTRIES, schema: CountrySchema },
       { name: modelNames.CITIES, schema: CitySchema },
     ]),
+    TransactionsModule,
   ],
   controllers: [CountryController],
   providers: [
@@ -34,7 +34,6 @@ import { modelNames } from '@common/constants/model-names.constant';
     DeleteCountryUseCase,
     { provide: COUNTRY_REPOSITORY, useClass: MongooseCountryRepository },
     { provide: CITY_REPOSITORY, useClass: MongooseCityRepository },
-    { provide: TRANSACTION_RUNNER, useClass: MongooseTransactionRunner },
   ],
   exports: [CountryService],
 })
