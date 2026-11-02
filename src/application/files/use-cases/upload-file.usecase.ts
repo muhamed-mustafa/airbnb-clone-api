@@ -1,14 +1,14 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ACTIVE_FILE_STORAGE_PROVIDER } from '../tokens/active-file-storage-provider.token';
-import type { FileStorageProvider } from '@common/config/env.types';
-import type { UploadedFileRepository } from '../repositories/uploaded-file.repository';
-import { UPLOADED_FILE_REPOSITORY } from '../tokens/uploaded-file-repository.token';
 import type {
   FileStorage,
   StoredFile,
   UploadFileInput,
 } from '@application/files/interfaces/file-storage.interface';
 import { FILE_STORAGE } from '@application/files/tokens/file-storage.token';
+import type { FileStorageProvider } from '@common/config/env.types';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { UploadedFileRepository } from '../repositories/uploaded-file.repository';
+import { ACTIVE_FILE_STORAGE_PROVIDER } from '../tokens/active-file-storage-provider.token';
+import { UPLOADED_FILE_REPOSITORY } from '../tokens/uploaded-file-repository.token';
 
 @Injectable()
 export class UploadFileUseCase {
@@ -28,6 +28,7 @@ export class UploadFileUseCase {
         provider: this.provider,
         uploadedBy,
         createdAt: new Date(),
+        status: 'active',
       });
     } catch (metadataError: unknown) {
       try {
