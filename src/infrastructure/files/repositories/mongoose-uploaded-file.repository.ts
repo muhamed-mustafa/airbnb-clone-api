@@ -3,7 +3,7 @@ import type {
   UploadedFileRepository,
 } from '@application/files/repositories/uploaded-file.repository';
 import type { FileStorageProvider } from '@common/config/env.types';
-import { TransactionSession } from '@common/transactions/transaction-runner';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
 import { toClientSession } from '@infrastructure/database/mongoose-transaction-runner';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -23,12 +23,14 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
   }
 
   async bindPhotos(url: string[], session: TransactionSession): Promise<boolean> {
-    const result = await this.model.updateMany(
-      { url: { $in: url } },
-      { $set: { status: 'active' } },
-      { session: toClientSession(session) },
-    );
+    const result = await this.model
+      .updateMany(
+        { url: { $in: url }, status: 'active' },
+        { $inc: { revision: 1 } },
+        { session: toClientSession(session) },
+      )
+      .exec();
 
-    return result.modifiedCount === url.length;
+    return result.matchedCount === url.length;
   }
 }

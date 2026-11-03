@@ -1,3 +1,4 @@
+import { FilesModule } from '@app/files.module';
 import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
 import { UnitService } from '@application/units/services/unit.service';
 import { ActivateUnitUseCase } from '@application/units/use-cases/activate-unit.usecase';
@@ -29,6 +30,7 @@ import { UnitCategoriesModule } from './unit-categories.module';
     CountriesModule,
     CitiesModule,
     TransactionsModule,
+    FilesModule,
   ],
   controllers: [UnitsController],
   providers: [

@@ -19,6 +19,7 @@ export type ApplicationErrorCode = keyof Pick<
   | 'UNIT_NOT_FOUND'
   | 'UNIT_ACCESS_DENIED'
   | 'CITY_COUNTRY_MISMATCH'
+  | 'SOME_PHOTOS_NOT_AVAILABLE'
 >;
 
 export class ApplicationError extends Error {

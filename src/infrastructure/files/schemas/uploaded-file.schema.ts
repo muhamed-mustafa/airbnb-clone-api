@@ -24,6 +24,9 @@ export class UploadedFile {
   })
   status!: UploadedFileStatus;
 
+  @Prop({ required: true, default: 0, min: 0 })
+  revision!: number;
+
   @Prop({ required: true })
   uploadedBy!: string;
 
