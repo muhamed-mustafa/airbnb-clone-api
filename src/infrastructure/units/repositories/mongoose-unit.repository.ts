@@ -24,13 +24,26 @@ export class MongooseUnitRepository implements UnitRepository {
     return UnitMapper.toEntity(unit);
   }
 
-  async findOne(query: Partial<UnitEntity>): Promise<UnitEntity | null> {
+  async findOne(
+    query: Partial<UnitEntity>,
+    session?: TransactionSession,
+  ): Promise<UnitEntity | null> {
+    const clientSession = toClientSession(session);
+
     const { id, ...filters } = query;
-    const unit = await this.unitModel.findOne({
-      ...filters,
-      ...(id !== undefined ? { _id: id } : {}),
-      isDeleted: false,
-    });
+
+    const unit = await this.unitModel
+      .findOne(
+        {
+          ...filters,
+          ...(id !== undefined ? { _id: id } : {}),
+          isDeleted: false,
+        },
+        null,
+        { session: clientSession },
+      )
+      .exec();
+
     return unit ? UnitMapper.toEntity(unit) : null;
   }
 
@@ -123,39 +136,62 @@ export class MongooseUnitRepository implements UnitRepository {
   ): Promise<UnitEntity | null> {
     const clientSession = toClientSession(session);
 
+    const { expectedVersion, ...updateData } = data;
+
     const unit = await this.unitModel
       .findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        { $set: data },
+        { _id: id, isDeleted: false, version: expectedVersion },
+        { $set: updateData, $inc: { version: 1 } },
         { returnDocument: 'after', runValidators: true, session: clientSession },
       )
       .exec();
 
     return unit ? UnitMapper.toEntity(unit) : null;
   }
-  async activate(id: string): Promise<UnitEntity | null> {
-    return this.setActive(id, true);
+  async activate(id: string, expectedVersion: number): Promise<UnitEntity | null> {
+    return this.setActive(id, true, expectedVersion);
   }
-  async deactivate(id: string): Promise<UnitEntity | null> {
-    return this.setActive(id, false);
+  async deactivate(id: string, expectedVersion: number): Promise<UnitEntity | null> {
+    return this.setActive(id, false, expectedVersion);
   }
-  private async setActive(id: string, isActive: boolean): Promise<UnitEntity | null> {
+  private async setActive(
+    id: string,
+    isActive: boolean,
+    expectedVersion: number,
+  ): Promise<UnitEntity | null> {
     const unit = await this.unitModel
       .findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        { $set: { isActive } },
+        { _id: id, isDeleted: false, version: expectedVersion },
+        { $set: { isActive }, $inc: { version: 1 } },
         { returnDocument: 'after' },
       )
       .exec();
     return unit ? UnitMapper.toEntity(unit) : null;
   }
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, expectedVersion: number): Promise<boolean> {
     const result = await this.unitModel
       .updateOne(
-        { _id: id, isDeleted: false },
-        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
+        { _id: id, isDeleted: false, version: expectedVersion },
+        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() }, $inc: { version: 1 } },
       )
       .exec();
     return result.modifiedCount > 0;
+  }
+
+  async findReferencedPhotos(
+    urls: string[],
+    excludeUnitId?: string,
+    session?: TransactionSession,
+  ): Promise<string[]> {
+    if (urls.length === 0) return [];
+
+    const referencedPhotos = await this.unitModel
+      .distinct('photos', { photos: { $in: urls }, _id: { $ne: excludeUnitId } })
+      .session(toClientSession(session) ?? null)
+      .exec();
+
+    const requestedPhotos = new Set(urls);
+
+    return referencedPhotos.filter((photo) => requestedPhotos.has(photo));
   }
 }

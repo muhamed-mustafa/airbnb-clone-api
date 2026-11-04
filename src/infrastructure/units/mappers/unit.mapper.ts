@@ -23,6 +23,7 @@ export class UnitMapper {
       hasPrivateGarage: unit.hasPrivateGarage,
       availability: unit.availability,
       isActive: unit.isActive,
+      version: unit.version,
     };
   }
 }

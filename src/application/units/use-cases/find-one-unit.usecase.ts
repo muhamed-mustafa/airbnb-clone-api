@@ -1,9 +1,10 @@
-import type { Logger } from '@common/logging/logger';
-import { LOGGER } from '@common/logging/logger.token';
 import { UnitEntity } from '@application/units/entities/unit-entity';
 import { UNIT_REPOSITORY } from '@application/units/repositories/unit-repository.token';
 import type { UnitRepository } from '@application/units/repositories/unit.repository';
 import { ApplicationError } from '@common/errors/application.error';
+import type { Logger } from '@common/logging/logger';
+import { LOGGER } from '@common/logging/logger.token';
+import type { TransactionSession } from '@common/transactions/transaction-runner';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -13,8 +14,8 @@ export class FindOneUnitUseCase {
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
 
-  async execute(query: Partial<UnitEntity>): Promise<UnitEntity> {
-    const unit = await this.unitRepository.findOne(query);
+  async execute(query: Partial<UnitEntity>, session?: TransactionSession): Promise<UnitEntity> {
+    const unit = await this.unitRepository.findOne(query, session);
 
     if (!unit) {
       this.logger.debug('Unit not found', { unitId: query.id });

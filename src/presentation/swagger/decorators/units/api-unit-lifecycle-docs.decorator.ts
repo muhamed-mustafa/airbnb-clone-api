@@ -1,5 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiConsumes,
   ApiExtension,
   ApiExtraModels,
   ApiForbiddenResponse,
@@ -8,13 +11,30 @@ import {
   ApiOperation,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { UnitVersionDto } from '@presentation/units/dtos/unit-version.dto';
 import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
 import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
 import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
 import { ApiUnitIdParam, ApiUnitNotFoundResponse } from './api-unit-responses.decorator';
 
-export const ApiUnitIdValidationResponse = () =>
+export const ApiUnitIdValidationResponse = (includeVersion = false) =>
   ApiValidationErrorResponse({
+    ...(includeVersion
+      ? {
+          invalidVersion: {
+            summary: 'Missing or invalid expected version',
+            value: {
+              errors: [
+                {
+                  code: 'isInt',
+                  field: 'expectedVersion',
+                  message: 'expectedVersion must be an integer number',
+                },
+              ],
+            },
+          },
+        }
+      : {}),
     invalidId: {
       summary: 'Invalid unit ObjectId',
       value: { errors: [{ code: 'isMongoId', field: 'id', message: 'id must be a mongodb id' }] },
@@ -29,11 +49,16 @@ export const ApiUnitLifecycleDocs = (action: 'activate' | 'deactivate' | 'delete
       summary: `${action[0].toUpperCase()}${action.slice(1)} an accommodation listing`,
       description:
         action === 'delete'
-          ? 'Soft deletes a unit owned by the authenticated user, records deletedAt and sets isActive=false. No request body. Deleted units cannot be read, edited or reactivated; subsequent operations return 404.'
-          : `Sets isActive=${action === 'activate'} for a unit owned by the authenticated user. No request body. Repeating this operation is allowed. Availability is unchanged. Inactive units are hidden from public browsing but remain in the owner list.`,
+          ? 'Soft deletes a unit owned by the authenticated user, records deletedAt and sets isActive=false. Requires expectedVersion in the JSON request body; a successful operation increments version. Deleted units cannot be read, edited or reactivated; subsequent operations return 404.'
+          : `Sets isActive=${action === 'activate'} for a unit owned by the authenticated user. Requires expectedVersion in the JSON request body; a successful operation increments version. Repeating this operation requires the latest version. Availability is unchanged. Inactive units are hidden from public browsing but remain in the owner list.`,
     }),
     ApiUnitIdParam(),
-    ApiUnitIdValidationResponse(),
+    ApiConsumes('application/json'),
+    ApiBody({ type: UnitVersionDto }),
+    ApiConflictResponse({
+      description: 'The expected version is stale. Code: UNIT_VERSION_CONFLICT.',
+    }),
+    ApiUnitIdValidationResponse(true),
     ApiUnitNotFoundResponse(),
     ApiForbiddenResponse({
       description: 'The role is not allowed, or the user is not the unit owner.',

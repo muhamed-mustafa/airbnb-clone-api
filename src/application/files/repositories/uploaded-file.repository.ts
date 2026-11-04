@@ -14,4 +14,5 @@ export interface UploadedFileRepository {
   create(file: UploadedFileRecord): Promise<void>;
   remove(provider: FileStorageProvider, key: string): Promise<void>;
   bindPhotos(url: string[], session: TransactionSession): Promise<boolean>;
+  reservePhotosForDeletion(urls: string[], session: TransactionSession): Promise<boolean>;
 }

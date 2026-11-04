@@ -33,4 +33,38 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
 
     return result.matchedCount === url.length;
   }
+
+  async reservePhotosForDeletion(urls: string[], session: TransactionSession): Promise<boolean> {
+    if (urls.length === 0) return true;
+
+    const clientSession = toClientSession(session);
+
+    const files = await this.model
+      .find({ url: { $in: urls } })
+      .select({ url: 1, status: 1 })
+      .session(clientSession ?? null)
+      .lean()
+      .exec();
+
+    if (files.some((file) => file.status !== 'active')) {
+      return false;
+    }
+
+    const trackedUrls = files.map((file) => file.url);
+
+    if (trackedUrls.length === 0) return true;
+
+    const result = await this.model
+      .updateMany(
+        { url: { $in: trackedUrls }, status: 'active' },
+        {
+          $set: { status: 'pendingDeletion' },
+          $inc: { revision: 1 },
+        },
+        { session: clientSession },
+      )
+      .exec();
+
+    return result.matchedCount === trackedUrls.length;
+  }
 }

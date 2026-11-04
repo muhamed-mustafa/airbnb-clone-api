@@ -92,4 +92,11 @@ export class UnitResponseDto {
     example: true,
   })
   isActive!: boolean;
+
+  @ApiProperty({
+    description: 'Current unit version for optimistic concurrency control.',
+    example: 1,
+    minimum: 0,
+  })
+  version!: number;
 }

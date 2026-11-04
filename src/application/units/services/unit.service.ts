@@ -45,15 +45,15 @@ export class UnitService {
   async update(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
     return await this.updateUnitUseCase.execute(id, data, userId);
   }
-  async activate(id: string, userId: string): Promise<UnitEntity> {
-    return this.activateUnitUseCase.execute(id, userId);
+  async activate(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
+    return this.activateUnitUseCase.execute(id, userId, expectedVersion);
   }
 
-  async deactivate(id: string, userId: string): Promise<UnitEntity> {
-    return this.deactivateUnitUseCase.execute(id, userId);
+  async deactivate(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
+    return this.deactivateUnitUseCase.execute(id, userId, expectedVersion);
   }
 
-  async delete(id: string, userId: string): Promise<void> {
-    return this.deleteUnitUseCase.execute(id, userId);
+  async delete(id: string, userId: string, expectedVersion: number): Promise<void> {
+    return this.deleteUnitUseCase.execute(id, userId, expectedVersion);
   }
 }

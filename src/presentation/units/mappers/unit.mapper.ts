@@ -43,6 +43,7 @@ export class UnitMapper {
       hasKitchen: unit.hasKitchen,
       hasPrivateGarage: unit.hasPrivateGarage,
       availability: unit.availability,
+      expectedVersion: unit.expectedVersion,
     };
   }
 
@@ -66,6 +67,7 @@ export class UnitMapper {
       availability: unit.availability,
       isActive: unit.isActive,
       user: unit.user,
+      version: unit.version,
     };
   }
 }

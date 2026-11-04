@@ -14,12 +14,24 @@ export class DeactivateUnitUseCase {
     private readonly checkUnitAuthUseCase: CheckUnitAuthUseCase,
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
-  async execute(id: string, userId: string): Promise<UnitEntity> {
+  async execute(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
     await this.checkUnitAuthUseCase.execute(id, userId);
 
-    const unit = await this.unitRepository.deactivate(id);
+    const unit = await this.unitRepository.deactivate(id, expectedVersion);
 
     if (!unit) {
+      const currentUnit = await this.unitRepository.findOne({ id });
+      if (currentUnit) {
+        this.checkUnitAuthUseCase.assertOwner(currentUnit, userId);
+        this.logger.warn('Unit version mismatch', {
+          unitId: id,
+          userId,
+          expectedVersion,
+          currentVersion: currentUnit.version,
+        });
+        throw new ApplicationError('UNIT_VERSION_CONFLICT');
+      }
+
       this.logger.warn('Unit no longer available for deactivate', { unitId: id, userId });
       throw new ApplicationError('UNIT_NOT_FOUND');
     }

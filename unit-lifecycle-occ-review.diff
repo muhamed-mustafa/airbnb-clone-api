@@ -1,0 +1,299 @@
+diff --git a/src/application/units/repositories/unit.repository.ts b/src/application/units/repositories/unit.repository.ts
+--- a/src/application/units/repositories/unit.repository.ts
++++ b/src/application/units/repositories/unit.repository.ts
+@@ -12,9 +12,9 @@
+     unit: UpdateUnitInput,
+     session?: TransactionSession,
+   ): Promise<UnitEntity | null>;
+-  activate(id: string): Promise<UnitEntity | null>;
+-  deactivate(id: string): Promise<UnitEntity | null>;
+-  delete(id: string): Promise<boolean>;
++  activate(id: string, expectedVersion: number): Promise<UnitEntity | null>;
++  deactivate(id: string, expectedVersion: number): Promise<UnitEntity | null>;
++  delete(id: string, expectedVersion: number): Promise<boolean>;
+   find(filter: UnitFilter): Promise<{ items: UnitEntity[]; total: number }>;
+   findReferencedPhotos(
+     urls: string[],
+diff --git a/src/application/units/services/unit.service.ts b/src/application/units/services/unit.service.ts
+--- a/src/application/units/services/unit.service.ts
++++ b/src/application/units/services/unit.service.ts
+@@ -45,15 +45,15 @@
+   async update(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
+     return await this.updateUnitUseCase.execute(id, data, userId);
+   }
+-  async activate(id: string, userId: string): Promise<UnitEntity> {
+-    return this.activateUnitUseCase.execute(id, userId);
++  async activate(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
++    return this.activateUnitUseCase.execute(id, userId, expectedVersion);
+   }
+ 
+-  async deactivate(id: string, userId: string): Promise<UnitEntity> {
+-    return this.deactivateUnitUseCase.execute(id, userId);
++  async deactivate(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
++    return this.deactivateUnitUseCase.execute(id, userId, expectedVersion);
+   }
+ 
+-  async delete(id: string, userId: string): Promise<void> {
+-    return this.deleteUnitUseCase.execute(id, userId);
++  async delete(id: string, userId: string, expectedVersion: number): Promise<void> {
++    return this.deleteUnitUseCase.execute(id, userId, expectedVersion);
+   }
+ }
+diff --git a/src/application/units/use-cases/activate-unit.usecase.ts b/src/application/units/use-cases/activate-unit.usecase.ts
+--- a/src/application/units/use-cases/activate-unit.usecase.ts
++++ b/src/application/units/use-cases/activate-unit.usecase.ts
+@@ -14,12 +14,26 @@
+     private readonly checkUnitAuthUseCase: CheckUnitAuthUseCase,
+     @Inject(LOGGER) private readonly logger: Logger,
+   ) {}
+-  async execute(id: string, userId: string): Promise<UnitEntity> {
++  async execute(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
+     await this.checkUnitAuthUseCase.execute(id, userId);
+ 
+-    const unit = await this.unitRepository.activate(id);
++    const unit = await this.unitRepository.activate(id, expectedVersion);
+ 
+     if (!unit) {
++      const currentUnit = await this.unitRepository.findOne({ id });
++
++      if (currentUnit) {
++        this.checkUnitAuthUseCase.assertOwner(currentUnit, userId);
++        this.logger.warn('Unit version mismatch', {
++          unitId: id,
++          userId,
++          expectedVersion,
++          currentVersion: currentUnit.version,
++        });
++
++        throw new ApplicationError('UNIT_VERSION_CONFLICT');
++      }
++
+       this.logger.warn('Unit no longer available for activate', { unitId: id, userId });
+       throw new ApplicationError('UNIT_NOT_FOUND');
+     }
+diff --git a/src/application/units/use-cases/deactivate-unit.usecase.ts b/src/application/units/use-cases/deactivate-unit.usecase.ts
+--- a/src/application/units/use-cases/deactivate-unit.usecase.ts
++++ b/src/application/units/use-cases/deactivate-unit.usecase.ts
+@@ -14,12 +14,24 @@
+     private readonly checkUnitAuthUseCase: CheckUnitAuthUseCase,
+     @Inject(LOGGER) private readonly logger: Logger,
+   ) {}
+-  async execute(id: string, userId: string): Promise<UnitEntity> {
++  async execute(id: string, userId: string, expectedVersion: number): Promise<UnitEntity> {
+     await this.checkUnitAuthUseCase.execute(id, userId);
+ 
+-    const unit = await this.unitRepository.deactivate(id);
++    const unit = await this.unitRepository.deactivate(id, expectedVersion);
+ 
+     if (!unit) {
++      const currentUnit = await this.unitRepository.findOne({ id });
++      if (currentUnit) {
++        this.checkUnitAuthUseCase.assertOwner(currentUnit, userId);
++        this.logger.warn('Unit version mismatch', {
++          unitId: id,
++          userId,
++          expectedVersion,
++          currentVersion: currentUnit.version,
++        });
++        throw new ApplicationError('UNIT_VERSION_CONFLICT');
++      }
++
+       this.logger.warn('Unit no longer available for deactivate', { unitId: id, userId });
+       throw new ApplicationError('UNIT_NOT_FOUND');
+     }
+diff --git a/src/application/units/use-cases/delete-unit.usecase.ts b/src/application/units/use-cases/delete-unit.usecase.ts
+--- a/src/application/units/use-cases/delete-unit.usecase.ts
++++ b/src/application/units/use-cases/delete-unit.usecase.ts
+@@ -13,12 +13,24 @@
+     private readonly checkUnitAuthUseCase: CheckUnitAuthUseCase,
+     @Inject(LOGGER) private readonly logger: Logger,
+   ) {}
+-  async execute(id: string, userId: string): Promise<void> {
++  async execute(id: string, userId: string, expectedVersion: number): Promise<void> {
+     await this.checkUnitAuthUseCase.execute(id, userId);
+ 
+-    const deleted = await this.unitRepository.delete(id);
++    const deleted = await this.unitRepository.delete(id, expectedVersion);
+ 
+     if (!deleted) {
++      const currentUnit = await this.unitRepository.findOne({ id });
++      if (currentUnit) {
++        this.checkUnitAuthUseCase.assertOwner(currentUnit, userId);
++        this.logger.warn('Unit version mismatch', {
++          unitId: id,
++          userId,
++          expectedVersion,
++          currentVersion: currentUnit.version,
++        });
++        throw new ApplicationError('UNIT_VERSION_CONFLICT');
++      }
++
+       this.logger.warn('Unit no longer available for delete', { unitId: id, userId });
+       throw new ApplicationError('UNIT_NOT_FOUND');
+     }
+diff --git a/src/infrastructure/units/repositories/mongoose-unit.repository.ts b/src/infrastructure/units/repositories/mongoose-unit.repository.ts
+--- a/src/infrastructure/units/repositories/mongoose-unit.repository.ts
++++ b/src/infrastructure/units/repositories/mongoose-unit.repository.ts
+@@ -148,27 +148,31 @@
+ 
+     return unit ? UnitMapper.toEntity(unit) : null;
+   }
+-  async activate(id: string): Promise<UnitEntity | null> {
+-    return this.setActive(id, true);
++  async activate(id: string, expectedVersion: number): Promise<UnitEntity | null> {
++    return this.setActive(id, true, expectedVersion);
+   }
+-  async deactivate(id: string): Promise<UnitEntity | null> {
+-    return this.setActive(id, false);
++  async deactivate(id: string, expectedVersion: number): Promise<UnitEntity | null> {
++    return this.setActive(id, false, expectedVersion);
+   }
+-  private async setActive(id: string, isActive: boolean): Promise<UnitEntity | null> {
++  private async setActive(
++    id: string,
++    isActive: boolean,
++    expectedVersion: number,
++  ): Promise<UnitEntity | null> {
+     const unit = await this.unitModel
+       .findOneAndUpdate(
+-        { _id: id, isDeleted: false },
+-        { $set: { isActive } },
++        { _id: id, isDeleted: false, version: expectedVersion },
++        { $set: { isActive }, $inc: { version: 1 } },
+         { returnDocument: 'after' },
+       )
+       .exec();
+     return unit ? UnitMapper.toEntity(unit) : null;
+   }
+-  async delete(id: string): Promise<boolean> {
++  async delete(id: string, expectedVersion: number): Promise<boolean> {
+     const result = await this.unitModel
+       .updateOne(
+-        { _id: id, isDeleted: false },
+-        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
++        { _id: id, isDeleted: false, version: expectedVersion },
++        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() }, $inc: { version: 1 } },
+       )
+       .exec();
+     return result.modifiedCount > 0;
+diff --git a/src/presentation/units/units.controller.ts b/src/presentation/units/units.controller.ts
+--- a/src/presentation/units/units.controller.ts
++++ b/src/presentation/units/units.controller.ts
+@@ -32,6 +32,7 @@
+ import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
+ import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
+ import { UnitMapper } from '@presentation/units/mappers/unit.mapper';
++import { UnitVersionDto } from '@presentation/units/dtos/unit-version.dto';
+ import { UnitIdDto } from './dtos/unit-id.dto';
+ 
+ @ApiTags(SWAGGER_TAGS.UNITS)
+@@ -96,9 +97,10 @@
+   @ApiActivateUnitDocs()
+   async activate(
+     @Param() { id }: UnitIdDto,
++    @Body() { expectedVersion }: UnitVersionDto,
+     @CurrentUser() user: JwtPayload,
+   ): Promise<UnitResponseDto> {
+-    return UnitMapper.toResponse(await this.unitService.activate(id, user.id));
++    return UnitMapper.toResponse(await this.unitService.activate(id, user.id, expectedVersion));
+   }
+ 
+   @AllowedRoles(Roles.USER)
+@@ -106,16 +108,21 @@
+   @ApiDeactivateUnitDocs()
+   async deactivate(
+     @Param() { id }: UnitIdDto,
++    @Body() { expectedVersion }: UnitVersionDto,
+     @CurrentUser() user: JwtPayload,
+   ): Promise<UnitResponseDto> {
+-    return UnitMapper.toResponse(await this.unitService.deactivate(id, user.id));
++    return UnitMapper.toResponse(await this.unitService.deactivate(id, user.id, expectedVersion));
+   }
+ 
+   @AllowedRoles(Roles.USER)
+   @Delete(':id')
+   @HttpCode(HttpStatus.NO_CONTENT)
+   @ApiDeleteUnitDocs()
+-  async delete(@Param() { id }: UnitIdDto, @CurrentUser() user: JwtPayload): Promise<void> {
+-    await this.unitService.delete(id, user.id);
++  async delete(
++    @Param() { id }: UnitIdDto,
++    @Body() { expectedVersion }: UnitVersionDto,
++    @CurrentUser() user: JwtPayload,
++  ): Promise<void> {
++    await this.unitService.delete(id, user.id, expectedVersion);
+   }
+ }
+diff --git a/src/presentation/swagger/decorators/units/api-unit-lifecycle-docs.decorator.ts b/src/presentation/swagger/decorators/units/api-unit-lifecycle-docs.decorator.ts
+--- a/src/presentation/swagger/decorators/units/api-unit-lifecycle-docs.decorator.ts
++++ b/src/presentation/swagger/decorators/units/api-unit-lifecycle-docs.decorator.ts
+@@ -1,5 +1,8 @@
+ import { applyDecorators } from '@nestjs/common';
+ import {
++  ApiBody,
++  ApiConflictResponse,
++  ApiConsumes,
+   ApiExtension,
+   ApiExtraModels,
+   ApiForbiddenResponse,
+@@ -8,13 +11,30 @@
+   ApiOperation,
+   getSchemaPath,
+ } from '@nestjs/swagger';
++import { UnitVersionDto } from '@presentation/units/dtos/unit-version.dto';
+ import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
+ import { ApiInternalErrorResponse } from '../api-internal-error-response.decorator';
+ import { ApiValidationErrorResponse } from '../api-validation-error-response.decorator';
+ import { ApiUnitIdParam, ApiUnitNotFoundResponse } from './api-unit-responses.decorator';
+ 
+-export const ApiUnitIdValidationResponse = () =>
++export const ApiUnitIdValidationResponse = (includeVersion = false) =>
+   ApiValidationErrorResponse({
++    ...(includeVersion
++      ? {
++          invalidVersion: {
++            summary: 'Missing or invalid expected version',
++            value: {
++              errors: [
++                {
++                  code: 'isInt',
++                  field: 'expectedVersion',
++                  message: 'expectedVersion must be an integer number',
++                },
++              ],
++            },
++          },
++        }
++      : {}),
+     invalidId: {
+       summary: 'Invalid unit ObjectId',
+       value: { errors: [{ code: 'isMongoId', field: 'id', message: 'id must be a mongodb id' }] },
+@@ -29,11 +49,16 @@
+       summary: `${action[0].toUpperCase()}${action.slice(1)} an accommodation listing`,
+       description:
+         action === 'delete'
+-          ? 'Soft deletes a unit owned by the authenticated user, records deletedAt and sets isActive=false. No request body. Deleted units cannot be read, edited or reactivated; subsequent operations return 404.'
+-          : `Sets isActive=${action === 'activate'} for a unit owned by the authenticated user. No request body. Repeating this operation is allowed. Availability is unchanged. Inactive units are hidden from public browsing but remain in the owner list.`,
++          ? 'Soft deletes a unit owned by the authenticated user, records deletedAt and sets isActive=false. Requires expectedVersion in the JSON request body; a successful operation increments version. Deleted units cannot be read, edited or reactivated; subsequent operations return 404.'
++          : `Sets isActive=${action === 'activate'} for a unit owned by the authenticated user. Requires expectedVersion in the JSON request body; a successful operation increments version. Repeating this operation requires the latest version. Availability is unchanged. Inactive units are hidden from public browsing but remain in the owner list.`,
+     }),
+     ApiUnitIdParam(),
+-    ApiUnitIdValidationResponse(),
++    ApiConsumes('application/json'),
++    ApiBody({ type: UnitVersionDto }),
++    ApiConflictResponse({
++      description: 'The expected version is stale. Code: UNIT_VERSION_CONFLICT.',
++    }),
++    ApiUnitIdValidationResponse(true),
+     ApiUnitNotFoundResponse(),
+     ApiForbiddenResponse({
+       description: 'The role is not allowed, or the user is not the unit owner.',
+diff --git a/src/presentation/units/dtos/unit-version.dto.ts b/src/presentation/units/dtos/unit-version.dto.ts
+new file mode 100644
+--- /dev/null
++++ b/src/presentation/units/dtos/unit-version.dto.ts
+@@ -0,0 +1,4 @@
++import { PickType } from '@nestjs/swagger';
++import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
++
++export class UnitVersionDto extends PickType(UpdateUnitDto, ['expectedVersion'] as const) {}

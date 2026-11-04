@@ -20,6 +20,7 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   UNIT_ACCESS_DENIED: HttpStatus.FORBIDDEN,
   CITY_COUNTRY_MISMATCH: HttpStatus.BAD_REQUEST,
   SOME_PHOTOS_NOT_AVAILABLE: HttpStatus.BAD_REQUEST,
+  UNIT_VERSION_CONFLICT: HttpStatus.CONFLICT,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -41,4 +42,5 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   UNIT_ACCESS_DENIED: 'units.UNIT_ACCESS_DENIED',
   CITY_COUNTRY_MISMATCH: 'cities.CITY_COUNTRY_MISMATCH',
   SOME_PHOTOS_NOT_AVAILABLE: 'files.SOME_PHOTOS_NOT_AVAILABLE',
+  UNIT_VERSION_CONFLICT: 'units.UNIT_VERSION_CONFLICT',
 };

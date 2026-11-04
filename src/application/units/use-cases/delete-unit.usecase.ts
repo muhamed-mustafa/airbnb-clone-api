@@ -13,12 +13,24 @@ export class DeleteUnitUseCase {
     private readonly checkUnitAuthUseCase: CheckUnitAuthUseCase,
     @Inject(LOGGER) private readonly logger: Logger,
   ) {}
-  async execute(id: string, userId: string): Promise<void> {
+  async execute(id: string, userId: string, expectedVersion: number): Promise<void> {
     await this.checkUnitAuthUseCase.execute(id, userId);
 
-    const deleted = await this.unitRepository.delete(id);
+    const deleted = await this.unitRepository.delete(id, expectedVersion);
 
     if (!deleted) {
+      const currentUnit = await this.unitRepository.findOne({ id });
+      if (currentUnit) {
+        this.checkUnitAuthUseCase.assertOwner(currentUnit, userId);
+        this.logger.warn('Unit version mismatch', {
+          unitId: id,
+          userId,
+          expectedVersion,
+          currentVersion: currentUnit.version,
+        });
+        throw new ApplicationError('UNIT_VERSION_CONFLICT');
+      }
+
       this.logger.warn('Unit no longer available for delete', { unitId: id, userId });
       throw new ApplicationError('UNIT_NOT_FOUND');
     }

@@ -32,6 +32,7 @@ import { FindAllUnitsDto } from '@presentation/units/dtos/find-all-units.dto';
 import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
 import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
 import { UnitMapper } from '@presentation/units/mappers/unit.mapper';
+import { UnitVersionDto } from '@presentation/units/dtos/unit-version.dto';
 import { UnitIdDto } from './dtos/unit-id.dto';
 
 @ApiTags(SWAGGER_TAGS.UNITS)
@@ -96,9 +97,10 @@ export class UnitsController {
   @ApiActivateUnitDocs()
   async activate(
     @Param() { id }: UnitIdDto,
+    @Body() { expectedVersion }: UnitVersionDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<UnitResponseDto> {
-    return UnitMapper.toResponse(await this.unitService.activate(id, user.id));
+    return UnitMapper.toResponse(await this.unitService.activate(id, user.id, expectedVersion));
   }
 
   @AllowedRoles(Roles.USER)
@@ -106,16 +108,21 @@ export class UnitsController {
   @ApiDeactivateUnitDocs()
   async deactivate(
     @Param() { id }: UnitIdDto,
+    @Body() { expectedVersion }: UnitVersionDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<UnitResponseDto> {
-    return UnitMapper.toResponse(await this.unitService.deactivate(id, user.id));
+    return UnitMapper.toResponse(await this.unitService.deactivate(id, user.id, expectedVersion));
   }
 
   @AllowedRoles(Roles.USER)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiDeleteUnitDocs()
-  async delete(@Param() { id }: UnitIdDto, @CurrentUser() user: JwtPayload): Promise<void> {
-    await this.unitService.delete(id, user.id);
+  async delete(
+    @Param() { id }: UnitIdDto,
+    @Body() { expectedVersion }: UnitVersionDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    await this.unitService.delete(id, user.id, expectedVersion);
   }
 }

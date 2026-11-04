@@ -55,6 +55,9 @@ export class Unit {
   @Prop({ required: true, default: true })
   isActive!: boolean;
 
+  @Prop({ required: true, default: 0 })
+  version!: number;
+
   @Prop({ default: false })
   isDeleted?: boolean;
 

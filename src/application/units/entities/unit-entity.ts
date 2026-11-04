@@ -17,4 +17,5 @@ export interface UnitEntity {
   hasPrivateGarage: boolean;
   availability: boolean;
   isActive: boolean;
+  version: number;
 }

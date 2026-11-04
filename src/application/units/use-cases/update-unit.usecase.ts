@@ -28,13 +28,49 @@ export class UpdateUnitUseCase {
   ) {}
 
   async execute(id: string, data: UpdateUnitInput, userId: string): Promise<UnitEntity> {
-    const unit = await this.findOneUnitUseCase.execute({ id });
-
-    this.unitAccessControlUseCase.assertOwner(unit, userId);
-
-    await this.unitValidationUseCase.execute(data, unit.country, unit.city);
-
     const updated = await this.transactionRunner.run(async (session) => {
+      const unit = await this.findOneUnitUseCase.execute({ id }, session);
+
+      // 1. Authorization
+      this.unitAccessControlUseCase.assertOwner(unit, userId);
+
+      // 2. Optimistic concurrency check
+      if (unit.version !== data.expectedVersion) {
+        this.logger.warn('Unit version mismatch', {
+          unitId: id,
+          userId,
+          expectedVersion: data.expectedVersion,
+          currentVersion: unit.version,
+        });
+
+        throw new ApplicationError('UNIT_VERSION_CONFLICT');
+      }
+
+      await this.unitValidationUseCase.execute(data, unit.country, unit.city);
+
+      const newPhotos = data.photos;
+
+      const removedPhotos = newPhotos
+        ? unit.photos.filter((photo) => !newPhotos.includes(photo))
+        : [];
+
+      const referencedPhotos = await this.unitRepository.findReferencedPhotos(
+        removedPhotos,
+        id,
+        session,
+      );
+
+      const photosToDelete = removedPhotos.filter((photo) => !referencedPhotos.includes(photo));
+
+      const reserved = await this.uploadedFileRepository.reservePhotosForDeletion(
+        photosToDelete,
+        session,
+      );
+
+      if (!reserved) {
+        throw new ApplicationError('SOME_PHOTOS_NOT_AVAILABLE');
+      }
+
       const addedPhotos = data.photos?.filter((photo) => !unit.photos.includes(photo)) ?? [];
 
       const bound = await this.uploadedFileRepository.bindPhotos(addedPhotos, session);
