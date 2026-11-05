@@ -48,11 +48,13 @@ export class UpdateUnitUseCase {
 
       await this.unitValidationUseCase.execute(data, unit.country, unit.city);
 
-      const newPhotos = data.photos;
+      const currentPhotos = new Set(unit.photos);
+      const newPhotos = data.photos === undefined ? undefined : new Set(data.photos);
 
-      const removedPhotos = newPhotos
-        ? unit.photos.filter((photo) => !newPhotos.includes(photo))
-        : [];
+      const removedPhotos =
+        newPhotos === undefined ? [] : [...currentPhotos].filter((photo) => !newPhotos.has(photo));
+      const addedPhotos =
+        newPhotos === undefined ? [] : [...newPhotos].filter((photo) => !currentPhotos.has(photo));
 
       const referencedPhotos = await this.unitRepository.findReferencedPhotos(
         removedPhotos,
@@ -70,8 +72,6 @@ export class UpdateUnitUseCase {
       if (!reserved) {
         throw new ApplicationError('SOME_PHOTOS_NOT_AVAILABLE');
       }
-
-      const addedPhotos = data.photos?.filter((photo) => !unit.photos.includes(photo)) ?? [];
 
       const bound = await this.uploadedFileRepository.bindPhotos(addedPhotos, session);
 

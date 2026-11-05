@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
 import { CreateUnitDto } from '@presentation/units/dtos/create-unit.dto';
-import { ArrayUnique, IsArray, IsInt, IsString, Min } from 'class-validator';
+import { ArrayUnique, IsArray, IsInt, IsString, Min, ValidateIf } from 'class-validator';
 
 export class UpdateUnitDto extends PartialType(OmitType(CreateUnitDto, ['photos'] as const), {
   skipNullProperties: false,
@@ -10,6 +10,7 @@ export class UpdateUnitDto extends PartialType(OmitType(CreateUnitDto, ['photos'
     type: [String],
     example: ['https://example.com/photo.jpg'],
   })
+  @ValidateIf((_object: UpdateUnitDto, value: unknown) => value !== undefined)
   @IsArray()
   @ArrayUnique()
   @IsString({ each: true })

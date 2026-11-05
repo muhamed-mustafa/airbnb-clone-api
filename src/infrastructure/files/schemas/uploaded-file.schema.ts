@@ -13,7 +13,7 @@ export class UploadedFile {
   @Prop({ required: true })
   key!: string;
 
-  @Prop({ required: true, index: true })
+  @Prop({ required: true })
   url!: string;
 
   @Prop({

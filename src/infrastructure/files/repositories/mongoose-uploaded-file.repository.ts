@@ -22,16 +22,19 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
     await this.model.deleteOne({ provider, key }).exec();
   }
 
-  async bindPhotos(url: string[], session: TransactionSession): Promise<boolean> {
+  async bindPhotos(urls: string[], session: TransactionSession): Promise<boolean> {
+    const uniqueUrls = [...new Set(urls)];
+    if (uniqueUrls.length === 0) return true;
+
     const result = await this.model
       .updateMany(
-        { url: { $in: url }, status: 'active' },
+        { url: { $in: uniqueUrls }, status: 'active' },
         { $inc: { revision: 1 } },
         { session: toClientSession(session) },
       )
       .exec();
 
-    return result.matchedCount === url.length;
+    return result.matchedCount === uniqueUrls.length;
   }
 
   async reservePhotosForDeletion(urls: string[], session: TransactionSession): Promise<boolean> {
@@ -46,11 +49,7 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
       .lean()
       .exec();
 
-    if (files.some((file) => file.status !== 'active')) {
-      return false;
-    }
-
-    const trackedUrls = files.map((file) => file.url);
+    const trackedUrls = files.filter((file) => file.status === 'active').map((file) => file.url);
 
     if (trackedUrls.length === 0) return true;
 
