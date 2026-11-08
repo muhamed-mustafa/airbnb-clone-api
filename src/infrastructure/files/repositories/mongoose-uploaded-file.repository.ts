@@ -1,4 +1,5 @@
 import type {
+  UploadedFileDeletion,
   UploadedFileRecord,
   UploadedFileRepository,
 } from '@application/files/repositories/uploaded-file.repository';
@@ -18,8 +19,33 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
     await this.model.create(file);
   }
 
-  async remove(provider: FileStorageProvider, key: string): Promise<void> {
-    await this.model.deleteOne({ provider, key }).exec();
+  async scheduleDeletion(file: UploadedFileRecord): Promise<void> {
+    const { status: _status, ...metadata } = file;
+
+    await this.model
+      .updateOne(
+        { provider: file.provider, key: file.key },
+        {
+          $setOnInsert: {
+            ...metadata,
+            status: 'pendingDeletion',
+          },
+        },
+        { upsert: true },
+      )
+      .exec();
+  }
+
+  async markPhotosForDeletion(urls: string[]): Promise<void> {
+    const uniqueUrls = [...new Set(urls)];
+    if (uniqueUrls.length === 0) return;
+
+    await this.model
+      .updateMany(
+        { url: { $in: uniqueUrls }, status: 'active' },
+        { $set: { status: 'pendingDeletion' }, $inc: { revision: 1 } },
+      )
+      .exec();
   }
 
   async bindPhotos(urls: string[], session: TransactionSession): Promise<boolean> {
@@ -65,5 +91,20 @@ export class MongooseUploadedFileRepository implements UploadedFileRepository {
       .exec();
 
     return result.matchedCount === trackedUrls.length;
+  }
+
+  async findPendingDeletions(): Promise<UploadedFileDeletion[]> {
+    return this.model
+      .find({ status: 'pendingDeletion' })
+      .select({ provider: 1, key: 1, url: 1 })
+      .sort({ createdAt: 1 })
+      .lean()
+      .exec();
+  }
+
+  async markDeleted(provider: FileStorageProvider, key: string): Promise<void> {
+    await this.model
+      .updateOne({ provider, key, status: 'pendingDeletion' }, { $set: { status: 'deleted' } })
+      .exec();
   }
 }

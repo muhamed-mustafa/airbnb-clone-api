@@ -22,19 +22,23 @@ export class UploadFileUseCase {
 
   async execute(file: UploadFileInput, uploadedBy: string): Promise<StoredFile> {
     const storedFile = await this.fileStorage.upload(file);
+    const record = {
+      ...storedFile,
+      provider: this.provider,
+      uploadedBy,
+      createdAt: new Date(),
+      status: 'active' as const,
+    };
+
     try {
-      await this.uploadedFiles.create({
-        ...storedFile,
-        provider: this.provider,
-        uploadedBy,
-        createdAt: new Date(),
-        status: 'active',
-      });
+      await this.uploadedFiles.create(record);
     } catch (metadataError: unknown) {
       try {
-        await this.fileStorage.delete(storedFile.key);
-      } catch {
-        this.logger.error('Upload metadata persistence rollback: file deletion failed');
+        await this.uploadedFiles.scheduleDeletion({ ...record, status: 'pendingDeletion' });
+      } catch (scheduleError: unknown) {
+        this.logger.error('Upload cleanup could not be queued for retry', {
+          errorName: scheduleError instanceof Error ? scheduleError.name : 'UnknownError',
+        });
       }
       throw metadataError;
     }

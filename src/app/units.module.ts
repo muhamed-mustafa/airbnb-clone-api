@@ -9,6 +9,7 @@ import { DeleteUnitUseCase } from '@application/units/use-cases/delete-unit.usec
 import { FindAllUnitsUseCase } from '@application/units/use-cases/find-all.usecase';
 import { FindAllMyUnitsUseCase } from '@application/units/use-cases/find-my-units.usecase';
 import { FindOneUnitUseCase } from '@application/units/use-cases/find-one-unit.usecase';
+import { PhotoDeletionWorkerService } from '@application/units/services/photo-deletion-worker.service';
 import { UnitValidationUseCase } from '@application/units/use-cases/unit-validation.usecase';
 import { UpdateUnitUseCase } from '@application/units/use-cases/update-unit.usecase';
 import { modelNames } from '@common/constants/model-names.constant';
@@ -35,6 +36,7 @@ import { UnitCategoriesModule } from './unit-categories.module';
   controllers: [UnitsController],
   providers: [
     UnitService,
+    PhotoDeletionWorkerService,
     CreateUnitUseCase,
     UnitValidationUseCase,
     FindOneUnitUseCase,

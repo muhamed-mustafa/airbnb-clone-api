@@ -56,7 +56,28 @@ export const ApiUnitLifecycleDocs = (action: 'activate' | 'deactivate' | 'delete
     ApiConsumes('application/json'),
     ApiBody({ type: UnitVersionDto }),
     ApiConflictResponse({
-      description: 'The expected version is stale. Code: UNIT_VERSION_CONFLICT.',
+      description: 'The expected version is stale.',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['errors'],
+            properties: {
+              errors: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  required: ['code', 'message'],
+                  properties: {
+                    code: { type: 'string', example: 'UNIT_VERSION_CONFLICT' },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     }),
     ApiUnitIdValidationResponse(true),
     ApiUnitNotFoundResponse(),

@@ -136,7 +136,8 @@ export class MongooseUnitRepository implements UnitRepository {
   ): Promise<UnitEntity | null> {
     const clientSession = toClientSession(session);
 
-    const { expectedVersion, ...updateData } = data;
+    const { expectedVersion, photos, ...otherUpdateData } = data;
+    const updateData = photos === undefined ? otherUpdateData : { ...otherUpdateData, photos };
 
     const unit = await this.unitModel
       .findOneAndUpdate(
@@ -186,7 +187,10 @@ export class MongooseUnitRepository implements UnitRepository {
     if (urls.length === 0) return [];
 
     const referencedPhotos = await this.unitModel
-      .distinct('photos', { photos: { $in: urls }, _id: { $ne: excludeUnitId } })
+      .distinct('photos', {
+        photos: { $in: urls },
+        ...(excludeUnitId !== undefined ? { _id: { $ne: excludeUnitId } } : {}),
+      })
       .session(toClientSession(session) ?? null)
       .exec();
 

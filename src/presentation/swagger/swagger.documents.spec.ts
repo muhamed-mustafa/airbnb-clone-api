@@ -350,7 +350,9 @@ describe('Swagger audience documents from actual controllers', () => {
     expect(path?.get).toBeUndefined();
     expect(buildAudienceDocument(source, 'shared').paths['/api/units/{id}']?.patch).toBeUndefined();
     const update = user.components?.schemas?.UpdateUnitDto;
-    expect(update && 'required' in update ? (update.required ?? []) : []).toEqual([]);
+    expect(update && 'required' in update ? (update.required ?? []) : []).toEqual([
+      'expectedVersion',
+    ]);
     expect(update).toMatchObject({
       properties: {
         availability: { type: 'boolean' },

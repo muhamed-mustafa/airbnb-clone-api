@@ -37,3 +37,4 @@ export class UploadedFile {
 export const UploadedFileSchema = SchemaFactory.createForClass(UploadedFile);
 UploadedFileSchema.index({ provider: 1, key: 1 }, { unique: true });
 UploadedFileSchema.index({ url: 1 }, { unique: true });
+UploadedFileSchema.index({ status: 1, createdAt: 1 });

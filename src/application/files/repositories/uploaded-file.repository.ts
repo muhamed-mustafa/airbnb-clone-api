@@ -10,9 +10,14 @@ export interface UploadedFileRecord extends StoredFile {
   status: UploadedFileStatus;
 }
 
+export type UploadedFileDeletion = Pick<UploadedFileRecord, 'provider' | 'key' | 'url'>;
+
 export interface UploadedFileRepository {
   create(file: UploadedFileRecord): Promise<void>;
-  remove(provider: FileStorageProvider, key: string): Promise<void>;
+  scheduleDeletion(file: UploadedFileRecord): Promise<void>;
+  markPhotosForDeletion(urls: string[]): Promise<void>;
   bindPhotos(url: string[], session: TransactionSession): Promise<boolean>;
   reservePhotosForDeletion(urls: string[], session: TransactionSession): Promise<boolean>;
+  findPendingDeletions(): Promise<UploadedFileDeletion[]>;
+  markDeleted(provider: FileStorageProvider, key: string): Promise<void>;
 }

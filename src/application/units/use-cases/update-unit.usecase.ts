@@ -56,16 +56,8 @@ export class UpdateUnitUseCase {
       const addedPhotos =
         newPhotos === undefined ? [] : [...newPhotos].filter((photo) => !currentPhotos.has(photo));
 
-      const referencedPhotos = await this.unitRepository.findReferencedPhotos(
-        removedPhotos,
-        id,
-        session,
-      );
-
-      const photosToDelete = removedPhotos.filter((photo) => !referencedPhotos.includes(photo));
-
       const reserved = await this.uploadedFileRepository.reservePhotosForDeletion(
-        photosToDelete,
+        removedPhotos,
         session,
       );
 
