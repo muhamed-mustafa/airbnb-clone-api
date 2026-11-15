@@ -20,6 +20,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminAuthController } from '@presentation/admin/admin-auth.controller';
 import { AdminController } from '@presentation/admin/admin.controller';
 import { AuthModule } from './auth.module';
+import { BookingsModule } from './bookings.module';
 import { UnitsModule } from './units.module';
 
 @Module({
@@ -28,6 +29,7 @@ import { UnitsModule } from './units.module';
     LoggingModule,
     AuthModule,
     UnitsModule,
+    BookingsModule,
   ],
   controllers: [AdminController, AdminAuthController],
   providers: [

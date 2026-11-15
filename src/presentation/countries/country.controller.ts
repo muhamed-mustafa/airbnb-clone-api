@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CountryService } from '@application/countries/services/country.service';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { PaginatedResult } from '@common/pagination/pagination.types';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';

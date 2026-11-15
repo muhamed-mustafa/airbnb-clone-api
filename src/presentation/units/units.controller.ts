@@ -1,5 +1,5 @@
 import { UnitService } from '@application/units/services/unit.service';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import type { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { PaginatedResult } from '@common/pagination/pagination.types';
 import {

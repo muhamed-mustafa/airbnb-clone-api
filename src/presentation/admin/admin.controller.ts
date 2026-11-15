@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AdminService } from '@application/admin/services/admin.service';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { PaginatedResult } from '@common/pagination/pagination.types';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';
 import { ApiFindAdminByIdDocs } from '../swagger/decorators/admins/api-find-admin-by-id-docs.decorator';

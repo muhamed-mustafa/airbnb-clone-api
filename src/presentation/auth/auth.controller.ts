@@ -15,7 +15,7 @@ import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { AuthMapper } from './mappers/auth.mapper';
 import { AllowedRoles } from './decorators/roles.decorator';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 
 @ApiTags(SWAGGER_TAGS.AUTH)
 @Controller('auth')

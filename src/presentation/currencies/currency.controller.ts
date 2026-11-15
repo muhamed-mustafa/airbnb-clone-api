@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CurrencyService } from '@application/currencies/services/currency.service';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { PaginatedResult } from '@common/pagination/pagination.types';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { AllowedRoles } from '../auth/decorators/roles.decorator';

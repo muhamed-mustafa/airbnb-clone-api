@@ -1,7 +1,7 @@
 import { StoredFile } from '@application/files/interfaces/file-storage.interface';
 import { UploadFileUseCase } from '@application/files/use-cases/upload-file.usecase';
 import { UploadFilesUseCase } from '@application/files/use-cases/upload-files.usecase';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import {
   Controller,
   FileTypeValidator,

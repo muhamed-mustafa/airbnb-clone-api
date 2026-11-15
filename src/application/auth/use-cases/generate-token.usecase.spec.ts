@@ -1,4 +1,4 @@
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { ApplicationError } from '@common/errors/application.error';
 import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { GenerateTokenUseCase } from './generate-token.usecase';

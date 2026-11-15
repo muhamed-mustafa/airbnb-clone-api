@@ -1,4 +1,4 @@
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import type { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
