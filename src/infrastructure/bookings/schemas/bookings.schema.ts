@@ -29,6 +29,9 @@ export class Booking {
   @Prop({ required: true, min: 0 })
   bookingAmount!: number;
 
+  @Prop({ required: true, default: 0 })
+  vat!: number;
+
   @Prop({ required: true, min: 0 })
   vatAmount!: number;
 
@@ -52,6 +55,9 @@ export class Booking {
 
   @Prop({ trim: true, maxlength: 500 })
   cancellationReason?: string;
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

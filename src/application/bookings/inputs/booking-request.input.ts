@@ -1,0 +1,8 @@
+export type BookingRequestInput = {
+  unit: string;
+  checkIn: Date;
+  checkOut: Date;
+  adultsCount?: number;
+  kidsCount?: number;
+  notes?: string;
+};

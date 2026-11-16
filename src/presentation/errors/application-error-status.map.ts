@@ -21,6 +21,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   CITY_COUNTRY_MISMATCH: HttpStatus.BAD_REQUEST,
   SOME_PHOTOS_NOT_AVAILABLE: HttpStatus.BAD_REQUEST,
   UNIT_VERSION_CONFLICT: HttpStatus.CONFLICT,
+  BOOKING_NOT_AVAILABLE: HttpStatus.CONFLICT,
+  BOOKING_CANNOT_BOOK_OWN_UNIT: HttpStatus.BAD_REQUEST,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -43,4 +45,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   CITY_COUNTRY_MISMATCH: 'cities.CITY_COUNTRY_MISMATCH',
   SOME_PHOTOS_NOT_AVAILABLE: 'files.SOME_PHOTOS_NOT_AVAILABLE',
   UNIT_VERSION_CONFLICT: 'units.UNIT_VERSION_CONFLICT',
+  BOOKING_NOT_AVAILABLE: 'bookings.BOOKING_NOT_AVAILABLE',
+  BOOKING_CANNOT_BOOK_OWN_UNIT: 'bookings.BOOKING_CANNOT_BOOK_OWN_UNIT',
 };

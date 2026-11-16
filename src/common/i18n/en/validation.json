@@ -11,6 +11,8 @@
   "isNumber": "Must be a number.",
   "min": "Value must be at least {{constraints.0}}.",
   "isInt": "Must be an integer.",
+  "isDate": "Must be a valid date.",
+  "checkOutAfterCheckIn": "Check-out must be after check-in.",
   "isBoolean": "Must be a boolean.",
   "isValidPriceRange": "Minimum price must be less than or equal to maximum price."
 }

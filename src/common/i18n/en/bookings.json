@@ -1,0 +1,4 @@
+{
+  "BOOKING_NOT_AVAILABLE": "The unit is not available for the selected dates or guest count.",
+  "BOOKING_CANNOT_BOOK_OWN_UNIT": "You cannot book your own unit."
+}

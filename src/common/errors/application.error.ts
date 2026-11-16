@@ -21,6 +21,8 @@ export type ApplicationErrorCode = keyof Pick<
   | 'CITY_COUNTRY_MISMATCH'
   | 'SOME_PHOTOS_NOT_AVAILABLE'
   | 'UNIT_VERSION_CONFLICT'
+  | 'BOOKING_NOT_AVAILABLE'
+  | 'BOOKING_CANNOT_BOOK_OWN_UNIT'
 >;
 
 export class ApplicationError extends Error {
