@@ -1,3 +1,7 @@
 {
-  "ADMIN_NOT_FOUND": "الادمن غير موجود"
+  "ADMIN_NOT_FOUND": "الادمن غير موجود",
+  "ADMIN_PASSWORD_RESET_REQUEST_ACCEPTED": "إذا كان الحساب موجودًا، فقد أرسلنا رمز التحقق إلى البريد الإلكتروني.",
+  "ADMIN_PASSWORD_RESET_EMAIL_UNAVAILABLE": "إرسال بريد استعادة كلمة مرور الأدمن غير مُعد بعد.",
+  "ADMIN_PASSWORD_RESET_CODE_INVALID": "رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا وحاول مرة أخرى.",
+  "ADMIN_PASSWORD_RESET_SESSION_INVALID": "جلسة إعادة تعيين كلمة المرور غير صالحة أو انتهت صلاحيتها. ابدأ من جديد."
 }

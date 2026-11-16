@@ -4,6 +4,7 @@ describe('storage environment validation', () => {
   const required = {
     MONGO_URI: 'mongodb://localhost/test',
     JWT_SECRET: 'test',
+    ADMIN_PASSWORD_RESET_SECRET: 'test-admin-password-reset-secret-32-chars',
     REFRESH_TOKEN_SECRET: 'test',
     INITIAL_ADMIN_PASSWORD: 'test-password',
   };
@@ -28,7 +29,11 @@ describe('storage environment validation', () => {
       AWS_SECRET_ACCESS_KEY: '',
     });
     expect(result.error).toBeUndefined();
-    expect(result.value).toMatchObject({ FILE_STORAGE_PROVIDER: 'cloudinary' });
+    expect(result.value).toMatchObject({
+      FILE_STORAGE_PROVIDER: 'cloudinary',
+      ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES: 10,
+      ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES: 10,
+    });
   });
 
   it('accepts S3 with role credentials or a complete temporary credential pair', () => {

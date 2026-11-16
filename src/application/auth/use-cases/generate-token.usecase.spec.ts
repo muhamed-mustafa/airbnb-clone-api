@@ -12,6 +12,7 @@ describe('GenerateTokenUseCase', () => {
     findByUserId: jest.fn(),
     save: jest.fn(),
     rotate: jest.fn(),
+    revoke: jest.fn(),
   };
 
   const tokenService = {

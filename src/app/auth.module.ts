@@ -49,6 +49,6 @@ import { modelNames } from '@common/constants/model-names.constant';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [GenerateTokenUseCase],
+  exports: [GenerateTokenUseCase, REFRESH_TOKEN_REPOSITORY],
 })
 export class AuthModule {}

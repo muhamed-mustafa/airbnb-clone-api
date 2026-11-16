@@ -10,7 +10,7 @@ import { App } from 'supertest/types';
 import { AppModule } from '@app/app.module';
 import { TOKEN_SERVICE_TOKEN } from '@application/auth/services/token-service.token';
 import type { TokenService } from '@application/auth/services/token.service';
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { Admin, AdminSchema } from '@infrastructure/admin/schemas/admin.schema';
 import { modelNames } from '@common/constants/model-names.constant';
 

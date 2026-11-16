@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { AdminEntity } from '@application/admin/entities/admin.entity';
 import { CreateAdminInput } from '@application/admin/inputs/create-admin.input';
 import { AdminFilter } from '@application/admin/repositories/admin-filter';
 import { AdminRepository } from '@application/admin/repositories/admin.repository';
+import { modelNames } from '@common/constants/model-names.constant';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { AdminMapper } from '../../mappers/admin.mapper';
 import { Admin } from '../admin.schema';
-import { modelNames } from '@common/constants/model-names.constant';
 
 @Injectable()
 export class MongooseAdminRepository implements AdminRepository {
@@ -58,5 +58,111 @@ export class MongooseAdminRepository implements AdminRepository {
       .exec();
 
     return admin ? AdminMapper.toEntity(admin) : null;
+  }
+
+  async issuePasswordResetCode(
+    email: string,
+    codeHash: string,
+    now: Date,
+    expiresAt: Date,
+  ): Promise<boolean> {
+    const updated = await this.adminModel
+      .findOneAndUpdate(
+        {
+          email: email.toLowerCase(),
+          isDeleted: false,
+          $or: [
+            { passwordResetRequestedAt: { $exists: false } },
+            { passwordResetRequestedAt: { $lte: new Date(now.getTime() - 60_000) } },
+          ],
+        },
+        {
+          $set: {
+            passwordResetCodeHash: codeHash,
+            passwordResetExpiresAt: expiresAt,
+            passwordResetRequestedAt: now,
+            passwordResetAttempts: 0,
+          },
+          $unset: { passwordResetTokenHash: 1, passwordResetTokenExpiresAt: 1 },
+        },
+      )
+      .exec();
+
+    return updated !== null;
+  }
+
+  async incrementPasswordResetAttempts(email: string, now: Date): Promise<void> {
+    await this.adminModel
+      .updateOne(
+        {
+          email: email.toLowerCase(),
+          isDeleted: false,
+          passwordResetExpiresAt: { $gt: now },
+          passwordResetAttempts: { $lt: 5 },
+        },
+        { $inc: { passwordResetAttempts: 1 } },
+      )
+      .exec();
+  }
+
+  async verifyPasswordResetCode(
+    email: string,
+    codeHash: string,
+    now: Date,
+    tokenHash: string,
+    tokenExpiresAt: Date,
+  ): Promise<boolean> {
+    const updated = await this.adminModel
+      .findOneAndUpdate(
+        {
+          email: email.toLowerCase(),
+          isDeleted: false,
+          passwordResetCodeHash: codeHash,
+          passwordResetExpiresAt: { $gt: now },
+          passwordResetAttempts: { $lt: 5 },
+        },
+        {
+          $set: { passwordResetTokenHash: tokenHash, passwordResetTokenExpiresAt: tokenExpiresAt },
+          $unset: { passwordResetCodeHash: 1, passwordResetExpiresAt: 1 },
+        },
+      )
+      .exec();
+
+    return updated !== null;
+  }
+
+  async resetPassword(tokenHash: string, passwordHash: string, now: Date): Promise<string | null> {
+    const updated = await this.adminModel
+      .findOneAndUpdate(
+        {
+          passwordResetTokenHash: tokenHash,
+          passwordResetTokenExpiresAt: { $gt: now },
+          isDeleted: false,
+        },
+        {
+          $set: { password: passwordHash },
+          $unset: {
+            passwordResetCodeHash: 1,
+            passwordResetExpiresAt: 1,
+            passwordResetRequestedAt: 1,
+            passwordResetAttempts: 1,
+            passwordResetTokenHash: 1,
+            passwordResetTokenExpiresAt: 1,
+          },
+        },
+      )
+      .exec();
+
+    return updated?._id.toString() ?? null;
+  }
+
+  async hasValidPasswordResetToken(tokenHash: string, now: Date): Promise<boolean> {
+    const admin = await this.adminModel.exists({
+      passwordResetTokenHash: tokenHash,
+      passwordResetTokenExpiresAt: { $gt: now },
+      isDeleted: false,
+    });
+
+    return admin !== null;
   }
 }

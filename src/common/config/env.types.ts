@@ -16,12 +16,17 @@ export interface EnvironmentVariables {
   FALLBACK_LANGUAGE: string;
   MONGO_URI: string;
   JWT_SECRET: string;
+  ADMIN_PASSWORD_RESET_SECRET: string;
+  ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES: number;
+  ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES: number;
   REFRESH_TOKEN_SECRET: string;
   ACCESS_TOKEN_EXPIRE_IN: string;
   REFRESH_TOKEN_EXPIRE_IN: string;
   INITIAL_ADMIN_NAME: string;
   INITIAL_ADMIN_EMAIL: string;
   INITIAL_ADMIN_PASSWORD: string;
+  RESEND_API_KEY?: string;
+  AUTH_EMAIL_FROM?: string;
 
   FILE_STORAGE_PROVIDER: FileStorageProvider;
 

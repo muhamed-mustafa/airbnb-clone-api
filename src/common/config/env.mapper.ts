@@ -6,12 +6,21 @@ export default (): EnvironmentVariables => ({
   FALLBACK_LANGUAGE: (process.env.FALLBACK_LANGUAGE as string) ?? 'en',
   MONGO_URI: process.env.MONGO_URI as string,
   JWT_SECRET: process.env.JWT_SECRET as string,
+  ADMIN_PASSWORD_RESET_SECRET: process.env.ADMIN_PASSWORD_RESET_SECRET as string,
+  ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES: Number(
+    process.env.ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES ?? 10,
+  ),
+  ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES: Number(
+    process.env.ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES ?? 10,
+  ),
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
   ACCESS_TOKEN_EXPIRE_IN: process.env.ACCESS_TOKEN_EXPIRE_IN as string,
   REFRESH_TOKEN_EXPIRE_IN: process.env.REFRESH_TOKEN_EXPIRE_IN as string,
   INITIAL_ADMIN_NAME: (process.env.INITIAL_ADMIN_NAME as string) ?? 'Super Admin',
   INITIAL_ADMIN_EMAIL: (process.env.INITIAL_ADMIN_EMAIL as string) ?? 'admin@example.com',
   INITIAL_ADMIN_PASSWORD: process.env.INITIAL_ADMIN_PASSWORD as string,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  AUTH_EMAIL_FROM: process.env.AUTH_EMAIL_FROM,
   FILE_STORAGE_PROVIDER:
     (process.env.FILE_STORAGE_PROVIDER as EnvironmentVariables['FILE_STORAGE_PROVIDER']) ??
     'cloudinary',
