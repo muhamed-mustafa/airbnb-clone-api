@@ -3,8 +3,11 @@ import { BookingStatus } from '@application/bookings/enums/booking-status.enum';
 export interface BookingEntity {
   id: string;
   unit: string;
+  unitTitle?: string;
   guest: string;
+  guestName?: string;
   host: string;
+  hostName?: string;
   checkIn: Date;
   checkOut: Date;
   daysCount: number;

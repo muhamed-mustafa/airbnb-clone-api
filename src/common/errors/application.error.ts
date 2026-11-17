@@ -26,6 +26,8 @@ export type ApplicationErrorCode = keyof Pick<
   | 'UNIT_VERSION_CONFLICT'
   | 'BOOKING_NOT_AVAILABLE'
   | 'BOOKING_CANNOT_BOOK_OWN_UNIT'
+  | 'BOOKING_NOT_FOUND'
+  | 'BOOKING_ACCESS_DENIED'
 >;
 
 export class ApplicationError extends Error {

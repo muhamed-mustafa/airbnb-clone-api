@@ -14,7 +14,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@presentation/auth/decorators/current-user.decorator';
 import { IsPublic } from '@presentation/auth/decorators/is-public.decorator';
 import { AllowedRoles } from '@presentation/auth/decorators/roles.decorator';
@@ -29,6 +29,7 @@ import { ApiUpdateUnitDocs } from '@presentation/swagger/decorators/units/api-up
 import { SWAGGER_TAGS } from '@presentation/swagger/swagger.constants';
 import { CreateUnitDto } from '@presentation/units/dtos/create-unit.dto';
 import { FindAllUnitsDto } from '@presentation/units/dtos/find-all-units.dto';
+import { FindAllAdminUnitsDto } from '@presentation/units/dtos/find-all-admin-units.dto';
 import { UnitResponseDto } from '@presentation/units/dtos/unit-response.dto';
 import { UpdateUnitDto } from '@presentation/units/dtos/update-unit.dto';
 import { UnitMapper } from '@presentation/units/mappers/unit.mapper';
@@ -58,6 +59,43 @@ export class UnitsController {
   async findAll(@Query() query: FindAllUnitsDto): Promise<PaginatedResult<UnitResponseDto>> {
     const result = await this.unitService.findAll({ ...query, isActive: true });
     return { ...result, data: result.data.map((unit) => UnitMapper.toResponse(unit)) };
+  }
+
+  @Get('admin')
+  @AllowedRoles(Roles.ADMIN)
+  @ApiOperation({ operationId: 'unitsFindAllForAdmin', summary: 'List all units for admins' })
+  @ApiQuery({ name: 'page', required: false, schema: { type: 'integer', minimum: 1, default: 1 } })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    schema: { type: 'integer', minimum: 1, maximum: 100 },
+  })
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    schema: { type: 'string', minLength: 3, maxLength: 50 },
+  })
+  @ApiQuery({ name: 'isActive', required: false, schema: { type: 'boolean' } })
+  @ApiQuery({ name: 'availability', required: false, schema: { type: 'boolean' } })
+  @ApiQuery({ name: 'minPrice', required: false, schema: { type: 'number', minimum: 1 } })
+  @ApiQuery({ name: 'maxPrice', required: false, schema: { type: 'number', minimum: 1 } })
+  @ApiOkResponse({ description: 'All non-deleted units, including inactive listings.' })
+  async findAllForAdmin(
+    @Query() query: FindAllAdminUnitsDto,
+  ): Promise<PaginatedResult<UnitResponseDto>> {
+    const result = await this.unitService.findAll(query);
+    return { ...result, data: result.data.map((unit) => UnitMapper.toResponse(unit)) };
+  }
+
+  @Get('admin/:id')
+  @AllowedRoles(Roles.ADMIN)
+  @ApiOperation({ operationId: 'unitsFindOneForAdmin', summary: 'Get any unit for admins' })
+  @ApiOkResponse({
+    description: 'Unit details, including inactive listings.',
+    type: UnitResponseDto,
+  })
+  async findOneForAdmin(@Param() { id }: UnitIdDto): Promise<UnitResponseDto> {
+    return UnitMapper.toResponse(await this.unitService.findOne({ id }));
   }
 
   @AllowedRoles(Roles.USER)

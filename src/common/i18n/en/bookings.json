@@ -1,4 +1,6 @@
 {
   "BOOKING_NOT_AVAILABLE": "The unit is not available for the selected dates or guest count.",
-  "BOOKING_CANNOT_BOOK_OWN_UNIT": "You cannot book your own unit."
+  "BOOKING_CANNOT_BOOK_OWN_UNIT": "You cannot book your own unit.",
+  "BOOKING_NOT_FOUND": "The booking could not be found.",
+  "BOOKING_ACCESS_DENIED": "You do not have permission to view this booking."
 }

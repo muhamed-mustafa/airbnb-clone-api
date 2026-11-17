@@ -1,4 +1,6 @@
 {
   "BOOKING_NOT_AVAILABLE": "الوحدة غير متاحة في التواريخ المحددة أو لعدد الضيوف المطلوب.",
-  "BOOKING_CANNOT_BOOK_OWN_UNIT": "لا يمكنك حجز وحدتك الخاصة."
+  "BOOKING_CANNOT_BOOK_OWN_UNIT": "لا يمكنك حجز وحدتك الخاصة.",
+  "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز.",
+  "BOOKING_ACCESS_DENIED": "ليس لديك صلاحية عرض هذا الحجز."
 }

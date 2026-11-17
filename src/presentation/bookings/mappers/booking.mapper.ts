@@ -1,6 +1,7 @@
 import type { BookingEntity } from '@application/bookings/entities/booking.entity';
 import type { BookingRequestInput } from '@application/bookings/inputs/booking-request.input';
 import { BookingRequestDto } from '@presentation/bookings/dtos/booking-request.dto';
+import { BookingListResponseDto } from '@presentation/bookings/dtos/booking-list-response.dto';
 import { BookingResponseDto } from '@presentation/bookings/dtos/booking-response.dto';
 
 export class BookingMapper {
@@ -33,6 +34,19 @@ export class BookingMapper {
       totalAmount: booking.totalAmount,
       status: booking.status,
       cancellationReason: booking.cancellationReason,
+    };
+  }
+
+  static toListResponse(booking: BookingEntity): BookingListResponseDto {
+    return {
+      ...this.toResponse(booking),
+      id: booking.id,
+      unitTitle: booking.unitTitle,
+      guestName: booking.guestName,
+      hostName: booking.hostName,
+      currency: booking.currency,
+      createdAt: booking.createdAt.toISOString(),
+      updatedAt: booking.updatedAt.toISOString(),
     };
   }
 }
