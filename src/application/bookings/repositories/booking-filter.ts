@@ -6,6 +6,7 @@ export type OverlappingBookingsFilter = {
   status: { $in: BookingStatus[] };
   checkIn: { $lt: Date };
   checkOut: { $gt: Date };
+  excludeBookingId?: string;
 };
 
 export type BookingListFilter = {

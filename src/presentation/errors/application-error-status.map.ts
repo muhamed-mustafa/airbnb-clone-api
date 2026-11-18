@@ -28,6 +28,9 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   BOOKING_CANNOT_BOOK_OWN_UNIT: HttpStatus.BAD_REQUEST,
   BOOKING_NOT_FOUND: HttpStatus.NOT_FOUND,
   BOOKING_ACCESS_DENIED: HttpStatus.FORBIDDEN,
+  BOOKING_INVALID_STATUS_TRANSITION: HttpStatus.CONFLICT,
+  BOOKING_INVALID_DATE_RANGE: HttpStatus.BAD_REQUEST,
+  BOOKING_UPDATE_EMPTY: HttpStatus.BAD_REQUEST,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -57,4 +60,7 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   BOOKING_CANNOT_BOOK_OWN_UNIT: 'bookings.BOOKING_CANNOT_BOOK_OWN_UNIT',
   BOOKING_NOT_FOUND: 'bookings.BOOKING_NOT_FOUND',
   BOOKING_ACCESS_DENIED: 'bookings.BOOKING_ACCESS_DENIED',
+  BOOKING_INVALID_STATUS_TRANSITION: 'bookings.BOOKING_INVALID_STATUS_TRANSITION',
+  BOOKING_INVALID_DATE_RANGE: 'bookings.BOOKING_INVALID_DATE_RANGE',
+  BOOKING_UPDATE_EMPTY: 'bookings.BOOKING_UPDATE_EMPTY',
 };

@@ -10,6 +10,9 @@ import { FindAllBookingsUseCase } from '@application/bookings/use-cases/find-all
 import { FindMyBookingsUseCase } from '@application/bookings/use-cases/find-my-bookings.usecase';
 import { CheckBookingAuthUseCase } from '@application/bookings/use-cases/check-booking-auth.usecase';
 import { FindBookingByIdUseCase } from '@application/bookings/use-cases/find-booking-by-id.usecase';
+import { UpdateBookingRequestByGuestUseCase } from '@application/bookings/use-cases/update-booking-request-by-guest.usecase';
+import { CancelBookingByGuestUseCase } from '@application/bookings/use-cases/cancel-booking-by-guest.usecase';
+import { UpdateBookingStatusByHostUseCase } from '@application/bookings/use-cases/update-booking-status-by-host.usecase';
 import { modelNames } from '@common/constants/model-names.constant';
 import { MongooseBookingAvailabilityRepository } from '@infrastructure/bookings/repositories/mongoose-booking-availability.repository';
 import { BookingSchema } from '@infrastructure/bookings/schemas/bookings.schema';
@@ -40,6 +43,9 @@ import { BookingsController } from '@presentation/bookings/bookings.controller';
     FindMyBookingsUseCase,
     CheckBookingAuthUseCase,
     FindBookingByIdUseCase,
+    UpdateBookingRequestByGuestUseCase,
+    CancelBookingByGuestUseCase,
+    UpdateBookingStatusByHostUseCase,
     { provide: BOOKING_REPOSITORY, useClass: MongooseBookingAvailabilityRepository },
   ],
 })

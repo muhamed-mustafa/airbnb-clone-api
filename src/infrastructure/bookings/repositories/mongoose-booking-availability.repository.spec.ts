@@ -177,3 +177,90 @@ describe('MongooseBookingAvailabilityRepository.findById', () => {
     expect(result).toMatchObject({ id: id.toString(), unit: '', guest: '', host: '' });
   });
 });
+
+describe('MongooseBookingAvailabilityRepository update operations', () => {
+  const bookingId = new Types.ObjectId('670d1234567890abcdef123a');
+  const guestId = new Types.ObjectId('670d1234567890abcdef1238');
+  const hostId = new Types.ObjectId('670d1234567890abcdef1239');
+
+  function bookingRecord(status = 'PENDING') {
+    return {
+      _id: bookingId,
+      unit: { _id: new Types.ObjectId('670d1234567890abcdef1237'), title: 'City stay' },
+      guest: { _id: guestId, name: 'Guest' },
+      host: { _id: hostId, name: 'Host' },
+      checkIn: new Date('2027-01-10T00:00:00.000Z'),
+      checkOut: new Date('2027-01-12T00:00:00.000Z'),
+      daysCount: 2,
+      pricePerDay: 100,
+      bookingAmount: 200,
+      vat: 14,
+      vatAmount: 28,
+      totalAmount: 228,
+      currency: 'EGP',
+      adultsCount: 2,
+      kidsCount: 0,
+      status,
+      createdAt: new Date('2026-11-17T10:00:00.000Z'),
+      updatedAt: new Date('2026-11-17T10:00:00.000Z'),
+    };
+  }
+
+  it('excludes the booking being edited from overlap searches', async () => {
+    const query = {
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+    const find = jest.fn().mockReturnValue(query);
+    const repository = new MongooseBookingAvailabilityRepository(
+      { find } as unknown as Model<Booking>,
+      {} as Model<import('@infrastructure/users/schemas/user.schema').User>,
+      {} as Model<import('@infrastructure/units/schemas/units.schema').Unit>,
+    );
+
+    await repository.find({
+      unit: '670d1234567890abcdef1237',
+      status: { $in: ['PENDING', 'CONFIRMED'] as Booking['status'][] },
+      checkIn: { $lt: new Date('2027-01-12') },
+      checkOut: { $gt: new Date('2027-01-10') },
+      excludeBookingId: bookingId.toString(),
+    });
+
+    expect(find).toHaveBeenCalledWith(expect.objectContaining({ _id: { $ne: bookingId } }));
+  });
+
+  it('conditionally updates by participant and active status, returning a mapped booking', async () => {
+    const updated = bookingRecord('CONFIRMED');
+    const query = {
+      populate: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(updated),
+    };
+    const findOneAndUpdate = jest.fn().mockReturnValue(query);
+    const repository = new MongooseBookingAvailabilityRepository(
+      { findOneAndUpdate } as unknown as Model<Booking>,
+      {} as Model<import('@infrastructure/users/schemas/user.schema').User>,
+      {} as Model<import('@infrastructure/units/schemas/units.schema').Unit>,
+    );
+
+    const result = await repository.updateById(
+      bookingId.toString(),
+      { host: hostId.toString(), status: ['PENDING' as Booking['status']] },
+      { status: 'CONFIRMED' as Booking['status'] },
+    );
+
+    expect(findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: bookingId, status: { $in: ['PENDING'] }, host: hostId },
+      { $set: { status: 'CONFIRMED' } },
+      { new: true, runValidators: true },
+    );
+    expect(result).toMatchObject({
+      id: bookingId.toString(),
+      guest: guestId.toString(),
+      host: hostId.toString(),
+      unitTitle: 'City stay',
+      guestName: 'Guest',
+      hostName: 'Host',
+      status: 'CONFIRMED',
+    });
+  });
+});

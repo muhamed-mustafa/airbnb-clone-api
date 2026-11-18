@@ -1,6 +1,8 @@
 import type { BookingEntity } from '@application/bookings/entities/booking.entity';
 import type { BookingRequestInput } from '@application/bookings/inputs/booking-request.input';
+import type { UpdateBookingRequestInput } from '@application/bookings/inputs/update-booking-request.input';
 import { BookingRequestDto } from '@presentation/bookings/dtos/booking-request.dto';
+import { UpdateBookingRequestDto } from '@presentation/bookings/dtos/update-booking-request.dto';
 import { BookingListResponseDto } from '@presentation/bookings/dtos/booking-list-response.dto';
 import { BookingResponseDto } from '@presentation/bookings/dtos/booking-response.dto';
 
@@ -8,6 +10,16 @@ export class BookingMapper {
   static toRequestInput(request: BookingRequestDto): BookingRequestInput {
     return {
       unit: request.unit,
+      checkIn: request.checkIn,
+      checkOut: request.checkOut,
+      adultsCount: request.adultsCount,
+      kidsCount: request.kidsCount,
+      notes: request.notes,
+    };
+  }
+
+  static toUpdateRequestInput(request: UpdateBookingRequestDto): UpdateBookingRequestInput {
+    return {
       checkIn: request.checkIn,
       checkOut: request.checkOut,
       adultsCount: request.adultsCount,

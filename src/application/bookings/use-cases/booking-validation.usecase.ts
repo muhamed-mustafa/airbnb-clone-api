@@ -34,6 +34,7 @@ export class BookingValidationUseCase {
       status: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
       checkIn: { $lt: body.checkOut },
       checkOut: { $gt: body.checkIn },
+      ...(body.excludeBookingId ? { excludeBookingId: body.excludeBookingId } : {}),
     });
 
     return overlappingBookings.length === 0;

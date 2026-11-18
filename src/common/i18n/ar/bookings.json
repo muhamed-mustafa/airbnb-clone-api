@@ -2,5 +2,8 @@
   "BOOKING_NOT_AVAILABLE": "الوحدة غير متاحة في التواريخ المحددة أو لعدد الضيوف المطلوب.",
   "BOOKING_CANNOT_BOOK_OWN_UNIT": "لا يمكنك حجز وحدتك الخاصة.",
   "BOOKING_NOT_FOUND": "لم يتم العثور على الحجز.",
-  "BOOKING_ACCESS_DENIED": "ليس لديك صلاحية عرض هذا الحجز."
+  "BOOKING_ACCESS_DENIED": "ليس لديك صلاحية الوصول إلى هذا الحجز.",
+  "BOOKING_INVALID_STATUS_TRANSITION": "لا يمكن تعديل الحجز في حالته الحالية.",
+  "BOOKING_INVALID_DATE_RANGE": "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول.",
+  "BOOKING_UPDATE_EMPTY": "أرسل حقلًا واحدًا على الأقل لتعديل الحجز."
 }

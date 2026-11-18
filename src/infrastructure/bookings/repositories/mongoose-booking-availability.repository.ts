@@ -37,6 +37,9 @@ export class MongooseBookingAvailabilityRepository implements BookingRepository 
         status: filter.status,
         checkIn: filter.checkIn,
         checkOut: filter.checkOut,
+        ...(filter.excludeBookingId
+          ? { _id: { $ne: new Types.ObjectId(filter.excludeBookingId) } }
+          : {}),
       })
       .lean()
       .exec();
@@ -62,6 +65,49 @@ export class MongooseBookingAvailabilityRepository implements BookingRepository 
         { path: 'host', select: 'name' },
       ])
       .exec();
+    return booking ? this.toEntity(booking) : null;
+  }
+
+  async updateById(
+    id: string,
+    filter: { guest?: string; host?: string; status: BookingEntity['status'][] },
+    changes: Partial<
+      Pick<
+        BookingEntity,
+        | 'checkIn'
+        | 'checkOut'
+        | 'daysCount'
+        | 'pricePerDay'
+        | 'bookingAmount'
+        | 'vat'
+        | 'vatAmount'
+        | 'totalAmount'
+        | 'adultsCount'
+        | 'kidsCount'
+        | 'notes'
+        | 'status'
+        | 'cancellationReason'
+      >
+    >,
+  ): Promise<BookingEntity | null> {
+    const booking = await this.bookingModel
+      .findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(id),
+          status: { $in: filter.status },
+          ...(filter.guest ? { guest: new Types.ObjectId(filter.guest) } : {}),
+          ...(filter.host ? { host: new Types.ObjectId(filter.host) } : {}),
+        },
+        { $set: changes },
+        { new: true, runValidators: true },
+      )
+      .populate([
+        { path: 'unit', select: 'title' },
+        { path: 'guest', select: 'name' },
+        { path: 'host', select: 'name' },
+      ])
+      .exec();
+
     return booking ? this.toEntity(booking) : null;
   }
 

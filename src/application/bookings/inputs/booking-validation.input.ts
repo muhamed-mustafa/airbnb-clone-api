@@ -4,4 +4,5 @@ export type BookingValidationInput = {
   checkOut: Date;
   adultsCount?: number;
   kidsCount?: number;
+  excludeBookingId?: string;
 };

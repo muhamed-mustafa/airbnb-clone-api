@@ -11,6 +11,12 @@ import { CheckAvailabilityUseCase } from '@application/bookings/use-cases/check-
 import { FindAllBookingsUseCase } from '@application/bookings/use-cases/find-all-bookings.usecase';
 import { FindMyBookingsUseCase } from '@application/bookings/use-cases/find-my-bookings.usecase';
 import { FindBookingByIdUseCase } from '@application/bookings/use-cases/find-booking-by-id.usecase';
+import { UpdateBookingRequestByGuestUseCase } from '@application/bookings/use-cases/update-booking-request-by-guest.usecase';
+import { CancelBookingByGuestUseCase } from '@application/bookings/use-cases/cancel-booking-by-guest.usecase';
+import { UpdateBookingStatusByHostUseCase } from '@application/bookings/use-cases/update-booking-status-by-host.usecase';
+import type { UpdateBookingRequestInput } from '@application/bookings/inputs/update-booking-request.input';
+import type { CancelBookingInput } from '@application/bookings/inputs/cancel-booking.input';
+import { BookingHostDecision } from '@application/bookings/enums/booking-host-decision.enum';
 import { PaginatedResult } from '@common/pagination/pagination.types';
 import { Injectable } from '@nestjs/common';
 
@@ -22,6 +28,9 @@ export class BookingService {
     private readonly findAllBookingsUseCase: FindAllBookingsUseCase,
     private readonly findMyBookingsUseCase: FindMyBookingsUseCase,
     private readonly findBookingByIdUseCase: FindBookingByIdUseCase,
+    private readonly updateBookingRequestByGuestUseCase: UpdateBookingRequestByGuestUseCase,
+    private readonly cancelBookingByGuestUseCase: CancelBookingByGuestUseCase,
+    private readonly updateBookingStatusByHostUseCase: UpdateBookingStatusByHostUseCase,
   ) {}
 
   async checkAvailability(input: CheckAvailabilityInput): Promise<CheckAvailabilityOutput> {
@@ -45,5 +54,29 @@ export class BookingService {
 
   async findById(bookingId: string, userId: string): Promise<BookingEntity> {
     return this.findBookingByIdUseCase.execute(bookingId, userId);
+  }
+
+  async updateRequestByGuest(
+    bookingId: string,
+    guestId: string,
+    input: UpdateBookingRequestInput,
+  ): Promise<BookingEntity> {
+    return this.updateBookingRequestByGuestUseCase.execute(bookingId, guestId, input);
+  }
+
+  async cancelByGuest(
+    bookingId: string,
+    guestId: string,
+    input: CancelBookingInput,
+  ): Promise<BookingEntity> {
+    return this.cancelBookingByGuestUseCase.execute(bookingId, guestId, input);
+  }
+
+  async updateStatusByHost(
+    bookingId: string,
+    hostId: string,
+    status: BookingHostDecision,
+  ): Promise<BookingEntity> {
+    return this.updateBookingStatusByHostUseCase.execute(bookingId, hostId, status);
   }
 }

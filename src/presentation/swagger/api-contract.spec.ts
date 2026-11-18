@@ -58,6 +58,33 @@ describe('HTTP route contract with actual authorization guards', () => {
     createdAt: new Date('2026-11-17T10:00:00.000Z'),
     updatedAt: new Date('2026-11-17T10:00:00.000Z'),
   });
+  const bookingMutationResult = {
+    id: bookingId,
+    unit: '670d1234567890abcdef1237',
+    guest: 'principal-id',
+    host: '670d1234567890abcdef1239',
+    checkIn: new Date('2027-01-10T00:00:00.000Z'),
+    checkOut: new Date('2027-01-12T00:00:00.000Z'),
+    daysCount: 2,
+    pricePerDay: 100,
+    bookingAmount: 200,
+    vat: 10,
+    vatAmount: 20,
+    totalAmount: 220,
+    currency: 'EGP',
+    adultsCount: 2,
+    kidsCount: 0,
+    status: 'PENDING',
+    createdAt: new Date('2026-11-17T10:00:00.000Z'),
+    updatedAt: new Date('2026-11-17T10:00:00.000Z'),
+  };
+  const updateBookingRequest = jest.fn().mockResolvedValue(bookingMutationResult);
+  const cancelBooking = jest
+    .fn()
+    .mockResolvedValue({ ...bookingMutationResult, status: 'CANCELLED' });
+  const updateBookingStatus = jest
+    .fn()
+    .mockResolvedValue({ ...bookingMutationResult, status: 'CONFIRMED' });
   const adminUnit = {
     id: '670d1234567890abcdef1237',
     user: '670d1234567890abcdef1238',
@@ -112,6 +139,9 @@ describe('HTTP route contract with actual authorization guards', () => {
             findAll: findAllBookings,
             findMyBookings,
             findById: findBookingById,
+            updateRequestByGuest: updateBookingRequest,
+            cancelByGuest: cancelBooking,
+            updateStatusByHost: updateBookingStatus,
           },
         },
         { provide: UnitService, useValue: { findAll: findAllUnits, findOne: findOneUnit } },
@@ -246,6 +276,54 @@ describe('HTTP route contract with actual authorization guards', () => {
       .set('Authorization', 'Bearer user')
       .expect(400);
   });
+  it('enforces authentication, validation, and booking mutation routes', async () => {
+    const checkOut = new Date('2027-01-13T00:00:00.000Z');
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}`)
+      .send({ notes: 'Updated' })
+      .expect(401);
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}`)
+      .set('Authorization', 'Bearer admin')
+      .send({ notes: 'Updated' })
+      .expect(403);
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}`)
+      .set('Authorization', 'Bearer user')
+      .send({ checkOut: '2027-01-13', notes: 'Updated' })
+      .expect(200);
+    expect(updateBookingRequest).toHaveBeenCalledWith(
+      bookingId,
+      'principal-id',
+      expect.objectContaining({ checkOut, notes: 'Updated' }),
+    );
+
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}/cancel`)
+      .set('Authorization', 'Bearer user')
+      .send({ reason: 'Plans changed' })
+      .expect(200);
+    expect(cancelBooking).toHaveBeenCalledWith(bookingId, 'principal-id', {
+      reason: 'Plans changed',
+    });
+
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}/status`)
+      .set('Authorization', 'Bearer user')
+      .send({ status: 'CONFIRMED' })
+      .expect(200);
+    expect(updateBookingStatus).toHaveBeenCalledWith(bookingId, 'principal-id', 'CONFIRMED');
+    await request(app.getHttpServer())
+      .patch(`/api/bookings/${bookingId}/status`)
+      .set('Authorization', 'Bearer user')
+      .send({ status: 'CANCELLED' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .patch('/api/bookings/not-an-id/cancel')
+      .set('Authorization', 'Bearer user')
+      .send({})
+      .expect(400);
+  });
   it('applies the admin and self-service booking filters from query parameters', async () => {
     await request(app.getHttpServer())
       .get('/api/bookings/admin')
@@ -335,15 +413,26 @@ describe('HTTP route contract with actual authorization guards', () => {
       expect.arrayContaining([expect.objectContaining({ name: 'search', in: 'query' })]),
     );
     expect(
-      bookingSearchParameters.map((parameter) => ('name' in parameter ? parameter.name : undefined)),
-    ).not.toEqual(
-      expect.arrayContaining(['unit', 'guest', 'host']),
-    );
-    expect(spec.components?.schemas?.BookingListResponseDto).toHaveProperty(
-      'properties.guestName',
-    );
+      bookingSearchParameters.map((parameter) =>
+        'name' in parameter ? parameter.name : undefined,
+      ),
+    ).not.toEqual(expect.arrayContaining(['unit', 'guest', 'host']));
+    expect(spec.components?.schemas?.BookingListResponseDto).toHaveProperty('properties.guestName');
     expect(spec.paths['/api/bookings/me']?.get?.responses['200']).toBeDefined();
     expect(spec.paths['/api/bookings/{id}']?.get?.responses['200']).toBeDefined();
+    expect(spec.paths['/api/bookings/{id}']?.patch?.operationId).toBe(
+      'bookingsUpdateRequestByGuest',
+    );
+    expect(spec.paths['/api/bookings/{id}/cancel']?.patch?.operationId).toBe(
+      'bookingsCancelByGuest',
+    );
+    expect(spec.paths['/api/bookings/{id}/status']?.patch?.operationId).toBe(
+      'bookingsUpdateStatusByHost',
+    );
+    expect(spec.components?.schemas?.UpdateBookingStatusDto).toHaveProperty(
+      'properties.status.enum',
+      ['CONFIRMED', 'DECLINED'],
+    );
     expect(spec.paths['/api/bookings/me']?.get?.parameters).toEqual(
       expect.arrayContaining([expect.objectContaining({ name: 'party', in: 'query' })]),
     );
