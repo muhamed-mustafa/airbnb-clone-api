@@ -20,6 +20,14 @@ export class UsersService {
     this.logger.info('User created', { userId: user.id });
     return user;
   }
+  async updateName(id: string, name: string): Promise<UserEntity | null> {
+    return this.userRepository.updateName(id, name);
+  }
+
+  async updatePassword(id: string, password: string): Promise<boolean> {
+    return this.userRepository.updatePassword(id, password);
+  }
+
   async findOne(filter: UserFilter): Promise<UserEntity | null> {
     const user = await this.userRepository.findOne(filter);
     this.logger.debug(user ? 'User retrieved' : 'User not found', {

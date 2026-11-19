@@ -8,6 +8,10 @@ import { AdminController } from '../admin/admin.controller';
 import { AdminAuthController } from '../admin/admin-auth.controller';
 import { AppSettingsController } from '../app-settings/app-settings.controller';
 import { AuthService } from '@application/auth/services/auth.service';
+import { LogoutUseCase } from '@application/auth/use-cases/logout.usecase';
+import { ChangeMyPasswordUseCase } from '@application/auth/use-cases/change-my-password.usecase';
+import { CustomerPasswordResetUseCase } from '@application/auth/use-cases/customer-password-reset.usecase';
+import { CustomerActivationUseCase } from '@application/auth/use-cases/customer-activation.usecase';
 import { AdminService } from '@application/admin/services/admin.service';
 import { AppSettingsService } from '@application/app-settings/services/app-settings.service';
 import { TOKEN_SERVICE_TOKEN } from '@application/auth/services/token-service.token';
@@ -118,6 +122,11 @@ describe('HTTP route contract with actual authorization guards', () => {
     },
   });
   const findOneUnit = jest.fn().mockResolvedValue(adminUnit);
+  const requestCustomerReset = jest.fn().mockResolvedValue(undefined);
+  const verifyCustomerReset = jest.fn().mockResolvedValue({ resetToken: 'a'.repeat(43) });
+  const completeCustomerReset = jest.fn().mockResolvedValue(undefined);
+  const resendActivation = jest.fn().mockResolvedValue(undefined);
+  const verifyActivation = jest.fn().mockResolvedValue(tokens);
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -130,6 +139,20 @@ describe('HTTP route contract with actual authorization guards', () => {
         UnitsController,
       ],
       providers: [
+        { provide: LogoutUseCase, useValue: { execute: jest.fn() } },
+        { provide: ChangeMyPasswordUseCase, useValue: { execute: jest.fn() } },
+        {
+          provide: CustomerActivationUseCase,
+          useValue: { issue: resendActivation, verify: verifyActivation },
+        },
+        {
+          provide: CustomerPasswordResetUseCase,
+          useValue: {
+            request: requestCustomerReset,
+            verify: verifyCustomerReset,
+            complete: completeCustomerReset,
+          },
+        },
         JwtAuthGuard,
         RolesGuard,
         { provide: I18nService, useValue: { translate: (key: string) => key } },
@@ -149,7 +172,9 @@ describe('HTTP route contract with actual authorization guards', () => {
           provide: AuthService,
           useValue: {
             login: jest.fn().mockResolvedValue(tokens),
-            register: jest.fn().mockResolvedValue(tokens),
+            register: jest
+              .fn()
+              .mockResolvedValue({ email: 'api@example.com', verificationRequired: true }),
             refreshToken: jest.fn().mockResolvedValue(tokens),
           },
         },
@@ -201,11 +226,64 @@ describe('HTTP route contract with actual authorization guards', () => {
       await request(app.getHttpServer()).post(path).send(body).expect(200).expect({ data: tokens });
     },
   );
-  it('returns 201 for registration', async () => {
+  it('returns a pending account without tokens for registration', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/register')
       .send({ ...credentials, name: 'User', countryCode: '+20', phone: '1555738344' })
-      .expect(201);
+      .expect(201)
+      .expect({ data: { email: 'api@example.com', verificationRequired: true } });
+  });
+  it('validates public activation routes and only returns tokens after verification', async () => {
+    await request(app.getHttpServer())
+      .post('/api/auth/activation/resend')
+      .send({ email: 'bad' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/auth/activation/resend')
+      .send({ email: 'guest@example.com', language: 'en' })
+      .expect(200)
+      .expect(({ body }) => expect(body).not.toHaveProperty('data.accessToken'));
+    expect(resendActivation).toHaveBeenCalledWith('guest@example.com', 'en');
+    await request(app.getHttpServer())
+      .post('/api/auth/activation/verify')
+      .send({ email: 'guest@example.com', code: '12345' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/auth/activation/verify')
+      .send({ email: 'guest@example.com', code: '123456' })
+      .expect(200)
+      .expect({ data: tokens });
+    expect(verifyActivation).toHaveBeenCalledWith('guest@example.com', '123456');
+  });
+  it('exposes public customer recovery with validated input and no automatic login', async () => {
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/request')
+      .send({ email: 'bad' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/request')
+      .send({ email: 'guest@example.com', language: 'ar' })
+      .expect(200);
+    expect(requestCustomerReset).toHaveBeenCalledWith('guest@example.com', 'ar');
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/verify')
+      .send({ email: 'guest@example.com', code: '12345' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/verify')
+      .send({ email: 'guest@example.com', code: '123456' })
+      .expect(200)
+      .expect({ data: { resetToken: 'a'.repeat(43) } });
+    expect(verifyCustomerReset).toHaveBeenCalledWith('guest@example.com', '123456');
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/complete')
+      .send({ resetToken: 'a'.repeat(43), newPassword: 'short' })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post('/api/auth/password-reset/complete')
+      .send({ resetToken: 'a'.repeat(43), newPassword: 'secure-new-password' })
+      .expect(204);
+    expect(completeCustomerReset).toHaveBeenCalledWith('a'.repeat(43), 'secure-new-password');
   });
   it.each(['/api/admins', '/api/admins/670d1234567890abcdef1238', '/api/app-settings'])(
     'requires an admin role for GET %s',

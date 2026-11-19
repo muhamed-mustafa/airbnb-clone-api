@@ -3,4 +3,5 @@ export interface CreateUserInput {
   email: string;
   phone: string;
   password: string;
+  emailVerifiedAt?: Date | null;
 }

@@ -4,18 +4,17 @@ import type { Logger } from '@common/logging/logger';
 import { LOGGER } from '@common/logging/logger.token';
 import { parseAndValidatePhone } from '@common/utils/phone.util';
 import { Inject, Injectable } from '@nestjs/common';
-import { Roles } from '@common/enums/roles.enum';
 import { RegisterInput } from '../inputs/register.input';
 import { RegisterOutput } from '../outputs/register.output';
 import { SECRET_HASH_SERVICE_TOKEN } from '../services/secret-hash-service.token';
 import type { SecretHashService } from '../services/secret-hash.service';
-import { GenerateTokenUseCase } from './generate-token.usecase';
+import { CustomerActivationUseCase } from './customer-activation.usecase';
 
 @Injectable()
 export class RegisterUseCase {
   constructor(
     private readonly userService: UsersService,
-    private readonly generateToken: GenerateTokenUseCase,
+    private readonly activation: CustomerActivationUseCase,
     @Inject(SECRET_HASH_SERVICE_TOKEN)
     private readonly secretHashService: SecretHashService,
     @Inject(LOGGER)
@@ -29,6 +28,8 @@ export class RegisterUseCase {
       throw new ApplicationError('INVALID_PHONE_NUMBER');
     }
 
+    this.activation.assertConfigured();
+
     const password = await this.secretHashService.hash(body.password);
 
     const user = await this.userService.create({
@@ -36,15 +37,12 @@ export class RegisterUseCase {
       email: body.email,
       phone: phoneNumber,
       password,
+      emailVerifiedAt: null,
     });
 
     this.logger.info('User registered successfully', { userId: user.id });
 
-    const { accessToken, refreshToken } = await this.generateToken.execute({
-      id: user.id,
-      role: Roles.USER,
-    });
-
-    return { accessToken, refreshToken };
+    await this.activation.issue(user.email, body.language);
+    return { email: user.email, verificationRequired: true };
   }
 }

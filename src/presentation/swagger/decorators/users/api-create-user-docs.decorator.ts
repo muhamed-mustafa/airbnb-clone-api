@@ -21,7 +21,7 @@ export const ApiCreateUserDocs = () =>
       operationId: 'usersCreate',
       summary: 'Create a user',
       description:
-        'Creates a new user record directly. Prefer `POST /auth/register` for the standard registration flow with token issuance.',
+        'Creates a new user record directly. Prefer `POST /auth/register` for the standard registration and email activation flow.',
     }),
     ApiBody({ type: CreateUserDto }),
     ApiCreatedResponse({

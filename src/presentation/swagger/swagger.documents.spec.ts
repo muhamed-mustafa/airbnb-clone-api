@@ -141,12 +141,25 @@ describe('Swagger audience documents from actual controllers', () => {
     const shared = buildAudienceDocument(source, 'shared');
     expect(user.paths['/api/auth/login']?.post).toBeDefined();
     expect(user.paths['/api/auth/register']?.post).toBeDefined();
+    for (const action of ['resend', 'verify']) {
+      expect(user.paths[`/api/auth/activation/${action}`]?.post).toBeDefined();
+      expect(admin.paths[`/api/auth/activation/${action}`]?.post).toBeUndefined();
+    }
+    for (const action of ['request', 'verify', 'complete']) {
+      expect(user.paths[`/api/auth/password-reset/${action}`]?.post).toBeDefined();
+      expect(admin.paths[`/api/auth/password-reset/${action}`]?.post).toBeUndefined();
+    }
     expect(admin.paths['/api/auth/admin/login']?.post).toMatchObject({ 'x-docs-access': 'Public' });
     expect(shared.paths['/api/auth/me']?.get).toMatchObject({ 'x-docs-access': 'Admin + User' });
     expect(shared.paths['/api/auth/refresh-token']?.post).toBeDefined();
     expect(admin.paths['/api/app-settings']?.get).toBeDefined();
     expect(shared.paths['/api/app-settings']).toBeUndefined();
-    expect(user.tags).toEqual([{ name: 'Authentication' }, { name: 'Units' }, { name: 'Files' }]);
+    expect(user.tags).toEqual([
+      { name: 'Authentication' },
+      { name: 'Users' },
+      { name: 'Units' },
+      { name: 'Files' },
+    ]);
     expect(admin.tags?.some((tag) => tag.name.startsWith('Admin /'))).toBe(false);
   });
 

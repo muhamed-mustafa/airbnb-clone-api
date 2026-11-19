@@ -1,4 +1,4 @@
 export interface RegisterOutput {
-  accessToken: string;
-  refreshToken: string;
+  email: string;
+  verificationRequired: true;
 }

@@ -2,6 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RequestContext } from '@common/request-context/request-context';
 import { AuthController } from './auth.controller';
 import { AuthService } from '@application/auth/services/auth.service';
+import { LogoutUseCase } from '@application/auth/use-cases/logout.usecase';
+import { ChangeMyPasswordUseCase } from '@application/auth/use-cases/change-my-password.usecase';
+import { CustomerPasswordResetUseCase } from '@application/auth/use-cases/customer-password-reset.usecase';
+import { CustomerActivationUseCase } from '@application/auth/use-cases/customer-activation.usecase';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -10,6 +14,13 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        { provide: LogoutUseCase, useValue: { execute: jest.fn() } },
+        { provide: ChangeMyPasswordUseCase, useValue: { execute: jest.fn() } },
+        { provide: CustomerActivationUseCase, useValue: { issue: jest.fn(), verify: jest.fn() } },
+        {
+          provide: CustomerPasswordResetUseCase,
+          useValue: { request: jest.fn(), verify: jest.fn(), complete: jest.fn() },
+        },
         {
           provide: AuthService,
           useValue: {

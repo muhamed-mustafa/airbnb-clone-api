@@ -36,6 +36,10 @@ export class LoginUseCase {
       throw new ApplicationError('INVALID_CREDENTIALS');
     }
 
+    if (user.emailVerifiedAt === null) {
+      throw new ApplicationError('CUSTOMER_EMAIL_NOT_VERIFIED');
+    }
+
     this.logger.info('User logged in', { userId: user.id });
 
     const { accessToken, refreshToken } = await this.generateToken.execute({
