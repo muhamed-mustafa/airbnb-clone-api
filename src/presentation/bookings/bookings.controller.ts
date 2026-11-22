@@ -31,6 +31,8 @@ import { UpdateBookingStatusDto } from '@presentation/bookings/dtos/update-booki
 import { BookingMapper } from '@presentation/bookings/mappers/booking.mapper';
 import { ApiFindBookingsDocs } from '@presentation/swagger/decorators/api-find-bookings-docs.decorator';
 import { SWAGGER_TAGS } from '@presentation/swagger/swagger.constants';
+import { CreateBookingReviewDto } from '@presentation/bookings/dtos/create-booking-review.dto';
+import { BookingReviewResponseDto } from '@presentation/bookings/dtos/booking-review-response.dto';
 
 @ApiTags(SWAGGER_TAGS.BOOKINGS)
 @Controller('bookings')
@@ -182,6 +184,36 @@ export class BookingsController {
   ): Promise<BookingListResponseDto> {
     const booking = await this.bookingService.updateStatusByHost(id, user.id, body.status);
     return BookingMapper.toListResponse(booking);
+  }
+
+  @Post(':id/review')
+  @AllowedRoles(Roles.USER)
+  @ApiOperation({
+    operationId: 'bookingsCreateReview',
+    summary: 'Review a completed booking as its guest',
+    description:
+      'The guest of a confirmed booking may submit one rating after check-out. The unit and guest are derived from the booking.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Booking MongoDB ObjectId.',
+    example: '670d1234567890abcdef123a',
+  })
+  @ApiCreatedResponse({
+    description: 'Review created and unit rating summary updated.',
+    type: BookingReviewResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Rating must be an integer from 1 through 5.' })
+  @ApiForbiddenResponse({ description: 'Only the booking guest may submit a review.' })
+  @ApiNotFoundResponse({ description: 'The booking does not exist.' })
+  @ApiConflictResponse({ description: 'The booking is not reviewable or already has a review.' })
+  async createReview(
+    @Param() { id }: BookingIdDto,
+    @Body() body: CreateBookingReviewDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<BookingReviewResponseDto> {
+    const review = await this.bookingService.createReview(id, user.id, body);
+    return BookingMapper.toReviewResponse(review);
   }
 
   @Get('check-availability')

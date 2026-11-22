@@ -99,4 +99,15 @@ export class UnitResponseDto {
     minimum: 0,
   })
   version!: number;
+
+  @ApiProperty({
+    description: 'Average guest rating, from 0 to 5.',
+    example: 4.8,
+    minimum: 0,
+    maximum: 5,
+  })
+  ratingAverage!: number;
+
+  @ApiProperty({ description: 'Number of guest reviews.', example: 12, minimum: 0 })
+  ratingsCount!: number;
 }

@@ -207,6 +207,7 @@ export class MongooseBookingAvailabilityRepository implements BookingRepository 
       cancellationReason: booking.cancellationReason,
       createdAt: booking.createdAt,
       updatedAt: booking.updatedAt,
+      reviewedAt: booking.review?.createdAt,
     };
   }
 }

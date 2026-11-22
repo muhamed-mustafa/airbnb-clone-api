@@ -23,6 +23,7 @@ import { BookingsController } from '../bookings/bookings.controller';
 import { BookingService } from '@application/bookings/services/booking.service';
 import { UnitsController } from '../units/units.controller';
 import { UnitService } from '@application/units/services/unit.service';
+import { UnitReviewsController } from '../bookings/unit-reviews.controller';
 
 describe('HTTP route contract with actual authorization guards', () => {
   let app: INestApplication<App>;
@@ -89,6 +90,25 @@ describe('HTTP route contract with actual authorization guards', () => {
   const updateBookingStatus = jest
     .fn()
     .mockResolvedValue({ ...bookingMutationResult, status: 'CONFIRMED' });
+  const createBookingReview = jest.fn().mockResolvedValue({
+    id: '670d1234567890abcdef123b',
+    guestName: 'Guest',
+    rating: 5,
+    createdAt: new Date(),
+  });
+  const findUnitReviews = jest.fn().mockResolvedValue({
+    items: [],
+    ratingAverage: 4.5,
+    ratingsCount: 2,
+    meta: {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+  });
   const adminUnit = {
     id: '670d1234567890abcdef1237',
     user: '670d1234567890abcdef1238',
@@ -137,6 +157,7 @@ describe('HTTP route contract with actual authorization guards', () => {
         AppSettingsController,
         BookingsController,
         UnitsController,
+        UnitReviewsController,
       ],
       providers: [
         { provide: LogoutUseCase, useValue: { execute: jest.fn() } },
@@ -165,6 +186,8 @@ describe('HTTP route contract with actual authorization guards', () => {
             updateRequestByGuest: updateBookingRequest,
             cancelByGuest: cancelBooking,
             updateStatusByHost: updateBookingStatus,
+            createReview: createBookingReview,
+            findUnitReviews,
           },
         },
         { provide: UnitService, useValue: { findAll: findAllUnits, findOne: findOneUnit } },
@@ -402,6 +425,38 @@ describe('HTTP route contract with actual authorization guards', () => {
       .send({})
       .expect(400);
   });
+  it('exposes guest review and public paginated unit-review routes with validation and auth', async () => {
+    await request(app.getHttpServer())
+      .post(`/api/bookings/${bookingId}/review`)
+      .send({ rating: 5 })
+      .expect(401);
+    await request(app.getHttpServer())
+      .post(`/api/bookings/${bookingId}/review`)
+      .set('Authorization', 'Bearer admin')
+      .send({ rating: 5 })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post(`/api/bookings/${bookingId}/review`)
+      .set('Authorization', 'Bearer user')
+      .send({ rating: 6 })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`/api/bookings/${bookingId}/review`)
+      .set('Authorization', 'Bearer user')
+      .send({ rating: 5, comment: 'Great stay' })
+      .expect(201);
+    expect(createBookingReview).toHaveBeenCalledWith(bookingId, 'principal-id', {
+      rating: 5,
+      comment: 'Great stay',
+    });
+
+    await request(app.getHttpServer())
+      .get('/api/units/670d1234567890abcdef1237/reviews')
+      .query({ page: '2', limit: '5' })
+      .expect(200);
+    expect(findUnitReviews).toHaveBeenCalledWith('670d1234567890abcdef1237', 2, 5);
+    await request(app.getHttpServer()).get('/api/units/not-an-id/reviews').expect(400);
+  });
   it('applies the admin and self-service booking filters from query parameters', async () => {
     await request(app.getHttpServer())
       .get('/api/bookings/admin')
@@ -506,6 +561,12 @@ describe('HTTP route contract with actual authorization guards', () => {
     );
     expect(spec.paths['/api/bookings/{id}/status']?.patch?.operationId).toBe(
       'bookingsUpdateStatusByHost',
+    );
+    expect(spec.paths['/api/bookings/{id}/review']?.post?.operationId).toBe('bookingsCreateReview');
+    expect(spec.paths['/api/units/{id}/reviews']?.get?.operationId).toBe('unitsFindReviews');
+    expect(spec.components?.schemas?.CreateBookingReviewDto).toHaveProperty(
+      'properties.rating.maximum',
+      5,
     );
     expect(spec.components?.schemas?.UpdateBookingStatusDto).toHaveProperty(
       'properties.status.enum',

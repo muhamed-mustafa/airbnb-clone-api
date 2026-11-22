@@ -14,6 +14,10 @@ import { FindBookingByIdUseCase } from '@application/bookings/use-cases/find-boo
 import { UpdateBookingRequestByGuestUseCase } from '@application/bookings/use-cases/update-booking-request-by-guest.usecase';
 import { CancelBookingByGuestUseCase } from '@application/bookings/use-cases/cancel-booking-by-guest.usecase';
 import { UpdateBookingStatusByHostUseCase } from '@application/bookings/use-cases/update-booking-status-by-host.usecase';
+import { CreateBookingReviewUseCase } from '@application/bookings/use-cases/create-booking-review.usecase';
+import { FindUnitReviewsUseCase } from '@application/bookings/use-cases/find-unit-reviews.usecase';
+import type { BookingReviewEntity } from '@application/bookings/entities/booking-review.entity';
+import type { CreateBookingReviewInput } from '@application/bookings/inputs/create-booking-review.input';
 import type { UpdateBookingRequestInput } from '@application/bookings/inputs/update-booking-request.input';
 import type { CancelBookingInput } from '@application/bookings/inputs/cancel-booking.input';
 import { BookingHostDecision } from '@application/bookings/enums/booking-host-decision.enum';
@@ -31,6 +35,8 @@ export class BookingService {
     private readonly updateBookingRequestByGuestUseCase: UpdateBookingRequestByGuestUseCase,
     private readonly cancelBookingByGuestUseCase: CancelBookingByGuestUseCase,
     private readonly updateBookingStatusByHostUseCase: UpdateBookingStatusByHostUseCase,
+    private readonly createBookingReviewUseCase: CreateBookingReviewUseCase,
+    private readonly findUnitReviewsUseCase: FindUnitReviewsUseCase,
   ) {}
 
   async checkAvailability(input: CheckAvailabilityInput): Promise<CheckAvailabilityOutput> {
@@ -78,5 +84,17 @@ export class BookingService {
     status: BookingHostDecision,
   ): Promise<BookingEntity> {
     return this.updateBookingStatusByHostUseCase.execute(bookingId, hostId, status);
+  }
+
+  createReview(
+    bookingId: string,
+    guestId: string,
+    input: Pick<CreateBookingReviewInput, 'rating' | 'comment'>,
+  ): Promise<BookingReviewEntity> {
+    return this.createBookingReviewUseCase.execute(bookingId, guestId, input);
+  }
+
+  findUnitReviews(unitId: string, page = 1, limit = 10) {
+    return this.findUnitReviewsUseCase.execute(unitId, page, limit);
   }
 }

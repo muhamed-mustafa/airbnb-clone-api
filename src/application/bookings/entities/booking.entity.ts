@@ -24,4 +24,5 @@ export interface BookingEntity {
   cancellationReason?: string;
   createdAt: Date;
   updatedAt: Date;
+  reviewedAt?: Date;
 }
