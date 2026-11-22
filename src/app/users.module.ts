@@ -11,6 +11,6 @@ import { modelNames } from '@common/constants/model-names.constant';
   imports: [MongooseModule.forFeature([{ name: modelNames.USERS, schema: UserSchema }])],
   providers: [UsersService, { provide: USER_REPOSITORY_TOKEN, useClass: MongooseUsersRepository }],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, USER_REPOSITORY_TOKEN],
 })
 export class UsersModule {}

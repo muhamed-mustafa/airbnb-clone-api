@@ -29,12 +29,15 @@ export const buildSwaggerDocument = (configService: ConfigService<EnvironmentVar
         bearerFormat: 'JWT',
         name: 'Authorization',
         description:
-          'JWT access token obtained from register, login, or refresh-token endpoints. Example: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`',
+          'JWT access token obtained from activation verification, login, or refresh-token endpoints. Example: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`',
         in: 'header',
       },
       SWAGGER_BEARER_AUTH,
     )
-    .addTag(SWAGGER_TAGS.AUTH, 'User authentication: registration, login, and token refresh.')
+    .addTag(
+      SWAGGER_TAGS.AUTH,
+      'User authentication: registration, email activation, login, recovery, and token refresh.',
+    )
     .addTag(SWAGGER_TAGS.USERS, 'User account management.')
     .addTag(
       SWAGGER_TAGS.UNITS,

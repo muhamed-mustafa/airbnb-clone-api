@@ -19,6 +19,24 @@ export class Admin {
 
   @Prop()
   deletedAt!: Date;
+
+  @Prop({ select: false })
+  passwordResetCodeHash?: string;
+
+  @Prop({ select: false })
+  passwordResetExpiresAt?: Date;
+
+  @Prop({ select: false, default: 0 })
+  passwordResetAttempts?: number;
+
+  @Prop({ select: false })
+  passwordResetRequestedAt?: Date;
+
+  @Prop({ select: false })
+  passwordResetTokenHash?: string;
+
+  @Prop({ select: false })
+  passwordResetTokenExpiresAt?: Date;
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);

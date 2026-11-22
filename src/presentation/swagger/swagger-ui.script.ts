@@ -276,7 +276,7 @@ export const buildSwaggerUiCustomJs = (
     // Route credentials to their own session even if the user changes tabs mid-request.
     const path = String(context.url || '').split('?')[0].replace(/\\/$/, '');
     let session = path.endsWith('/auth/admin/login') ? 'admin'
-      : path.endsWith('/auth/login') || path.endsWith('/auth/register') ? 'user' : getSession();
+      : path.endsWith('/auth/login') || path.endsWith('/auth/activation/verify') ? 'user' : getSession();
     if (path.endsWith('/auth/refresh-token') && accessToken) {
       try {
         const encoded = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');

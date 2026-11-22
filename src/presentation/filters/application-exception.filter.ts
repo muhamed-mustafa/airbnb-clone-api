@@ -1,12 +1,12 @@
-import type { ErrorsResponseInterface } from '../errors/error-response.interface';
+import { ApplicationError } from '@common/errors/application.error';
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { Response } from 'express';
 import { I18nService } from 'nestjs-i18n';
-import { ApplicationError } from '@common/errors/application.error';
 import {
   applicationErrorMessageMap,
   applicationErrorStatusMap,
 } from '../errors/application-error-status.map';
+import type { ErrorsResponseInterface } from '../errors/error-response.interface';
 
 @Catch(ApplicationError)
 export class ApplicationExceptionFilter implements ExceptionFilter {

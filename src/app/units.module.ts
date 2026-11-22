@@ -52,5 +52,6 @@ import { UnitCategoriesModule } from './unit-categories.module';
       useClass: MongooseUnitRepository,
     },
   ],
+  exports: [UnitService],
 })
 export class UnitsModule {}

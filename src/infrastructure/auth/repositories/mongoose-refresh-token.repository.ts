@@ -44,4 +44,8 @@ export class MongooseRefreshTokenRepository implements RefreshTokenRepository {
 
     return result !== null;
   }
+
+  async revoke(userId: string): Promise<void> {
+    await this.refreshTokenModel.deleteOne({ userId }).exec();
+  }
 }

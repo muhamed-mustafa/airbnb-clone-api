@@ -10,7 +10,20 @@ describe('UsersService', () => {
   let repository: jest.Mocked<UserRepository>;
   beforeEach(async () => {
     logger = { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn() };
-    repository = { create: jest.fn(), findOne: jest.fn() };
+    repository = {
+      create: jest.fn(),
+      findOne: jest.fn(),
+      updateName: jest.fn(),
+      updatePassword: jest.fn(),
+      issuePasswordResetCode: jest.fn(),
+      incrementPasswordResetAttempts: jest.fn(),
+      verifyPasswordResetCode: jest.fn(),
+      hasValidPasswordResetToken: jest.fn(),
+      resetPassword: jest.fn(),
+      issueActivationCode: jest.fn(),
+      incrementActivationAttempts: jest.fn(),
+      activateEmail: jest.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,

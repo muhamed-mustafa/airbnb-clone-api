@@ -1,4 +1,4 @@
-import { ADMIN_REPOSITORY } from '@application/admin/repositories/admin-repository.token';
+﻿import { ADMIN_REPOSITORY } from '@application/admin/repositories/admin-repository.token';
 import { AdminService } from '@application/admin/services/admin.service';
 import { FindAllAdminsUseCase } from '@application/admin/use-cases/find-all-admins.usecase';
 import { FindOneAdminUseCase } from '@application/admin/use-cases/find-one-admin.usecase';
@@ -8,6 +8,14 @@ import {
   type InitializeAdminInput,
 } from '@application/admin/use-cases/initialize-admin.usecase';
 import { LoginAdminUseCase } from '@application/admin/use-cases/login-admin.usecase';
+import { ADMIN_PASSWORD_RESET_EMAIL_SENDER } from '@application/admin/services/admin-password-reset-email-sender.token';
+import { ADMIN_PASSWORD_RESET_SECRET } from '@application/admin/use-cases/admin-password-reset-secret.token';
+import {
+  ADMIN_PASSWORD_RESET_OPTIONS,
+  type AdminPasswordResetOptions,
+} from '@application/admin/use-cases/admin-password-reset-options.token';
+import { ResendAdminPasswordResetEmailSender } from '@infrastructure/admin/services/resend-admin-password-reset-email-sender';
+import { AdminPasswordResetUseCase } from '@application/admin/use-cases/admin-password-reset.usecase';
 import { SECRET_HASH_SERVICE_TOKEN } from '@application/auth/services/secret-hash-service.token';
 import { EnvironmentVariables } from '@common/config/env.types';
 import { Admin, AdminSchema } from '@infrastructure/admin/schemas/admin.schema';
@@ -20,6 +28,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminAuthController } from '@presentation/admin/admin-auth.controller';
 import { AdminController } from '@presentation/admin/admin.controller';
 import { AuthModule } from './auth.module';
+import { BookingsModule } from './bookings.module';
 import { UnitsModule } from './units.module';
 
 @Module({
@@ -28,6 +37,7 @@ import { UnitsModule } from './units.module';
     LoggingModule,
     AuthModule,
     UnitsModule,
+    BookingsModule,
   ],
   controllers: [AdminController, AdminAuthController],
   providers: [
@@ -36,6 +46,24 @@ import { UnitsModule } from './units.module';
     FindOneAdminUseCase,
     InitializeAdminUseCase,
     LoginAdminUseCase,
+    AdminPasswordResetUseCase,
+    { provide: ADMIN_PASSWORD_RESET_EMAIL_SENDER, useClass: ResendAdminPasswordResetEmailSender },
+    {
+      provide: ADMIN_PASSWORD_RESET_SECRET,
+      useFactory: (configService: ConfigService<EnvironmentVariables>): string =>
+        configService.getOrThrow<string>('ADMIN_PASSWORD_RESET_SECRET'),
+      inject: [ConfigService],
+    },
+    {
+      provide: ADMIN_PASSWORD_RESET_OPTIONS,
+      useFactory: (
+        configService: ConfigService<EnvironmentVariables>,
+      ): AdminPasswordResetOptions => ({
+        codeTtlMinutes: configService.getOrThrow('ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES'),
+        resetTokenTtlMinutes: configService.getOrThrow('ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES'),
+      }),
+      inject: [ConfigService],
+    },
     {
       provide: INITIALIZE_ADMIN_INPUT,
       useFactory: (configService: ConfigService<EnvironmentVariables>): InitializeAdminInput => ({

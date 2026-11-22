@@ -3,6 +3,20 @@ import { AuthService } from '@application/auth/services/auth.service';
 import { SECRET_HASH_SERVICE_TOKEN } from '@application/auth/services/secret-hash-service.token';
 import { TOKEN_SERVICE_TOKEN } from '@application/auth/services/token-service.token';
 import { GenerateTokenUseCase } from '@application/auth/use-cases/generate-token.usecase';
+import { LogoutUseCase } from '@application/auth/use-cases/logout.usecase';
+import { ChangeMyPasswordUseCase } from '@application/auth/use-cases/change-my-password.usecase';
+import {
+  CustomerPasswordResetUseCase,
+  CUSTOMER_PASSWORD_RESET_SECRET,
+} from '@application/auth/use-cases/customer-password-reset.usecase';
+import { CUSTOMER_PASSWORD_RESET_EMAIL_SENDER } from '@application/auth/services/customer-password-reset-email-sender.token';
+import { ResendCustomerPasswordResetEmailSender } from '@infrastructure/auth/services/resend-customer-password-reset-email-sender';
+import {
+  CustomerActivationUseCase,
+  CUSTOMER_ACTIVATION_SECRET,
+} from '@application/auth/use-cases/customer-activation.usecase';
+import { CUSTOMER_ACTIVATION_EMAIL_SENDER } from '@application/auth/services/customer-activation-email-sender.token';
+import { ResendCustomerActivationEmailSender } from '@infrastructure/auth/services/resend-customer-activation-email-sender';
 import { LoginUseCase } from '@application/auth/use-cases/login.usecase';
 import { RefreshTokenUseCase } from '@application/auth/use-cases/refresh-token.usecase';
 import { RegisterUseCase } from '@application/auth/use-cases/register.usecase';
@@ -43,12 +57,33 @@ import { modelNames } from '@common/constants/model-names.constant';
     LoginUseCase,
     RefreshTokenUseCase,
     GenerateTokenUseCase,
+    LogoutUseCase,
+    ChangeMyPasswordUseCase,
+    CustomerPasswordResetUseCase,
+    CustomerActivationUseCase,
+    { provide: CUSTOMER_ACTIVATION_EMAIL_SENDER, useClass: ResendCustomerActivationEmailSender },
+    {
+      provide: CUSTOMER_ACTIVATION_SECRET,
+      useFactory: (config: ConfigService<EnvironmentVariables>) =>
+        config.getOrThrow<string>('ADMIN_PASSWORD_RESET_SECRET'),
+      inject: [ConfigService],
+    },
+    {
+      provide: CUSTOMER_PASSWORD_RESET_EMAIL_SENDER,
+      useClass: ResendCustomerPasswordResetEmailSender,
+    },
+    {
+      provide: CUSTOMER_PASSWORD_RESET_SECRET,
+      useFactory: (config: ConfigService<EnvironmentVariables>) =>
+        config.getOrThrow<string>('ADMIN_PASSWORD_RESET_SECRET'),
+      inject: [ConfigService],
+    },
     { provide: REFRESH_TOKEN_REPOSITORY, useClass: MongooseRefreshTokenRepository },
     { provide: TOKEN_SERVICE_TOKEN, useClass: JwtTokenService },
     { provide: SECRET_HASH_SERVICE_TOKEN, useClass: Argon2SecretHashService },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [GenerateTokenUseCase],
+  exports: [GenerateTokenUseCase, REFRESH_TOKEN_REPOSITORY],
 })
 export class AuthModule {}

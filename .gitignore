@@ -47,6 +47,7 @@ BACKEND_CODEBASE_AUDIT_BRIEF.md
 # temp directory
 .temp
 .tmp
+.pnpm-store/
 
 # Runtime data
 pids

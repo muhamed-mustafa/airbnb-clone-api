@@ -9,12 +9,25 @@ export const envSchema: Joi.ObjectSchema<EnvironmentVariables> = Joi.object<Envi
   MONGO_URI: Joi.string().required(),
   FALLBACK_LANGUAGE: Joi.string().valid('en', 'ar').default('en'),
   JWT_SECRET: Joi.string().required(),
+  ADMIN_PASSWORD_RESET_SECRET: Joi.string().min(32).required(),
+  ADMIN_PASSWORD_RESET_CODE_TTL_MINUTES: Joi.number().integer().min(1).default(10),
+  ADMIN_PASSWORD_RESET_TOKEN_TTL_MINUTES: Joi.number().integer().min(1).default(10),
   REFRESH_TOKEN_SECRET: Joi.string().required(),
   ACCESS_TOKEN_EXPIRE_IN: Joi.string().default('15m'),
   REFRESH_TOKEN_EXPIRE_IN: Joi.string().default('30d'),
   INITIAL_ADMIN_NAME: Joi.string().default('Super Admin'),
   INITIAL_ADMIN_EMAIL: Joi.string().email().default('admin@example.com'),
   INITIAL_ADMIN_PASSWORD: Joi.string().min(8).required(),
+  RESEND_API_KEY: Joi.string().empty('').optional(),
+  AUTH_EMAIL_FROM: Joi.string()
+    .custom((value: string, helpers) => {
+      const formattedEmail = value.match(/^\s*[^<>]*<([^<>]+)>\s*$/);
+      const email = formattedEmail?.[1]?.trim() ?? value.trim();
+      if (Joi.string().email().validate(email).error) return helpers.error('string.email');
+      return value;
+    })
+    .empty('')
+    .optional(),
 
   FILE_STORAGE_PROVIDER: Joi.string()
     .valid(...FILE_STORAGE_PROVIDERS)

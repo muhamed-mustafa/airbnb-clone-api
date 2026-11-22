@@ -17,6 +17,7 @@ export const SWAGGER_TAGS = {
   APP_SETTINGS: `${SWAGGER_TAG_GROUPS.ADMIN} / App Settings`,
   ADMINS: `${SWAGGER_TAG_GROUPS.ADMIN} / Admins`,
   FILES: 'Files',
+  BOOKINGS: 'Bookings',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [
@@ -33,7 +34,7 @@ REST API for the Airbnb Clone platform.
 
 ## Authentication
 
-Use the Authentication operations in this order: **Register**, **Login**, then **Refresh Token**.
+For a new customer, use **Register**, **Verify customer activation**, then **Refresh Token**. An existing active customer can use **Login**. Registration does not return tokens.
 
 When an operation returns tokens, Swagger captures them automatically. The **access token** is reused through the native Bearer authorization flow, and the **refresh token** is reused for the refresh-token request flow.
 

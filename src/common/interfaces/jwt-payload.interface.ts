@@ -1,4 +1,4 @@
-import { Roles } from '../constants/roles.constant';
+import { Roles } from '../enums/roles.enum';
 
 export interface JwtPayload {
   id: string;

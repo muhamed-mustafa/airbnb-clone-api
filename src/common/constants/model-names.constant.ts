@@ -8,6 +8,7 @@ export const modelNames = {
   UNIT_CATEGORIES: 'UnitCategory',
   UNITS: 'Unit',
   USERS: 'User',
+  BOOKINGS: 'Booking',
 } as const;
 
 export type ModelName = (typeof modelNames)[keyof typeof modelNames];

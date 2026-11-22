@@ -6,11 +6,16 @@
   "minLength": "This field must be at least {constraints.0} characters",
   "maxLength": "This field must not exceed {constraints.0} characters",
   "password": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  "passwordRepeatedCharacters": "Password cannot contain the same character five or more times in a row",
   "isMongoId": "Please provide a valid Mongo ID",
   "atLeastOneField": "At least one field must be provided",
   "isNumber": "Must be a number.",
   "min": "Value must be at least {{constraints.0}}.",
   "isInt": "Must be an integer.",
+  "isDate": "Must be a valid date.",
+  "checkOutAfterCheckIn": "Check-out must be after check-in.",
   "isBoolean": "Must be a boolean.",
-  "isValidPriceRange": "Minimum price must be less than or equal to maximum price."
+  "isValidPriceRange": "Minimum price must be less than or equal to maximum price.",
+  "isValidBookingDateRange": "The end date must be on or after the start date.",
+  "matches": "This value does not have the required format"
 }

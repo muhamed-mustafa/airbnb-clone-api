@@ -1,4 +1,4 @@
-import { Roles } from '@common/constants/roles.constant';
+import { Roles } from '@common/enums/roles.enum';
 import { ApplicationError } from '@common/errors/application.error';
 import { JwtPayload } from '@common/interfaces/jwt-payload.interface';
 import { RefreshTokenUseCase } from './refresh-token.usecase';
@@ -12,6 +12,7 @@ describe('RefreshTokenUseCase', () => {
     findByUserId: jest.fn(),
     save: jest.fn(),
     rotate: jest.fn(),
+    revoke: jest.fn(),
   };
 
   const tokenService = {

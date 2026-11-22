@@ -1,4 +1,4 @@
-import type { Roles } from '@common/constants/roles.constant';
+import type { Roles } from '@common/enums/roles.enum';
 import { applyDecorators, SetMetadata } from '@nestjs/common';
 import {
   ApiBearerAuth,
