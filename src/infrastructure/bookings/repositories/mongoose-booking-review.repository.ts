@@ -43,7 +43,7 @@ export class MongooseBookingReviewRepository implements BookingReviewRepository 
             _id: new Types.ObjectId(input.bookingId),
             unit: new Types.ObjectId(input.unitId),
             guest: new Types.ObjectId(input.guestId),
-            status: BookingStatus.COMPLETED,
+            status: BookingStatus.CONFIRMED,
             checkOut: { $lte: new Date() },
             review: { $exists: false },
           } as QueryFilter<Booking>,
@@ -85,6 +85,7 @@ export class MongooseBookingReviewRepository implements BookingReviewRepository 
       const nextCount = previousCount + 1;
       unit.ratingAverage = ((unit.ratingAverage ?? 0) * previousCount + input.rating) / nextCount;
       unit.ratingsCount = nextCount;
+
       await unit.save({ session: clientSession });
 
       return this.toEntity({

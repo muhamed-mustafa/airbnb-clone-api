@@ -14,10 +14,7 @@ export class TransformResponseInterceptor implements NestInterceptor {
           'data' in response &&
           'meta' in response
         ) {
-          return {
-            data: response.data,
-            meta: response.meta,
-          };
+          return response;
         }
 
         return { data: response };
