@@ -18,6 +18,7 @@ export const SWAGGER_TAGS = {
   ADMINS: `${SWAGGER_TAG_GROUPS.ADMIN} / Admins`,
   FILES: 'Files',
   BOOKINGS: 'Bookings',
+  FAVORITES: 'Favorites',
 } as const;
 
 export const SWAGGER_ACCEPTED_LANGUAGES = [

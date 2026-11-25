@@ -18,6 +18,7 @@ import { CurrenciesModule } from './currencies.module';
 import { UnitCategoriesModule } from './unit-categories.module';
 import { UsersModule } from './users.module';
 import { FilesModule } from '@app/files.module';
+import { FavoritesModule } from './favorites.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { FilesModule } from '@app/files.module';
     AppSettingsModule,
     AdminModule,
     FilesModule,
+    FavoritesModule,
   ],
   providers: [
     {

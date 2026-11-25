@@ -7,6 +7,7 @@ export const modelNames = {
   CURRENCIES: 'Currency',
   UNIT_CATEGORIES: 'UnitCategory',
   UNITS: 'Unit',
+  UNIT_FAVORITES: 'UnitFavorite',
   USERS: 'User',
   BOOKINGS: 'Booking',
 } as const;
