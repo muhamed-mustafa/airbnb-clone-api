@@ -20,6 +20,12 @@ export class BookingListResponseDto extends BookingResponseDto {
   @ApiProperty({ description: 'Currency code for the booking.', example: 'EGP' })
   currency!: string;
 
+  @ApiProperty({
+    description: 'Whether the current guest can review this completed booking.',
+    example: false,
+  })
+  canReview!: boolean;
+
   @ApiProperty({ type: String, format: 'date-time' })
   createdAt!: string;
 

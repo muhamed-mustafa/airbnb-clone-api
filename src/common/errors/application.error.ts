@@ -37,6 +37,8 @@ export type ApplicationErrorCode = keyof Pick<
   | 'BOOKING_INVALID_STATUS_TRANSITION'
   | 'BOOKING_INVALID_DATE_RANGE'
   | 'BOOKING_UPDATE_EMPTY'
+  | 'BOOKING_REVIEW_NOT_ELIGIBLE'
+  | 'BOOKING_ALREADY_REVIEWED'
 >;
 
 export class ApplicationError extends Error {

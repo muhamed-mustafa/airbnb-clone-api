@@ -37,6 +37,8 @@ export const applicationErrorStatusMap: Record<ApplicationErrorCode, number> = {
   BOOKING_INVALID_STATUS_TRANSITION: HttpStatus.CONFLICT,
   BOOKING_INVALID_DATE_RANGE: HttpStatus.BAD_REQUEST,
   BOOKING_UPDATE_EMPTY: HttpStatus.BAD_REQUEST,
+  BOOKING_REVIEW_NOT_ELIGIBLE: HttpStatus.CONFLICT,
+  BOOKING_ALREADY_REVIEWED: HttpStatus.CONFLICT,
 };
 
 export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = {
@@ -75,4 +77,6 @@ export const applicationErrorMessageMap: Record<ApplicationErrorCode, string> = 
   BOOKING_INVALID_STATUS_TRANSITION: 'bookings.BOOKING_INVALID_STATUS_TRANSITION',
   BOOKING_INVALID_DATE_RANGE: 'bookings.BOOKING_INVALID_DATE_RANGE',
   BOOKING_UPDATE_EMPTY: 'bookings.BOOKING_UPDATE_EMPTY',
+  BOOKING_REVIEW_NOT_ELIGIBLE: 'bookings.BOOKING_REVIEW_NOT_ELIGIBLE',
+  BOOKING_ALREADY_REVIEWED: 'bookings.BOOKING_ALREADY_REVIEWED',
 };

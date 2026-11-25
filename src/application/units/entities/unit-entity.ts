@@ -18,4 +18,6 @@ export interface UnitEntity {
   availability: boolean;
   isActive: boolean;
   version: number;
+  ratingAverage: number;
+  ratingsCount: number;
 }

@@ -68,6 +68,8 @@ export class UnitMapper {
       isActive: unit.isActive,
       user: unit.user,
       version: unit.version,
+      ratingAverage: unit.ratingAverage,
+      ratingsCount: unit.ratingsCount,
     };
   }
 }

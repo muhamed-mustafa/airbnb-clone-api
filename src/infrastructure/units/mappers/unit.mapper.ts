@@ -24,6 +24,8 @@ export class UnitMapper {
       availability: unit.availability,
       isActive: unit.isActive,
       version: unit.version,
+      ratingAverage: unit.ratingAverage ?? 0,
+      ratingsCount: unit.ratingsCount ?? 0,
     };
   }
 }

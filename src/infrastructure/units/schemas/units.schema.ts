@@ -63,6 +63,12 @@ export class Unit {
 
   @Prop()
   deletedAt?: Date;
+
+  @Prop({ required: true, default: 0, min: 0 })
+  ratingAverage!: number;
+
+  @Prop({ required: true, default: 0, min: 0 })
+  ratingsCount!: number;
 }
 
 export const UnitSchema = SchemaFactory.createForClass(Unit);

@@ -5,5 +5,7 @@
   "BOOKING_ACCESS_DENIED": "You do not have permission to access this booking.",
   "BOOKING_INVALID_STATUS_TRANSITION": "This booking can no longer be changed in its current status.",
   "BOOKING_INVALID_DATE_RANGE": "Check-out must be after check-in.",
-  "BOOKING_UPDATE_EMPTY": "Provide at least one booking field to update."
+  "BOOKING_UPDATE_EMPTY": "Provide at least one booking field to update.",
+  "BOOKING_REVIEW_NOT_ELIGIBLE": "Only the guest of a confirmed booking can review after check-out.",
+  "BOOKING_ALREADY_REVIEWED": "This booking has already been reviewed."
 }
